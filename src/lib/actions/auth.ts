@@ -2,6 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import {
+  canSendBrandedAuthEmail,
+  sendSignupConfirmationEmail,
+} from "@/lib/email/auth-emails";
 
 export async function signIn(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
@@ -20,12 +25,63 @@ export async function signIn(formData: FormData): Promise<void> {
 export async function signUp(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ??
+    "http://localhost:3000";
+  const redirectTo = siteUrl.startsWith("http")
+    ? `${siteUrl}/auth/callback`
+    : `https://${siteUrl}/auth/callback`;
 
-  const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({ email, password });
+  if (canSendBrandedAuthEmail()) {
+    const serviceRole = createServiceRoleClient();
+    const { data, error } = await serviceRole.auth.admin.generateLink({
+      type: "signup",
+      email,
+      password,
+      options: {
+        redirectTo,
+        data: {
+          app_name: "VesperwiseCRM",
+        },
+      },
+    });
 
-  if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    if (error || !data?.properties?.action_link) {
+      redirect(
+        `/login?error=${encodeURIComponent(
+          error?.message ?? "Failed to create confirmation link",
+        )}`,
+      );
+    }
+
+    try {
+      await sendSignupConfirmationEmail({
+        to: email,
+        actionLink: data.properties.action_link,
+      });
+    } catch (error) {
+      redirect(
+        `/login?error=${encodeURIComponent(
+          error instanceof Error
+            ? error.message
+            : "Failed to send confirmation email",
+        )}`,
+      );
+    }
+  } else {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectTo,
+      },
+    });
+
+    if (error) {
+      redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    }
   }
 
   redirect(

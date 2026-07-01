@@ -14,6 +14,22 @@ import {
   memberSenderIdentitySchema,
   type MemberSenderIdentityInput,
 } from "@/lib/validations/account-email";
+import {
+  canSendBrandedAuthEmail,
+  sendTeamInvitationEmail,
+} from "@/lib/email/auth-emails";
+
+function getGeneratedActionLink(value: unknown): string | null {
+  if (!value || typeof value !== "object" || !("properties" in value)) {
+    return null;
+  }
+
+  const properties = (value as { properties?: { action_link?: unknown } })
+    .properties;
+  return typeof properties?.action_link === "string"
+    ? properties.action_link
+    : null;
+}
 
 export async function updateMemberRestrictions(
   userId: string,
@@ -67,15 +83,25 @@ export async function inviteTeamMember(
     ? `${siteUrl}/auth/callback`
     : `https://${siteUrl}/auth/callback`;
 
-  const { data: invited, error: inviteError } =
-    await serviceRole.auth.admin.inviteUserByEmail(data.email, {
-      redirectTo,
-      data: {
-        invited_account_id: accountId,
-        invited_role: data.role,
-        account_name: account.name,
-      },
-    });
+  const inviteMetadata = {
+    invited_account_id: accountId,
+    invited_role: data.role,
+    account_name: account.name,
+  };
+
+  const { data: invited, error: inviteError } = canSendBrandedAuthEmail()
+    ? await serviceRole.auth.admin.generateLink({
+        type: "invite",
+        email: data.email,
+        options: {
+          redirectTo,
+          data: inviteMetadata,
+        },
+      })
+    : await serviceRole.auth.admin.inviteUserByEmail(data.email, {
+        redirectTo,
+        data: inviteMetadata,
+      });
 
   if (inviteError) {
     throw new Error(inviteError.message);
@@ -85,6 +111,9 @@ export async function inviteTeamMember(
   if (!invitedUserId) {
     throw new Error("Invite did not return a user");
   }
+
+  const brandedInviteLink =
+    canSendBrandedAuthEmail() ? getGeneratedActionLink(invited) : null;
 
   const { error: memberError } = await serviceRole
     .from("account_members")
@@ -99,6 +128,18 @@ export async function inviteTeamMember(
 
   if (memberError) {
     throw new Error(memberError.message);
+  }
+
+  if (canSendBrandedAuthEmail()) {
+    if (!brandedInviteLink) {
+      throw new Error("Invite did not return an action link");
+    }
+
+    await sendTeamInvitationEmail({
+      to: data.email,
+      actionLink: brandedInviteLink,
+      accountName: account.name,
+    });
   }
 
   revalidatePath("/team");
