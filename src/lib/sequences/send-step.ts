@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getResendClient } from "@/lib/resend/client";
+import { sendSms } from "@/lib/sms/twilio";
 import { resolveTemplate } from "@/lib/templates";
 import type { Database } from "@/lib/supabase/types";
 
@@ -38,13 +39,9 @@ export async function sendDueStep(
     throw new Error(stepError?.message ?? "Step not found");
   }
 
-  if (step.channel !== "email") {
-    throw new Error("Only email steps can be sent right now");
-  }
-
   const { data: lead, error: leadError } = await supabase
     .from("leads")
-    .select("contact:contact_id(first_name, last_name, email)")
+    .select("contact:contact_id(first_name, last_name, email, phone)")
     .eq("id", enrollment.lead_id)
     .single();
 
@@ -54,50 +51,83 @@ export async function sendDueStep(
 
   const contact = Array.isArray(lead.contact) ? lead.contact[0] : lead.contact;
 
-  if (!contact?.email) {
-    throw new Error("This lead's contact has no email address on file");
-  }
-
-  const fromAddress = process.env.RESEND_FROM_EMAIL;
-  if (!fromAddress) {
-    throw new Error(
-      "RESEND_FROM_EMAIL is not configured. Add it to .env.local once your sending domain is verified.",
-    );
-  }
-
   const subject = resolveTemplate(step.subject ?? "", contact);
   const body = resolveTemplate(step.body_template, contact);
+  let communicationActivityId: string | null = null;
 
-  const resend = getResendClient();
-  const { data: sendResult, error: sendError } = await resend.emails.send({
-    from: fromAddress,
-    to: contact.email,
-    subject,
-    text: body,
-  });
+  if (step.channel === "email") {
+    if (!contact?.email) {
+      throw new Error("This lead's contact has no email address on file");
+    }
 
-  if (sendError) {
-    throw new Error(sendError.message);
-  }
+    const fromAddress = process.env.RESEND_FROM_EMAIL;
+    if (!fromAddress) {
+      throw new Error(
+        "RESEND_FROM_EMAIL is not configured. Add it to .env.local once your sending domain is verified.",
+      );
+    }
 
-  const { data: emailActivity, error: emailActivityError } = await supabase
-    .from("activities")
-    .insert({
-      account_id: enrollment.account_id,
-      lead_id: enrollment.lead_id,
-      type: "email_sent",
-      actor_user_id: actorUserId,
-      payload: {
-        subject,
-        to: contact.email,
-        resend_message_id: sendResult?.id ?? null,
-      },
-    })
-    .select("id")
-    .single();
+    const resend = getResendClient();
+    const { data: sendResult, error: sendError } = await resend.emails.send({
+      from: fromAddress,
+      to: contact.email,
+      subject,
+      text: body,
+    });
 
-  if (emailActivityError) {
-    throw new Error(emailActivityError.message);
+    if (sendError) {
+      throw new Error(sendError.message);
+    }
+
+    const { data: emailActivity, error: emailActivityError } = await supabase
+      .from("activities")
+      .insert({
+        account_id: enrollment.account_id,
+        lead_id: enrollment.lead_id,
+        type: "email_sent",
+        actor_user_id: actorUserId,
+        payload: {
+          subject,
+          to: contact.email,
+          resend_message_id: sendResult?.id ?? null,
+        },
+      })
+      .select("id")
+      .single();
+
+    if (emailActivityError) {
+      throw new Error(emailActivityError.message);
+    }
+
+    communicationActivityId = emailActivity.id;
+  } else if (step.channel === "sms") {
+    if (!contact?.phone) {
+      throw new Error("This lead's contact has no phone number on file");
+    }
+
+    const smsResult = await sendSms({ to: contact.phone, body });
+    const { data: smsActivity, error: smsActivityError } = await supabase
+      .from("activities")
+      .insert({
+        account_id: enrollment.account_id,
+        lead_id: enrollment.lead_id,
+        type: "sms_sent",
+        actor_user_id: actorUserId,
+        payload: {
+          to: contact.phone,
+          twilio_message_id: smsResult.messageId,
+        },
+      })
+      .select("id")
+      .single();
+
+    if (smsActivityError) {
+      throw new Error(smsActivityError.message);
+    }
+
+    communicationActivityId = smsActivity.id;
+  } else {
+    throw new Error(`Unsupported sequence channel: ${step.channel}`);
   }
 
   await supabase.from("sequence_step_sends").insert({
@@ -105,7 +135,7 @@ export async function sendDueStep(
     enrollment_id: enrollmentId,
     sequence_step_id: step.id,
     sent_by_user_id: actorUserId,
-    activity_id: emailActivity?.id ?? null,
+    activity_id: communicationActivityId,
   });
 
   const { data: nextStep } = await supabase
@@ -145,7 +175,10 @@ export async function sendDueStep(
     lead_id: enrollment.lead_id,
     type: "sequence_step_sent",
     actor_user_id: actorUserId,
-    payload: { step_number: enrollment.current_step_number },
+    payload: {
+      channel: step.channel,
+      step_number: enrollment.current_step_number,
+    },
   });
 
   return { completed };

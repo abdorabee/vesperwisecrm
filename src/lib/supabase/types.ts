@@ -300,6 +300,90 @@ export type Database = {
           },
         ]
       }
+      lead_properties: {
+        Row: {
+          account_id: string
+          address_line1: string | null
+          address_line2: string | null
+          asking_price: number | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          contract_amount: number | null
+          contract_close_date: string | null
+          contract_status: string
+          created_at: string
+          estimated_value: number | null
+          id: string
+          lead_id: string
+          notes: string | null
+          postal_code: string | null
+          property_type: string | null
+          square_feet: number | null
+          state: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          address_line1?: string | null
+          address_line2?: string | null
+          asking_price?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          contract_amount?: number | null
+          contract_close_date?: string | null
+          contract_status?: string
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          lead_id: string
+          notes?: string | null
+          postal_code?: string | null
+          property_type?: string | null
+          square_feet?: number | null
+          state?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          address_line1?: string | null
+          address_line2?: string | null
+          asking_price?: number | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          contract_amount?: number | null
+          contract_close_date?: string | null
+          contract_status?: string
+          created_at?: string
+          estimated_value?: number | null
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          postal_code?: string | null
+          property_type?: string | null
+          square_feet?: number | null
+          state?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_properties_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_properties_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_tags: {
         Row: {
           account_id: string
@@ -339,6 +423,82 @@ export type Database = {
             columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_tasks: {
+        Row: {
+          account_id: string
+          assigned_user_id: string | null
+          completed_at: string | null
+          completed_by_user_id: string | null
+          completion_note: string | null
+          created_at: string
+          created_by_user_id: string | null
+          description: string | null
+          due_at: string
+          id: string
+          lead_id: string
+          next_task_id: string | null
+          priority: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          assigned_user_id?: string | null
+          completed_at?: string | null
+          completed_by_user_id?: string | null
+          completion_note?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          description?: string | null
+          due_at: string
+          id?: string
+          lead_id: string
+          next_task_id?: string | null
+          priority?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          assigned_user_id?: string | null
+          completed_at?: string | null
+          completed_by_user_id?: string | null
+          completion_note?: string | null
+          created_at?: string
+          created_by_user_id?: string | null
+          description?: string | null
+          due_at?: string
+          id?: string
+          lead_id?: string
+          next_task_id?: string | null
+          priority?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_tasks_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_tasks_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_tasks_next_task_id_fkey"
+            columns: ["next_task_id"]
+            isOneToOne: false
+            referencedRelation: "lead_tasks"
             referencedColumns: ["id"]
           },
         ]

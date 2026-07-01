@@ -98,75 +98,89 @@ export function FilterBar({ stages, tags, members }: FilterBarProps) {
       </form>
 
       <div className="flex flex-wrap items-center gap-2">
-      <Select value={currentStage} onValueChange={(value) => updateParam("stage", value)}>
-        <SelectTrigger size="sm" className="w-44">
-          <SelectValue placeholder="Stage">
-            {(value: string) =>
-              value === ALL
-                ? "All stages"
-                : (stages.find((stage) => stage.id === value)?.name ?? "Stage")
-            }
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>All stages</SelectItem>
-          {stages.map((stage) => (
-            <SelectItem key={stage.id} value={stage.id}>
-              {stage.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <Select
+          value={currentStage}
+          onValueChange={(value) => updateParam("stage", value)}
+        >
+          <SelectTrigger size="sm" className="w-44">
+            <SelectValue placeholder="Stage">
+              {(value: string) =>
+                value === ALL
+                  ? "All stages"
+                  : (stages.find((stage) => stage.id === value)?.name ??
+                    "Stage")
+              }
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All stages</SelectItem>
+            {stages.map((stage) => (
+              <SelectItem key={stage.id} value={stage.id}>
+                {stage.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Select value={currentTag} onValueChange={(value) => updateParam("tag", value)}>
-        <SelectTrigger size="sm" className="w-44">
-          <SelectValue placeholder="Tag">
-            {(value: string) =>
-              value === ALL
-                ? "All tags"
-                : (tags.find((tag) => tag.id === value)?.name ?? "Tag")
-            }
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>All tags</SelectItem>
-          {tags.map((tag) => (
-            <SelectItem key={tag.id} value={tag.id}>
-              {tag.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <Select
+          value={currentTag}
+          onValueChange={(value) => updateParam("tag", value)}
+        >
+          <SelectTrigger size="sm" className="w-44">
+            <SelectValue placeholder="Tag">
+              {(value: string) =>
+                value === ALL
+                  ? "All tags"
+                  : (tags.find((tag) => tag.id === value)?.name ?? "Tag")
+              }
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All tags</SelectItem>
+            {tags.map((tag) => (
+              <SelectItem key={tag.id} value={tag.id}>
+                {tag.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      <Select value={currentOwner} onValueChange={(value) => updateParam("owner", value)}>
-        <SelectTrigger size="sm" className="w-44">
-          <SelectValue placeholder="Owner">
-            {(value: string) => {
-              if (value === ALL) return "All owners";
-              if (value === UNASSIGNED) return "Unassigned";
-              return (
-                members.find((member) => member.userId === value)?.email ??
-                "Owner"
-              );
-            }}
-          </SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={ALL}>All owners</SelectItem>
-          <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
-          {members.map((member) => (
-            <SelectItem key={member.userId} value={member.userId}>
-              {member.email}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <Select
+          value={currentOwner}
+          onValueChange={(value) => updateParam("owner", value)}
+        >
+          <SelectTrigger size="sm" className="w-44">
+            <SelectValue placeholder="Owner">
+              {(value: string) => {
+                if (value === ALL) return "All owners";
+                if (value === UNASSIGNED) return "Unassigned";
+                return (
+                  members.find((member) => member.userId === value)?.email ??
+                  "Owner"
+                );
+              }}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>All owners</SelectItem>
+            <SelectItem value={UNASSIGNED}>Unassigned</SelectItem>
+            {members.map((member) => (
+              <SelectItem key={member.userId} value={member.userId}>
+                {member.email}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
-      {hasFilters && (
-        <Button variant="ghost" size="sm" onClick={() => router.push(pathname)}>
-          Clear filters
-        </Button>
-      )}
+        {hasFilters && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.push(pathname)}
+          >
+            Clear filters
+          </Button>
+        )}
       </div>
     </div>
   );

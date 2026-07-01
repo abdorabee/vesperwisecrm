@@ -7,6 +7,8 @@ import {
 } from "@/lib/queries/leads";
 import { getStages, getTags } from "@/lib/queries/pipeline";
 import { getLeadEnrollments, getSequences } from "@/lib/queries/sequences";
+import { getAccountMemberProfiles } from "@/lib/queries/members";
+import { getLeadTasks } from "@/lib/queries/tasks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StageSelect } from "./_components/stage-select";
 import { ActivityFeed } from "./_components/activity-feed";
@@ -14,6 +16,9 @@ import { TagEditor } from "./_components/tag-editor";
 import { SendEmailDialog } from "./_components/send-email-dialog";
 import { SequenceEnrollmentPanel } from "./_components/sequence-enrollment-panel";
 import { RelatedLeadsPanel } from "./_components/related-leads-panel";
+import { AddNoteForm } from "./_components/add-note-form";
+import { TaskPanel } from "./_components/task-panel";
+import { PropertyPanel } from "./_components/property-panel";
 
 interface LeadDetailPageProps {
   params: Promise<{ leadId: string }>;
@@ -21,11 +26,23 @@ interface LeadDetailPageProps {
 
 export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const { leadId } = await params;
-  const [lead, activities, relatedLeads, stages, allTags, enrollments, sequences] =
+  const [
+    lead,
+    activities,
+    relatedLeads,
+    tasks,
+    members,
+    stages,
+    allTags,
+    enrollments,
+    sequences,
+  ] =
     await Promise.all([
       getLeadDetail(leadId),
       getLeadActivities(leadId),
       getRelatedLeads(leadId),
+      getLeadTasks(leadId),
+      getAccountMemberProfiles(),
       getStages(),
       getTags(),
       getLeadEnrollments(leadId),
@@ -72,6 +89,24 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
 
           <Card>
             <CardHeader>
+              <CardTitle className="text-base">Property & Contract</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <PropertyPanel leadId={lead.id} property={lead.property} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Tasks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TaskPanel leadId={lead.id} tasks={tasks} members={members} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
               <CardTitle className="text-base">Sequences</CardTitle>
             </CardHeader>
             <CardContent>
@@ -87,7 +122,8 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             <CardHeader>
               <CardTitle className="text-base">Activity</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-col gap-4">
+              <AddNoteForm leadId={lead.id} />
               <ActivityFeed activities={activities} />
             </CardContent>
           </Card>

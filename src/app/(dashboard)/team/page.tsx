@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { MemberRestrictionsRow } from "./_components/member-restrictions-row";
+import { InviteMemberDialog } from "./_components/invite-member-dialog";
 
 export default async function TeamPage() {
   await requireAdminAccountId();
@@ -20,6 +21,7 @@ export default async function TeamPage() {
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">Team</h1>
         <div className="flex gap-2">
+          <InviteMemberDialog />
           <Button render={<Link href="/team/groups" />} variant="outline" nativeButton={false}>
             Routing groups
           </Button>

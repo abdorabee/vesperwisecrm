@@ -134,15 +134,13 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
                         <SelectTrigger className="w-full">
                           <SelectValue>
                             {(value: string) =>
-                              value === "sms" ? "SMS (coming soon)" : "Email"
+                              value === "sms" ? "SMS" : "Email"
                             }
                           </SelectValue>
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="email">Email</SelectItem>
-                          <SelectItem value="sms" disabled>
-                            SMS (coming soon)
-                          </SelectItem>
+                          <SelectItem value="sms">SMS</SelectItem>
                         </SelectContent>
                       </Select>
                     )}

@@ -8,6 +8,7 @@ export interface LeadDetail extends Tables<"leads"> {
   contact: Tables<"contacts">;
   stage: Tables<"pipeline_stages">;
   tags: Pick<Tables<"tags">, "id" | "name" | "color">[];
+  property: Tables<"lead_properties"> | null;
 }
 
 export interface RelatedLead extends Tables<"leads"> {
@@ -28,7 +29,7 @@ export async function getLeadDetail(leadId: string): Promise<LeadDetail> {
   const { data, error } = await supabase
     .from("leads")
     .select(
-      "*, contact:contact_id(*), stage:pipeline_stage_id(*), tags:lead_tags(tag:tag_id(id, name, color))",
+      "*, contact:contact_id(*), stage:pipeline_stage_id(*), property:lead_properties(*), tags:lead_tags(tag:tag_id(id, name, color))",
     )
     .eq("id", leadId)
     .is("deleted_at", null)
@@ -44,11 +45,15 @@ export async function getLeadDetail(leadId: string): Promise<LeadDetail> {
   const { tags: leadTags, ...rest } = data as unknown as Tables<"leads"> & {
     contact: Tables<"contacts">;
     stage: Tables<"pipeline_stages">;
+    property: Tables<"lead_properties">[] | Tables<"lead_properties"> | null;
     tags: { tag: Pick<Tables<"tags">, "id" | "name" | "color"> | null }[];
   };
 
   return {
     ...rest,
+    property: Array.isArray(rest.property)
+      ? (rest.property[0] ?? null)
+      : rest.property,
     tags: leadTags.map((lt) => lt.tag).filter((tag) => tag !== null),
   };
 }

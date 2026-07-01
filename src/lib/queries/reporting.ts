@@ -12,10 +12,27 @@ export interface LeadsByStage {
   count: number;
 }
 
+export interface LeadsBySource {
+  source: string;
+  count: number;
+}
+
+export interface DailyActivityCount {
+  date: string;
+  count: number;
+}
+
 export interface DashboardStats {
   totalLeads: number;
   leadsThisWeek: number;
   leadsByStage: LeadsByStage[];
+  leadsBySource: LeadsBySource[];
+  totalTouches: number;
+  averageTouchesPerLead: number | null;
+  closedLeads: number;
+  wonLeads: number;
+  closeRate: number | null;
+  activitiesByDay: DailyActivityCount[];
 }
 
 function getStartOfWeekIso(): string {
@@ -65,7 +82,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
 
   const { data: leadStageIds, error: leadsError } = await supabase
     .from("leads")
-    .select("pipeline_stage_id")
+    .select("pipeline_stage_id, status, contact:contact_id(source)")
     .eq("account_id", accountId)
     .is("deleted_at", null);
 
@@ -87,10 +104,75 @@ export async function getDashboardStats(): Promise<DashboardStats> {
     count: countsByStage.get(stage.id) ?? 0,
   }));
 
+  const sourceCounts = new Map<string, number>();
+  let closedLeads = 0;
+  let wonLeads = 0;
+
+  for (const lead of leadStageIds ?? []) {
+    const source =
+      (
+        lead.contact as {
+          source: string | null;
+        } | null
+      )?.source?.trim() || "Unknown";
+
+    sourceCounts.set(source, (sourceCounts.get(source) ?? 0) + 1);
+
+    if (lead.status === "won" || lead.status === "lost") {
+      closedLeads += 1;
+    }
+
+    if (lead.status === "won") {
+      wonLeads += 1;
+    }
+  }
+
+  const leadsBySource: LeadsBySource[] = Array.from(sourceCounts.entries())
+    .map(([source, count]) => ({ source, count }))
+    .sort((a, b) => b.count - a.count || a.source.localeCompare(b.source));
+
+  const { data: activities, error: activitiesError } = await supabase
+    .from("activities")
+    .select("created_at")
+    .eq("account_id", accountId)
+    .not("lead_id", "is", null);
+
+  if (activitiesError) {
+    throw new Error(activitiesError.message);
+  }
+
+  const activityCountsByDate = new Map<string, number>();
+  const startOfWeek = getStartOfWeekIso();
+  for (const activity of activities ?? []) {
+    if (activity.created_at < startOfWeek) {
+      continue;
+    }
+
+    const date = new Date(activity.created_at).toISOString().slice(0, 10);
+    activityCountsByDate.set(date, (activityCountsByDate.get(date) ?? 0) + 1);
+  }
+
+  const activitiesByDay: DailyActivityCount[] = Array.from(
+    activityCountsByDate.entries(),
+  )
+    .map(([date, count]) => ({ date, count }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  const totalTouches = activities?.length ?? 0;
+  const effectiveTotalLeads = totalLeads ?? 0;
+
   return {
-    totalLeads: totalLeads ?? 0,
+    totalLeads: effectiveTotalLeads,
     leadsThisWeek: leadsThisWeek ?? 0,
     leadsByStage,
+    leadsBySource,
+    totalTouches,
+    averageTouchesPerLead:
+      effectiveTotalLeads > 0 ? totalTouches / effectiveTotalLeads : null,
+    closedLeads,
+    wonLeads,
+    closeRate: closedLeads > 0 ? wonLeads / closedLeads : null,
+    activitiesByDay,
   };
 }
 
