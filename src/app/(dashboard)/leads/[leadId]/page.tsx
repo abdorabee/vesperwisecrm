@@ -7,7 +7,7 @@ import {
 } from "@/lib/queries/leads";
 import { getStages, getTags } from "@/lib/queries/pipeline";
 import { getLeadEnrollments, getSequences } from "@/lib/queries/sequences";
-import { getAccountMemberProfiles } from "@/lib/queries/members";
+import { getAccountMemberProfiles, getCurrentMembership, isAdminRole } from "@/lib/queries/members";
 import { getLeadTasks } from "@/lib/queries/tasks";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StageSelect } from "./_components/stage-select";
@@ -18,6 +18,7 @@ import { SequenceEnrollmentPanel } from "./_components/sequence-enrollment-panel
 import { RelatedLeadsPanel } from "./_components/related-leads-panel";
 import { AddNoteForm } from "./_components/add-note-form";
 import { TaskPanel } from "./_components/task-panel";
+import { ContactEmailOptOutBadge } from "./_components/contact-email-opt-out-badge";
 import { PropertyPanel } from "./_components/property-panel";
 
 interface LeadDetailPageProps {
@@ -52,6 +53,9 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const contactName = [lead.contact.first_name, lead.contact.last_name]
     .filter(Boolean)
     .join(" ");
+
+  const membership = await getCurrentMembership();
+  const isAdmin = membership ? isAdminRole(membership.role) : false;
 
   return (
     <div className="flex flex-col gap-4">
@@ -140,6 +144,11 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
                 <p className="text-muted-foreground">{lead.contact.company}</p>
               )}
               {lead.contact.email && <p>{lead.contact.email}</p>}
+              <ContactEmailOptOutBadge
+                contactId={lead.contact.id}
+                emailOptedOutAt={lead.contact.email_opted_out_at}
+                isAdmin={isAdmin}
+              />
               {lead.contact.phone && <p>{lead.contact.phone}</p>}
               <div className="mt-2">
                 <SendEmailDialog leadId={lead.id} contactEmail={lead.contact.email} />

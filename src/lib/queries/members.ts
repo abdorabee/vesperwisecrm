@@ -7,6 +7,8 @@ export interface MemberProfile {
   role: string;
   leadVisibility: string;
   maxOpenLeads: number | null;
+  fromDisplayName: string | null;
+  fromEmailLocalPart: string | null;
 }
 
 export async function getAccountMemberProfiles(): Promise<MemberProfile[]> {
@@ -27,7 +29,48 @@ export async function getAccountMemberProfiles(): Promise<MemberProfile[]> {
     role: row.role,
     leadVisibility: row.lead_visibility,
     maxOpenLeads: row.max_open_leads,
+    fromDisplayName: row.from_display_name ?? null,
+    fromEmailLocalPart: row.from_email_local_part ?? null,
   }));
+}
+
+export async function getOwnSenderIdentity(): Promise<{
+  fromDisplayName: string | null;
+  fromEmailLocalPart: string | null;
+  sendingDomain: string | null;
+}> {
+  const accountId = await requireAccountId();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { data: member, error: memberError } = await supabase
+    .from("account_members")
+    .select("from_display_name, from_email_local_part")
+    .eq("account_id", accountId)
+    .eq("user_id", user.id)
+    .single();
+
+  if (memberError) {
+    throw new Error(memberError.message);
+  }
+
+  const { data: emailSettings } = await supabase
+    .from("account_email_settings")
+    .select("sending_domain")
+    .eq("account_id", accountId)
+    .maybeSingle();
+
+  return {
+    fromDisplayName: member.from_display_name,
+    fromEmailLocalPart: member.from_email_local_part,
+    sendingDomain: emailSettings?.sending_domain ?? null,
+  };
 }
 
 export interface CurrentMembership {

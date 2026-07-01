@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOutAction } from "@/lib/actions/auth";
 import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
+import { isPlatformAdminEmail } from "@/lib/supabase/platform-admin";
 import { Button } from "@/components/ui/button";
 
 export default async function DashboardLayout({
@@ -21,6 +22,7 @@ export default async function DashboardLayout({
 
   const membership = await getCurrentMembership();
   const isAdmin = membership ? isAdminRole(membership.role) : false;
+  const isPlatformAdmin = isPlatformAdminEmail(user.email);
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
@@ -41,10 +43,22 @@ export default async function DashboardLayout({
           <Link href="/scorecard" className="text-muted-foreground hover:text-foreground">
             My Scorecard
           </Link>
+          <Link
+            href="/settings/profile"
+            className="text-muted-foreground hover:text-foreground"
+          >
+            Profile
+          </Link>
           {isAdmin && (
             <>
               <Link href="/team" className="text-muted-foreground hover:text-foreground">
                 Team
+              </Link>
+              <Link
+                href="/settings/email"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Email
               </Link>
               <Link
                 href="/team/groups"
@@ -59,6 +73,14 @@ export default async function DashboardLayout({
                 Employee Scorecard
               </Link>
             </>
+          )}
+          {isPlatformAdmin && (
+            <Link
+              href="/platform/email"
+              className="text-muted-foreground hover:text-foreground"
+            >
+              Platform
+            </Link>
           )}
         </nav>
         <div className="flex items-center gap-3">

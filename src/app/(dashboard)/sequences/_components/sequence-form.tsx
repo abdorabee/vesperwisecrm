@@ -51,6 +51,7 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
     defaultValues: defaultValues ?? {
       name: "",
       description: "",
+      isMarketing: false,
       steps: [emptyStep],
     },
   });
@@ -80,6 +81,16 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
         <Field>
           <FieldLabel htmlFor="description">Description</FieldLabel>
           <Textarea id="description" rows={2} {...register("description")} />
+        </Field>
+        <Field>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="size-4 rounded border"
+              {...register("isMarketing")}
+            />
+            Marketing sequence (includes unsubscribe footer for CAN-SPAM)
+          </label>
         </Field>
       </FieldGroup>
 

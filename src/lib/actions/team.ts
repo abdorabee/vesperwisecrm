@@ -3,13 +3,17 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { requireAdminAccountId } from "@/lib/supabase/account";
+import { requireAdminAccountId, requireAccountId, requireUserId } from "@/lib/supabase/account";
 import {
   inviteTeamMemberSchema,
   updateMemberRestrictionsSchema,
   type InviteTeamMemberInput,
   type UpdateMemberRestrictionsInput,
 } from "@/lib/validations/team";
+import {
+  memberSenderIdentitySchema,
+  type MemberSenderIdentityInput,
+} from "@/lib/validations/account-email";
 
 export async function updateMemberRestrictions(
   userId: string,
@@ -24,6 +28,8 @@ export async function updateMemberRestrictions(
     .update({
       lead_visibility: data.leadVisibility,
       max_open_leads: data.maxOpenLeads ? Number(data.maxOpenLeads) : null,
+      from_display_name: data.fromDisplayName?.trim() || null,
+      from_email_local_part: data.fromEmailLocalPart?.trim() || null,
     })
     .eq("account_id", accountId)
     .eq("user_id", userId);
@@ -96,4 +102,29 @@ export async function inviteTeamMember(
   }
 
   revalidatePath("/team");
+}
+
+export async function updateOwnSenderIdentity(
+  input: MemberSenderIdentityInput,
+): Promise<void> {
+  const data = memberSenderIdentitySchema.parse(input);
+  const accountId = await requireAccountId();
+  const userId = await requireUserId();
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("account_members")
+    .update({
+      from_display_name: data.fromDisplayName?.trim() || null,
+      from_email_local_part: data.fromEmailLocalPart?.trim() || null,
+    })
+    .eq("account_id", accountId)
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  revalidatePath("/scorecard");
+  revalidatePath("/settings/profile");
 }

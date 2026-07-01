@@ -22,7 +22,7 @@ This is **not** a full Carrot platform clone. It is a bespoke CRM deployment for
 
 - Persistent lead/contact pipeline with drag-and-drop kanban
 - Manual lead creation with contact deduplication by email
-- Email outreach via Resend (when env configured)
+- Per-account email via Resend: domain verification, gated sends, per-member sender identity, reply routing, inbound capture
 - Outreach sequences with cron-driven automated email steps
 - Workflow engine (lead created, stage changed, tag added, no-activity days)
 - Weighted round-robin lead assignment via routing groups
@@ -41,7 +41,7 @@ This is **not** a full Carrot platform clone. It is a bespoke CRM deployment for
 |------|--------|
 | **Cron route smoke pending** | Middleware now allows `/api/cron/*` through to the route handler, but a clean local curl smoke still needs a running dev server. |
 | **Single-account-per-user** | `requireAccountId()` uses `.limit(1)` (`src/lib/supabase/account.ts` L13–18); no multi-account switching. |
-| **Env-dependent email** | Resend requires `RESEND_API_KEY` + `RESEND_FROM_EMAIL` (`src/lib/resend/client.ts` L6–9, `src/lib/actions/email.ts` L37–41). |
+| **Env-dependent email** | Resend requires `RESEND_API_KEY`; tenant From identity is per-account in `account_email_settings` (`src/lib/email/account-settings.ts`, Settings → Email). |
 | **No automated tests** | No `*.test.*` or `*.spec.*` files found. |
 | **Provider-dependent comms** | Email requires `RESEND_*`; SMS requires `TWILIO_*`. Missing env config prevents actual sends. |
 | **External provider dependency** | Email requires `RESEND_*`, SMS requires `TWILIO_*`, and property comps would require a future third-party data provider. |
@@ -82,7 +82,14 @@ Carrot's commercial freemium limits are not enforced in this bespoke deployment.
 | Records | Opportunity/contact records | Contacts linked to leads | FULL | `contacts` + `leads` tables (`supabase/migrations/20260630142401_core_tables.sql` L3–48); detail page (`src/app/(dashboard)/leads/[leadId]/page.tsx`) | — |
 | Records | Property records on leads | Address/property attached | FULL | `lead_properties` migration, shared creation helper, CSV/webhook/manual intake mapping, and editable lead-detail panel added | Remote migration applied |
 | Comms | Communication history | Timeline of touches | FULL | `activities` feed now shows notes, email, SMS, sequence, assignment, workflow events; note form writes `note_added` (`src/app/(dashboard)/leads/[leadId]/_components/add-note-form.tsx`, `activity-feed.tsx`) | — |
-| Comms | Email sending | Send from CRM | FULL* | `sendLeadEmail` (`src/lib/actions/email.ts` L9–68) via Resend; dialog (`send-email-dialog.tsx`) | *Requires `RESEND_*` env; runtime not verified |
+| Comms | Email sending | Send from CRM | FULL* | Per-account domain + From (`account_email_settings`); per-member display name/local-part; gated `sendLeadFacingEmail` (`src/lib/email/send-lead-email.ts`); manual dialog (`send-email-dialog.tsx`) | *Requires verified domain + `RESEND_API_KEY` |
+| Comms | Inbound email reply capture | Replies on lead timeline | FULL* | Tokenized Reply-To + `email.received` webhook (`process-inbound.ts`, `/api/webhooks/resend-inbound`); disabled in agent-direct reply mode | *Requires `INBOUND_EMAIL_DOMAIN` + webhook |
+| Comms | Per-member sender identity | Rep name on outbound | FULL | `account_members.from_display_name` / `from_email_local_part`; Team + Profile UI; formats `Name via Account <hello@domain>` or `Name <name@domain>` | — |
+| Comms | Reply routing modes | Shared inbox vs agent Reply-To | FULL | `reply_routing_mode` on `account_email_settings`; shared inbox uses capture tokens; agent direct uses lead owner email | Mutually exclusive with capture in agent mode |
+| Comms | Email health dashboard | Domain status + send volume | FULL | Settings → Email health card: verification, last test send, 7d/30d sends, bounces/complaints (`email-health.ts`, `email_delivery_events`) | Bounce/complaint counts need Resend delivery webhooks |
+| Comms | Platform email admin | Cross-tenant abuse controls | FULL* | Env-gated `PLATFORM_ADMIN_EMAILS`; `/platform/email` lists accounts, suspend outbound (`platform-email.ts`) | Internal ops only |
+| Comms | Marketing sequence compliance | CAN-SPAM unsubscribe | FULL* | `sequences.is_marketing`, `contacts.email_opted_out_at`, `/api/unsubscribe`, footer in marketing sends | Manual/workflow sends not auto-marketing |
+| Comms | Email observability | Structured delivery logs | PARTIAL | JSON `logEmailEvent` on send/inbound/bounce/complaint; optional `ALERT_WEBHOOK_URL` on webhook failures | No external APM integration |
 | Comms | SMS sending | Text from CRM / sequences | FULL* | SMS sequence steps are enabled in UI and sent via Twilio REST (`src/lib/sms/twilio.ts`, `src/lib/sequences/send-step.ts`) | *Requires `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` |
 | Outreach | Automated drip campaigns | Multi-step sequences | FULL* | Sequences CRUD (`src/app/(dashboard)/sequences/`), enrollment (`enrollments.ts` L8–58), cron auto-send (`process-automation/route.ts` L17–48), email and SMS send paths | *Provider env and cron runtime smoke still needed |
 | Outreach | Instant response on new lead | Auto email/SMS on create | PARTIAL | `runTriggeredWorkflows` on `lead_created` (`leads.ts` L92–94, `engine.ts` L31–96). Requires admin-configured workflow + Resend | No default out-of-box instant response |
@@ -131,7 +138,7 @@ Carrot's commercial freemium limits are not enforced in this bespoke deployment.
 
 | Integration | Status | Evidence | Gap / next work |
 |-------------|--------|----------|-----------------|
-| **Resend (email)** | REAL* | `src/lib/resend/client.ts` L5–16; used in `email.ts` L44–50, `send-step.ts` L71–77 | *Runtime send not verified; keys present in `.env.local` |
+| **Resend (email)** | REAL* | Per-account sending via `account_email_settings` + `sendLeadFacingEmail`; webhooks: inbound (`/api/webhooks/resend-inbound`), delivery (`/api/webhooks/resend-events`) | *Runtime send not verified; see `docs/EMAIL_SETUP.md` |
 | **Supabase (auth + DB)** | REAL | Migrations in `supabase/migrations/`; clients in `src/lib/supabase/` | Linked project configured |
 | **SMS (Twilio etc.)** | REAL* | Twilio REST send helper (`src/lib/sms/twilio.ts`) and sequence send path (`send-step.ts`) | *Requires `TWILIO_*` env |
 | **Zapier / webhooks** | REAL | Signed `POST /api/leads/intake` route | Configure sender with `LEAD_INTAKE_SECRET` |
@@ -295,7 +302,7 @@ Website builder, SEO/location pages, keyword tracking, CarrotAgency multi-site d
 
 ### Env configuration observed
 
-Keys present in `.env.local` (values not inspected): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`.
+Keys present in `.env.local` (values not inspected): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `CRON_SECRET`, `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`, `INBOUND_EMAIL_DOMAIN`. Per-account From replaces deprecated `RESEND_FROM_EMAIL`. New polish env: `UNSUBSCRIBE_SECRET`, `PLATFORM_ADMIN_EMAILS`, `ALERT_WEBHOOK_URL`, `NEXT_PUBLIC_SITE_URL`. See `docs/EMAIL_SETUP.md`.
 
 ---
 

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { getResendClient } from "@/lib/resend/client";
+import { sendLeadFacingEmail } from "@/lib/email/send-lead-email";
 import { sendSms } from "@/lib/sms/twilio";
 import { resolveTemplate } from "@/lib/templates";
 import type { Database } from "@/lib/supabase/types";
@@ -39,9 +39,21 @@ export async function sendDueStep(
     throw new Error(stepError?.message ?? "Step not found");
   }
 
+  const { data: sequence, error: sequenceError } = await supabase
+    .from("sequences")
+    .select("is_marketing")
+    .eq("id", enrollment.sequence_id)
+    .single();
+
+  if (sequenceError || !sequence) {
+    throw new Error(sequenceError?.message ?? "Sequence not found");
+  }
+
   const { data: lead, error: leadError } = await supabase
     .from("leads")
-    .select("contact:contact_id(first_name, last_name, email, phone)")
+    .select(
+      "contact:contact_id(id, first_name, last_name, email, phone, email_opted_out_at)",
+    )
     .eq("id", enrollment.lead_id)
     .single();
 
@@ -60,46 +72,45 @@ export async function sendDueStep(
       throw new Error("This lead's contact has no email address on file");
     }
 
-    const fromAddress = process.env.RESEND_FROM_EMAIL;
-    if (!fromAddress) {
-      throw new Error(
-        "RESEND_FROM_EMAIL is not configured. Add it to .env.local once your sending domain is verified.",
-      );
-    }
+    if (sequence.is_marketing && contact.email_opted_out_at) {
+      await supabase
+        .from("lead_sequence_enrollments")
+        .update({
+          status: "cancelled",
+          completed_at: new Date().toISOString(),
+          next_step_due_at: null,
+        })
+        .eq("id", enrollmentId);
 
-    const resend = getResendClient();
-    const { data: sendResult, error: sendError } = await resend.emails.send({
-      from: fromAddress,
-      to: contact.email,
-      subject,
-      text: body,
-    });
-
-    if (sendError) {
-      throw new Error(sendError.message);
-    }
-
-    const { data: emailActivity, error: emailActivityError } = await supabase
-      .from("activities")
-      .insert({
+      await supabase.from("activities").insert({
         account_id: enrollment.account_id,
         lead_id: enrollment.lead_id,
-        type: "email_sent",
+        type: "sequence_step_sent",
         actor_user_id: actorUserId,
         payload: {
-          subject,
-          to: contact.email,
-          resend_message_id: sendResult?.id ?? null,
+          channel: step.channel,
+          step_number: enrollment.current_step_number,
+          status: "skipped",
+          reason: "contact_opted_out",
         },
-      })
-      .select("id")
-      .single();
+      });
 
-    if (emailActivityError) {
-      throw new Error(emailActivityError.message);
+      return { completed: true };
     }
 
-    communicationActivityId = emailActivity.id;
+    const result = await sendLeadFacingEmail({
+      supabase,
+      accountId: enrollment.account_id,
+      leadId: enrollment.lead_id,
+      to: contact.email,
+      subject,
+      body,
+      actorUserId,
+      contactId: contact.id,
+      isMarketing: sequence.is_marketing,
+    });
+
+    communicationActivityId = result.activityId;
   } else if (step.channel === "sms") {
     if (!contact?.phone) {
       throw new Error("This lead's contact has no phone number on file");

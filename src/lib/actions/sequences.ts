@@ -18,7 +18,11 @@ export async function saveSequence(
   if (id) {
     const { error } = await supabase
       .from("sequences")
-      .update({ name: data.name, description: data.description || null })
+      .update({
+        name: data.name,
+        description: data.description || null,
+        is_marketing: data.isMarketing ?? false,
+      })
       .eq("id", id);
 
     if (error) {
@@ -40,6 +44,7 @@ export async function saveSequence(
         account_id: accountId,
         name: data.name,
         description: data.description || null,
+        is_marketing: data.isMarketing ?? false,
       })
       .select("id")
       .single();

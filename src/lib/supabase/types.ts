@@ -18,6 +18,8 @@ export type Database = {
         Row: {
           account_id: string
           created_at: string
+          from_display_name: string | null
+          from_email_local_part: string | null
           lead_visibility: string
           max_open_leads: number | null
           role: string
@@ -26,6 +28,8 @@ export type Database = {
         Insert: {
           account_id: string
           created_at?: string
+          from_display_name?: string | null
+          from_email_local_part?: string | null
           lead_visibility?: string
           max_open_leads?: number | null
           role?: string
@@ -34,6 +38,8 @@ export type Database = {
         Update: {
           account_id?: string
           created_at?: string
+          from_display_name?: string | null
+          from_email_local_part?: string | null
           lead_visibility?: string
           max_open_leads?: number | null
           role?: string
@@ -45,6 +51,165 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      account_email_settings: {
+        Row: {
+          account_id: string
+          capture_replies_enabled: boolean
+          default_reply_to_email: string | null
+          domain_verification_status: string
+          from_email: string | null
+          from_name: string | null
+          last_test_sent_at: string | null
+          outbound_suspended: boolean
+          reply_routing_mode: string
+          resend_domain_id: string | null
+          sending_domain: string | null
+          suspended_at: string | null
+          suspended_reason: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          capture_replies_enabled?: boolean
+          default_reply_to_email?: string | null
+          domain_verification_status?: string
+          from_email?: string | null
+          from_name?: string | null
+          last_test_sent_at?: string | null
+          outbound_suspended?: boolean
+          reply_routing_mode?: string
+          resend_domain_id?: string | null
+          sending_domain?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          capture_replies_enabled?: boolean
+          default_reply_to_email?: string | null
+          domain_verification_status?: string
+          from_email?: string | null
+          from_name?: string | null
+          last_test_sent_at?: string | null
+          outbound_suspended?: boolean
+          reply_routing_mode?: string
+          resend_domain_id?: string | null
+          sending_domain?: string | null
+          suspended_at?: string | null
+          suspended_reason?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_email_settings_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_reply_tokens: {
+        Row: {
+          account_id: string
+          created_at: string
+          expires_at: string
+          lead_id: string
+          outbound_activity_id: string | null
+          thread_id: string
+          token: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          expires_at?: string
+          lead_id: string
+          outbound_activity_id?: string | null
+          thread_id: string
+          token: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          expires_at?: string
+          lead_id?: string
+          outbound_activity_id?: string | null
+          thread_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_reply_tokens_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_reply_tokens_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_reply_tokens_outbound_activity_id_fkey"
+            columns: ["outbound_activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_delivery_events: {
+        Row: {
+          account_id: string
+          created_at: string
+          event_type: string
+          id: string
+          lead_id: string | null
+          payload: Json
+          recipient: string | null
+          resend_email_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          lead_id?: string | null
+          payload?: Json
+          recipient?: string | null
+          resend_email_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          lead_id?: string | null
+          payload?: Json
+          recipient?: string | null
+          resend_email_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_delivery_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_delivery_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -119,6 +284,7 @@ export type Database = {
           created_at: string
           deleted_at: string | null
           email: string | null
+          email_opted_out_at: string | null
           first_name: string
           id: string
           last_name: string | null
@@ -133,6 +299,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           email?: string | null
+          email_opted_out_at?: string | null
           first_name: string
           id?: string
           last_name?: string | null
@@ -147,6 +314,7 @@ export type Database = {
           created_at?: string
           deleted_at?: string | null
           email?: string | null
+          email_opted_out_at?: string | null
           first_name?: string
           id?: string
           last_name?: string | null
@@ -732,6 +900,7 @@ export type Database = {
           description: string | null
           id: string
           is_active: boolean
+          is_marketing: boolean
           name: string
           updated_at: string
         }
@@ -741,6 +910,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          is_marketing?: boolean
           name: string
           updated_at?: string
         }
@@ -750,6 +920,7 @@ export type Database = {
           description?: string | null
           id?: string
           is_active?: boolean
+          is_marketing?: boolean
           name?: string
           updated_at?: string
         }
@@ -902,11 +1073,17 @@ export type Database = {
         Args: { p_account_id: string }
         Returns: {
           email: string
+          from_display_name: string | null
+          from_email_local_part: string | null
           lead_visibility: string
           max_open_leads: number
           role: string
           user_id: string
         }[]
+      }
+      get_lead_owner_email: {
+        Args: { p_lead_id: string }
+        Returns: string
       }
       is_account_admin: { Args: { check_account_id: string }; Returns: boolean }
       is_account_member: {

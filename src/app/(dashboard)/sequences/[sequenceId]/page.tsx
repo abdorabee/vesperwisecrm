@@ -15,6 +15,7 @@ export default async function SequenceDetailPage({
   const defaultValues: SequenceInput = {
     name: sequence.name,
     description: sequence.description ?? "",
+    isMarketing: sequence.is_marketing ?? false,
     steps: steps.map((step) => ({
       channel: step.channel === "sms" ? "sms" : "email",
       delayDays: String(step.delay_days),

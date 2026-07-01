@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requireAdminAccountId } from "@/lib/supabase/account";
 import { getAccountMemberProfiles } from "@/lib/queries/members";
+import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -14,7 +15,11 @@ import { InviteMemberDialog } from "./_components/invite-member-dialog";
 
 export default async function TeamPage() {
   await requireAdminAccountId();
-  const members = await getAccountMemberProfiles();
+  const [members, emailSettings] = await Promise.all([
+    getAccountMemberProfiles(),
+    getAccountEmailSettingsForAdmin(),
+  ]);
+  const sendingDomain = emailSettings?.sending_domain ?? null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -43,12 +48,17 @@ export default async function TeamPage() {
             <TableHead>Role</TableHead>
             <TableHead>Lead visibility</TableHead>
             <TableHead>Max open leads</TableHead>
+            <TableHead>Sender identity</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>
         <TableBody>
           {members.map((member) => (
-            <MemberRestrictionsRow key={member.userId} member={member} />
+            <MemberRestrictionsRow
+              key={member.userId}
+              member={member}
+              sendingDomain={sendingDomain}
+            />
           ))}
         </TableBody>
       </Table>

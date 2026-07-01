@@ -16,6 +16,7 @@ export const sequenceStepSchema = z.object({
 export const sequenceSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
+  isMarketing: z.boolean(),
   steps: z.array(sequenceStepSchema).min(1, "Add at least one step"),
 });
 

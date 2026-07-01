@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 
-const PUBLIC_PATHS = ["/login", "/auth", "/api/cron", "/api/leads/intake"];
+const PUBLIC_PATHS = ["/login", "/auth", "/api/cron", "/api/leads/intake", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/unsubscribe"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

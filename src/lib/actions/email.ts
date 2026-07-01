@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId } from "@/lib/supabase/account";
-import { getResendClient } from "@/lib/resend/client";
+import { sendLeadFacingEmail } from "@/lib/email/send-lead-email";
 import { sendEmailSchema, type SendEmailInput } from "@/lib/validations/email";
 
 export async function sendLeadEmail(
@@ -34,35 +34,14 @@ export async function sendLeadEmail(
     throw new Error("This lead's contact has no email address on file");
   }
 
-  const fromAddress = process.env.RESEND_FROM_EMAIL;
-  if (!fromAddress) {
-    throw new Error(
-      "RESEND_FROM_EMAIL is not configured. Add it to .env.local once your sending domain is verified.",
-    );
-  }
-
-  const resend = getResendClient();
-  const { data: sendResult, error: sendError } = await resend.emails.send({
-    from: fromAddress,
+  await sendLeadFacingEmail({
+    supabase,
+    accountId,
+    leadId,
     to: contact.email,
     subject: data.subject,
-    text: data.body,
-  });
-
-  if (sendError) {
-    throw new Error(sendError.message);
-  }
-
-  await supabase.from("activities").insert({
-    account_id: accountId,
-    lead_id: leadId,
-    type: "email_sent",
-    actor_user_id: actingUser?.id ?? null,
-    payload: {
-      subject: data.subject,
-      to: contact.email,
-      resend_message_id: sendResult?.id ?? null,
-    },
+    body: data.body,
+    actorUserId: actingUser?.id ?? null,
   });
 
   revalidatePath(`/leads/${leadId}`);

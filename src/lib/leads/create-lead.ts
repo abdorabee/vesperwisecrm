@@ -1,4 +1,9 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import {
+  formatFromAddress,
+  getAccountEmailSettings,
+  isAccountEmailReady,
+} from "@/lib/email/account-settings";
 import { getResendClient } from "@/lib/resend/client";
 import type { Database } from "@/lib/supabase/types";
 
@@ -152,9 +157,16 @@ async function notifyAccountMembers(
   leadId: string,
   accountId: string,
 ): Promise<void> {
-  if (!process.env.RESEND_API_KEY || !process.env.RESEND_FROM_EMAIL) {
+  if (!process.env.RESEND_API_KEY) {
     return;
   }
+
+  const emailSettings = await getAccountEmailSettings(accountId);
+  if (!isAccountEmailReady(emailSettings)) {
+    return;
+  }
+
+  const fromAddress = formatFromAddress(emailSettings);
 
   const { data: lead, error: leadError } = await supabase
     .from("leads")
@@ -198,7 +210,7 @@ async function notifyAccountMembers(
 
   const resend = getResendClient();
   await resend.emails.send({
-    from: process.env.RESEND_FROM_EMAIL,
+    from: fromAddress,
     to,
     subject: `New lead: ${lead.title}`,
     text: [
