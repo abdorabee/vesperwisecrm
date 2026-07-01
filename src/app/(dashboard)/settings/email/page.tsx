@@ -1,13 +1,12 @@
 import { PageHeader } from "@/components/page-header";
 import { requireAdminAccountId } from "@/lib/supabase/account";
-import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
+import { getAccountEmailSettingsWithDomainForAdmin } from "@/lib/queries/account-email";
 import {
   getEmailSetupUiState,
   isAccountEmailReady,
 } from "@/lib/email/account-settings";
 import {
   getRecommendedDmarcRecord,
-  getSendingDomain,
   type DnsRecordRow,
 } from "@/lib/email/resend-domains";
 import {
@@ -30,25 +29,20 @@ import { getEmailHealthStats } from "@/lib/queries/email-health";
 
 export default async function EmailSettingsPage() {
   await requireAdminAccountId();
-  const settings = await getAccountEmailSettingsForAdmin();
+  const { settings, domain } = await getAccountEmailSettingsWithDomainForAdmin();
   const uiState = getEmailSetupUiState(settings);
   const healthStats = await getEmailHealthStats();
 
   let dnsRecords: DnsRecordRow[] = [];
-  if (settings?.resend_domain_id) {
-    try {
-      const domain = await getSendingDomain(settings.resend_domain_id);
-      dnsRecords = [
-        ...domain.records.filter(
-          (record) => record.record === "SPF" || record.record === "DKIM",
-        ),
-        getRecommendedDmarcRecord(domain.name),
-      ];
-    } catch {
-      dnsRecords = settings.sending_domain
-        ? [getRecommendedDmarcRecord(settings.sending_domain)]
-        : [];
-    }
+  if (domain) {
+    dnsRecords = [
+      ...domain.records.filter(
+        (record) => record.record === "SPF" || record.record === "DKIM",
+      ),
+      getRecommendedDmarcRecord(domain.name),
+    ];
+  } else if (settings?.sending_domain) {
+    dnsRecords = [getRecommendedDmarcRecord(settings.sending_domain)];
   }
 
   const emailReady = isAccountEmailReady(settings);
