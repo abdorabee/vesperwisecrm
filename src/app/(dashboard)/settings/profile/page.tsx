@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/page-header";
 import { getOwnSenderIdentity } from "@/lib/queries/members";
 import {
   Card,
@@ -13,12 +14,10 @@ export default async function ProfileSettingsPage() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Profile</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Customize how your name appears on emails sent to leads.
-        </p>
-      </div>
+      <PageHeader
+        title="Profile"
+        description="Customize how your name appears on emails sent to leads."
+      />
 
       <Card>
         <CardHeader>

@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/page-header";
 import { requireAdminAccountId } from "@/lib/supabase/account";
 import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
 import {
@@ -56,13 +57,10 @@ export default async function EmailSettingsPage() {
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Email</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Configure your sending domain and From address for outbound emails to
-          leads.
-        </p>
-      </div>
+      <PageHeader
+        title="Email"
+        description="Configure your sending domain and From address for outbound emails to leads."
+      />
 
       <Card id="domain-verification">
         <CardHeader>

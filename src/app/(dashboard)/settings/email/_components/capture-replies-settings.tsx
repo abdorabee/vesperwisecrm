@@ -2,7 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { updateCaptureRepliesSetting } from "@/lib/actions/account-email";
 
 interface CaptureRepliesSettingsProps {
@@ -39,26 +40,25 @@ export function CaptureRepliesSettings({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-start gap-3">
-        <input
+    <FieldGroup>
+      <Field orientation="horizontal">
+        <Checkbox
           id="capture-replies"
-          type="checkbox"
-          className="mt-1 size-4 rounded border"
           checked={checked}
           disabled={disabled || isPending}
           onChange={(event) => handleChange(event.target.checked)}
+          className="mt-0.5"
         />
         <div className="flex flex-col gap-1">
-          <Label htmlFor="capture-replies" className="font-medium">
+          <FieldLabel htmlFor="capture-replies" className="font-medium">
             Capture replies in CRM
-          </Label>
+          </FieldLabel>
           <p className="text-sm text-muted-foreground">
             When enabled, outbound emails include a Reply-To address so lead
             replies appear in the activity feed.
           </p>
         </div>
-      </div>
+      </Field>
       {inboundAddressPattern ? (
         <p className="rounded-lg border bg-muted/30 p-3 font-mono text-xs text-muted-foreground">
           {inboundAddressPattern}
@@ -68,6 +68,6 @@ export function CaptureRepliesSettings({
           Inbound address pattern is not configured on this deployment.
         </p>
       )}
-    </div>
+    </FieldGroup>
   );
 }

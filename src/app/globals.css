@@ -129,4 +129,49 @@
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
   }
+
+  .text-hot {
+    color: var(--hot);
+  }
+
+  .text-warm {
+    color: var(--warm);
+  }
+
+  .text-cold {
+    color: var(--cold);
+  }
+
+  .bg-hot-subtle {
+    background: var(--hot-bg);
+    border-color: var(--hot-border);
+  }
+
+  .bg-warm-subtle {
+    background: var(--warm-bg);
+    border-color: var(--warm-border);
+  }
+
+  .bg-cold-subtle {
+    background: var(--cold-bg);
+    border-color: var(--cold-border);
+  }
+
+  .email-body-content {
+    font-size: 0.875rem;
+    line-height: 1.625;
+  }
+
+  .email-body-content a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+
+  .email-body-content p {
+    margin-bottom: 0.5rem;
+  }
+
+  .email-body-content p:last-child {
+    margin-bottom: 0;
+  }
 }

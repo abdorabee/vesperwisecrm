@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { sendTestEmail } from "@/lib/actions/account-email";
@@ -27,13 +28,28 @@ export function SendTestEmailButton({ disabled }: SendTestEmailButtonProps) {
   }
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      onClick={handleSend}
-      disabled={disabled || isSending}
-    >
-      {isSending ? "Sending..." : "Send test email"}
-    </Button>
+    <div className="flex flex-col gap-1">
+      <Button
+        type="button"
+        variant="outline"
+        className="gap-2"
+        onClick={handleSend}
+        disabled={disabled || isSending}
+      >
+        {isSending ? (
+          <>
+            <Loader2 className="size-4 motion-reduce:animate-none animate-spin" />
+            Sending...
+          </>
+        ) : (
+          "Send test email"
+        )}
+      </Button>
+      {disabled && (
+        <p className="text-xs text-muted-foreground">
+          Verify your domain and save a From address before sending a test.
+        </p>
+      )}
+    </div>
   );
 }

@@ -16,6 +16,15 @@ interface PlatformAccountRowProps {
   row: PlatformAccountEmailRow;
 }
 
+function statusBadgeVariant(
+  status: string | null,
+): "default" | "secondary" | "destructive" | "outline" {
+  if (!status) return "outline";
+  if (status === "verified") return "default";
+  if (status === "failed") return "destructive";
+  return "secondary";
+}
+
 export function PlatformAccountRow({ row }: PlatformAccountRowProps) {
   const [reason, setReason] = useState("");
   const [loading, setLoading] = useState(false);
@@ -50,35 +59,37 @@ export function PlatformAccountRow({ row }: PlatformAccountRowProps) {
 
   return (
     <TableRow>
-      <TableCell className="font-medium">{row.accountName}</TableCell>
-      <TableCell>{row.sendingDomain ?? "—"}</TableCell>
-      <TableCell>
+      <TableCell className="py-4 font-medium">{row.accountName}</TableCell>
+      <TableCell className="py-4">{row.sendingDomain ?? "—"}</TableCell>
+      <TableCell className="py-4">
         {row.domainVerificationStatus ? (
-          <Badge variant="secondary">{row.domainVerificationStatus}</Badge>
+          <Badge variant={statusBadgeVariant(row.domainVerificationStatus)}>
+            {row.domainVerificationStatus}
+          </Badge>
         ) : (
           "—"
         )}
       </TableCell>
-      <TableCell className="tabular-nums">{row.outbound30d}</TableCell>
-      <TableCell className="tabular-nums">{row.bounces30d}</TableCell>
-      <TableCell className="tabular-nums">{row.complaints30d}</TableCell>
-      <TableCell>
+      <TableCell className="py-4 tabular-nums">{row.outbound30d}</TableCell>
+      <TableCell className="py-4 tabular-nums">{row.bounces30d}</TableCell>
+      <TableCell className="py-4 tabular-nums">{row.complaints30d}</TableCell>
+      <TableCell className="py-4">
         {row.outboundSuspended ? (
           <Badge variant="destructive">Suspended</Badge>
         ) : (
           <Badge variant="outline">Active</Badge>
         )}
       </TableCell>
-      <TableCell>
+      <TableCell className="py-4">
         {row.outboundSuspended ? (
           <Button size="sm" disabled={loading} onClick={handleUnsuspend}>
             Unsuspend
           </Button>
         ) : (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <Input
               placeholder="Reason"
-              className="h-8 w-32"
+              className="h-8 w-40"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
             />

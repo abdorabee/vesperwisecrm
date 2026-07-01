@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CheckCircle2, Clock, Loader2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,11 +30,19 @@ const statusVariants: Record<
   failed: "destructive",
 };
 
+const statusIcons: Record<EmailSetupUiState, typeof CheckCircle2> = {
+  not_started: Clock,
+  pending_dns: Clock,
+  verified: CheckCircle2,
+  failed: XCircle,
+};
+
 export function DomainStatusCard({
   uiState,
   sendingDomain,
 }: DomainStatusCardProps) {
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const StatusIcon = statusIcons[uiState];
 
   async function handleRefresh() {
     setIsRefreshing(true);
@@ -52,6 +61,7 @@ export function DomainStatusCard({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2">
+        <StatusIcon className="size-4 shrink-0 text-muted-foreground" />
         <Badge variant={statusVariants[uiState]}>{statusLabels[uiState]}</Badge>
         {sendingDomain && (
           <span className="text-sm text-muted-foreground">{sendingDomain}</span>
@@ -62,10 +72,18 @@ export function DomainStatusCard({
           type="button"
           variant="outline"
           size="sm"
+          className="gap-2"
           onClick={handleRefresh}
           disabled={isRefreshing}
         >
-          {isRefreshing ? "Checking..." : "Refresh verification"}
+          {isRefreshing ? (
+            <>
+              <Loader2 className="size-4 motion-reduce:animate-none animate-spin" />
+              Checking...
+            </>
+          ) : (
+            "Refresh verification"
+          )}
         </Button>
       )}
     </div>

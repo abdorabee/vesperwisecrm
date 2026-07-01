@@ -58,17 +58,17 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
   const isAdmin = membership ? isAdminRole(membership.role) : false;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <Link
         href="/pipeline"
-        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:underline"
+        className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
       >
-        <ArrowLeft className="size-4" />
+        <ArrowLeft className="size-4 shrink-0" />
         Back to pipeline
       </Link>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="flex flex-col gap-4 lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="flex flex-col gap-6 lg:col-span-2">
           <Card>
             <CardHeader>
               <CardTitle className="text-xl">{lead.title}</CardTitle>
@@ -133,7 +133,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
           </Card>
         </div>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Contact</CardTitle>

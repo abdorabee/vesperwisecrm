@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { updateOwnSenderIdentity } from "@/lib/actions/team";
 
@@ -39,24 +40,22 @@ export function SenderIdentityForm({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium" htmlFor="fromDisplayName">
-          Display name
-        </label>
+    <FieldGroup>
+      <Field>
+        <FieldLabel htmlFor="fromDisplayName">Display name</FieldLabel>
         <Input
           id="fromDisplayName"
           placeholder="Sarah Jones"
           value={displayName}
           onChange={(e) => setDisplayName(e.target.value)}
         />
-      </div>
+      </Field>
       {sendingDomain && (
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium" htmlFor="fromEmailLocalPart">
+        <Field>
+          <FieldLabel htmlFor="fromEmailLocalPart">
             Personal email address (optional)
-          </label>
-          <div className="flex items-center gap-1">
+          </FieldLabel>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Input
               id="fromEmailLocalPart"
               placeholder="sarah"
@@ -72,7 +71,7 @@ export function SenderIdentityForm({
             Leave blank to send from the account default address with your
             display name.
           </p>
-        </div>
+        </Field>
       )}
       <Button
         type="button"
@@ -83,6 +82,6 @@ export function SenderIdentityForm({
       >
         {saving ? "Saving..." : "Save"}
       </Button>
-    </div>
+    </FieldGroup>
   );
 }

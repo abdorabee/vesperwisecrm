@@ -58,7 +58,7 @@ export function MemberRestrictionsRow({
 
   return (
     <TableRow>
-      <TableCell>
+      <TableCell className="py-4">
         <div className="flex flex-col gap-0.5">
           <span>{member.email}</span>
           {fromDisplayName && (
@@ -68,40 +68,47 @@ export function MemberRestrictionsRow({
           )}
         </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="py-4">
         <Badge variant="secondary">{member.role}</Badge>
       </TableCell>
-      <TableCell>
-        <Select
-          value={leadVisibility}
-          onValueChange={(value) => value && setLeadVisibility(value)}
-        >
-          <SelectTrigger size="sm" className="w-40">
-            <SelectValue>
-              {(value: string) =>
-                value === "assigned_only" ? "Assigned only" : "All leads"
-              }
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All leads</SelectItem>
-            <SelectItem value="assigned_only">Assigned only</SelectItem>
-          </SelectContent>
-        </Select>
+      <TableCell className="py-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Visibility</span>
+          <Select
+            value={leadVisibility}
+            onValueChange={(value) => value && setLeadVisibility(value)}
+          >
+            <SelectTrigger size="sm" className="w-40">
+              <SelectValue>
+                {(value: string) =>
+                  value === "assigned_only" ? "Assigned only" : "All leads"
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All leads</SelectItem>
+              <SelectItem value="assigned_only">Assigned only</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </TableCell>
-      <TableCell>
-        <Input
-          type="number"
-          min={0}
-          inputMode="numeric"
-          placeholder="Unlimited"
-          className="w-28"
-          value={maxOpenLeads}
-          onChange={(e) => setMaxOpenLeads(e.target.value)}
-        />
+      <TableCell className="py-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Max open</span>
+          <Input
+            type="number"
+            min={0}
+            inputMode="numeric"
+            placeholder="Unlimited"
+            className="w-28"
+            value={maxOpenLeads}
+            onChange={(e) => setMaxOpenLeads(e.target.value)}
+          />
+        </div>
       </TableCell>
-      <TableCell>
+      <TableCell className="py-4">
         <div className="flex flex-col gap-2">
+          <span className="text-xs text-muted-foreground">Sender identity</span>
           <Input
             placeholder="Display name"
             className="w-36"
@@ -109,7 +116,7 @@ export function MemberRestrictionsRow({
             onChange={(e) => setFromDisplayName(e.target.value)}
           />
           {sendingDomain && (
-            <div className="flex items-center gap-1">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
               <Input
                 placeholder="local-part"
                 className="w-24"
@@ -123,8 +130,8 @@ export function MemberRestrictionsRow({
           )}
         </div>
       </TableCell>
-      <TableCell>
-        <Button size="sm" disabled={saving} onClick={handleSave}>
+      <TableCell className="py-4">
+        <Button size="sm" className="w-fit" disabled={saving} onClick={handleSave}>
           {saving ? "Saving..." : "Save"}
         </Button>
       </TableCell>

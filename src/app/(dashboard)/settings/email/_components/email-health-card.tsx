@@ -66,7 +66,7 @@ export function EmailHealthCard({
           {lastTestSentAt ? formatRelativeTime(lastTestSentAt) : "Never"}
         </p>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <StatTile label="Sent (7d)" value={stats.outbound7d} />
           <StatTile label="Sent (30d)" value={stats.outbound30d} />
           <StatTile label="Bounces (7d)" value={stats.bounces7d} />
@@ -90,9 +90,9 @@ export function EmailHealthCard({
 
 function StatTile({ label, value }: { label: string; value: number }) {
   return (
-    <div className="rounded-lg border px-3 py-2">
+    <div className="rounded-lg border px-3 py-3">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-2xl font-semibold tabular-nums">{value}</p>
+      <p className="text-3xl font-semibold tabular-nums">{value}</p>
     </div>
   );
 }

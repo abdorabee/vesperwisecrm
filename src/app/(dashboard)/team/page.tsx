@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdminAccountId } from "@/lib/supabase/account";
 import { getAccountMemberProfiles } from "@/lib/queries/members";
 import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -22,46 +23,46 @@ export default async function TeamPage() {
   const sendingDomain = emailSettings?.sending_domain ?? null;
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Team</h1>
-        <div className="flex gap-2">
-          <InviteMemberDialog />
-          <Button render={<Link href="/team/groups" />} variant="outline" nativeButton={false}>
-            Routing groups
-          </Button>
-          <Button render={<Link href="/team/scorecard" />} nativeButton={false}>
-            Employee scorecard
-          </Button>
-        </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Team"
+        description="Restrict a member to only their assigned leads, or cap how many open leads they can hold at once, to keep the team focused."
+        actions={
+          <div className="flex flex-wrap gap-2">
+            <InviteMemberDialog />
+            <Button render={<Link href="/team/groups" />} variant="outline" nativeButton={false}>
+              Routing groups
+            </Button>
+            <Button render={<Link href="/team/scorecard" />} nativeButton={false}>
+              Employee scorecard
+            </Button>
+          </div>
+        }
+      />
+
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Member</TableHead>
+              <TableHead>Role</TableHead>
+              <TableHead>Lead visibility</TableHead>
+              <TableHead>Max open leads</TableHead>
+              <TableHead>Sender identity</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {members.map((member) => (
+              <MemberRestrictionsRow
+                key={member.userId}
+                member={member}
+                sendingDomain={sendingDomain}
+              />
+            ))}
+          </TableBody>
+        </Table>
       </div>
-
-      <p className="text-sm text-muted-foreground">
-        Restrict a member to only their assigned leads, or cap how many open
-        leads they can hold at once, to keep the team focused.
-      </p>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Member</TableHead>
-            <TableHead>Role</TableHead>
-            <TableHead>Lead visibility</TableHead>
-            <TableHead>Max open leads</TableHead>
-            <TableHead>Sender identity</TableHead>
-            <TableHead />
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {members.map((member) => (
-            <MemberRestrictionsRow
-              key={member.userId}
-              member={member}
-              sendingDomain={sendingDomain}
-            />
-          ))}
-        </TableBody>
-      </Table>
     </div>
   );
 }

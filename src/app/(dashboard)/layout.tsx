@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signOutAction } from "@/lib/actions/auth";
 import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
 import { isPlatformAdminEmail } from "@/lib/supabase/platform-admin";
 import { Button } from "@/components/ui/button";
+import { DashboardNav } from "@/components/dashboard-nav";
 
 export default async function DashboardLayout({
   children,
@@ -24,67 +24,33 @@ export default async function DashboardLayout({
   const isAdmin = membership ? isAdminRole(membership.role) : false;
   const isPlatformAdmin = isPlatformAdminEmail(user.email);
 
+  const links = [
+    { href: "/pipeline", label: "Pipeline" },
+    { href: "/sequences", label: "Sequences" },
+    { href: "/workflows", label: "Workflows" },
+    { href: "/scorecard", label: "My Scorecard" },
+    { href: "/settings/profile", label: "Profile" },
+    ...(isAdmin
+      ? [
+          { href: "/team", label: "Team", exact: true },
+          { href: "/settings/email", label: "Email" },
+          { href: "/team/groups", label: "Groups" },
+          { href: "/team/scorecard", label: "Employee Scorecard" },
+        ]
+      : []),
+    ...(isPlatformAdmin
+      ? [{ href: "/platform/email", label: "Platform" }]
+      : []),
+  ];
+
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <header className="flex items-center justify-between border-b px-6 py-3">
-        <nav className="flex items-center gap-4 text-sm font-medium">
-          <Link href="/" className="font-semibold">
-            VesperwiseCRM
-          </Link>
-          <Link href="/pipeline" className="text-muted-foreground hover:text-foreground">
-            Pipeline
-          </Link>
-          <Link href="/sequences" className="text-muted-foreground hover:text-foreground">
-            Sequences
-          </Link>
-          <Link href="/workflows" className="text-muted-foreground hover:text-foreground">
-            Workflows
-          </Link>
-          <Link href="/scorecard" className="text-muted-foreground hover:text-foreground">
-            My Scorecard
-          </Link>
-          <Link
-            href="/settings/profile"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Profile
-          </Link>
-          {isAdmin && (
-            <>
-              <Link href="/team" className="text-muted-foreground hover:text-foreground">
-                Team
-              </Link>
-              <Link
-                href="/settings/email"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Email
-              </Link>
-              <Link
-                href="/team/groups"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Groups
-              </Link>
-              <Link
-                href="/team/scorecard"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Employee Scorecard
-              </Link>
-            </>
-          )}
-          {isPlatformAdmin && (
-            <Link
-              href="/platform/email"
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Platform
-            </Link>
-          )}
-        </nav>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">{user.email}</span>
+      <header className="flex items-center justify-between gap-4 border-b px-6 py-3">
+        <DashboardNav links={links} />
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden text-sm text-muted-foreground sm:inline">
+            {user.email}
+          </span>
           <form action={signOutAction}>
             <Button variant="ghost" size="sm" type="submit">
               Sign out

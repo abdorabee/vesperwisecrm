@@ -1,8 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isPlatformAdminEmail } from "@/lib/supabase/platform-admin";
 import { signOutAction } from "@/lib/actions/auth";
+import { Button } from "@/components/ui/button";
+import { PlatformNav } from "@/components/dashboard-nav";
 
 export default async function PlatformLayout({
   children,
@@ -24,20 +25,12 @@ export default async function PlatformLayout({
 
   return (
     <div className="flex min-h-screen flex-1 flex-col">
-      <header className="flex items-center justify-between border-b px-6 py-3">
-        <nav className="flex items-center gap-4 text-sm font-medium">
-          <span className="font-semibold">VesperwiseCRM Platform</span>
-          <Link
-            href="/platform/email"
-            className="text-muted-foreground hover:text-foreground"
-          >
-            Email
-          </Link>
-        </nav>
+      <header className="flex items-center justify-between gap-4 border-b px-6 py-3">
+        <PlatformNav links={[{ href: "/platform/email", label: "Email" }]} />
         <form action={signOutAction}>
-          <button type="submit" className="text-sm text-muted-foreground">
+          <Button variant="ghost" size="sm" type="submit">
             Sign out
-          </button>
+          </Button>
         </form>
       </header>
       <main className="flex-1 p-6">{children}</main>

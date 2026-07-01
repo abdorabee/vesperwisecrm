@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -52,9 +53,9 @@ export function ReplyRoutingSettings({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-2">
-        <label className="text-sm font-medium">Reply routing</label>
+    <FieldGroup>
+      <Field>
+        <FieldLabel>Reply routing</FieldLabel>
         <Select
           value={mode}
           onValueChange={(value) =>
@@ -83,13 +84,13 @@ export function ReplyRoutingSettings({
             ? "Replies route through VesperwiseCRM and appear on the lead activity feed."
             : "Reply-To goes to the assigned lead owner. Inbound reply capture is disabled."}
         </p>
-      </div>
+      </Field>
 
       {mode === "agent_direct" && (
-        <div className="flex flex-col gap-2">
-          <label className="text-sm font-medium" htmlFor="defaultReplyToEmail">
+        <Field>
+          <FieldLabel htmlFor="defaultReplyToEmail">
             Default reply-to email
-          </label>
+          </FieldLabel>
           <Input
             id="defaultReplyToEmail"
             type="email"
@@ -101,7 +102,7 @@ export function ReplyRoutingSettings({
           <p className="text-xs text-muted-foreground">
             Used when a lead has no assigned owner.
           </p>
-        </div>
+        </Field>
       )}
 
       <Button
@@ -113,6 +114,6 @@ export function ReplyRoutingSettings({
       >
         {saving ? "Saving..." : "Save reply routing"}
       </Button>
-    </div>
+    </FieldGroup>
   );
 }

@@ -1,4 +1,5 @@
 import { signIn, signUp } from "@/lib/actions/auth";
+import { VesperWiseLogo } from "@/components/vesper-wise-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,8 +19,10 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   return (
     <div className="flex flex-1 items-center justify-center p-6">
       <div className="w-full max-w-sm">
-        <h1 className="mb-1 text-xl font-semibold">VesperwiseCRM</h1>
-        <p className="mb-6 text-sm text-muted-foreground">
+        <div className="mb-4 flex justify-center">
+          <VesperWiseLogo size="md" />
+        </div>
+        <p className="mb-6 text-center text-sm text-muted-foreground">
           Sign in to your account, or sign up if this is your first visit.
         </p>
 
