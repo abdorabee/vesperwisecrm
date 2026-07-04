@@ -72,17 +72,22 @@ export function KanbanCard({
             <Badge className="bg-primary text-primary-foreground text-[10px]">
               {lead.searchRelevance}% match
             </Badge>
-            {lead.matchReasons.slice(0, 2).map((reason) => (
-              <Badge key={reason} variant="outline" className="text-[10px]">
+            {lead.matchReasons.slice(0, 1).map((reason) => (
+              <Badge key={reason} variant="quiet" className="text-[10px]">
                 {reason}
               </Badge>
             ))}
+            {lead.matchReasons.length > 1 && (
+              <Badge variant="quiet" className="text-[10px]">
+                +{lead.matchReasons.length - 1}
+              </Badge>
+            )}
           </div>
         )}
         {lead.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {lead.tags.map((tag) => (
-              <Badge key={tag.id} variant="secondary" className="text-[10px]">
+              <Badge key={tag.id} variant="quiet" className="text-[10px]">
                 {tag.name}
               </Badge>
             ))}

@@ -23,7 +23,7 @@ export function KanbanColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`flex w-72 shrink-0 flex-col rounded-lg border bg-muted/30 p-3 ${
+      className={`surface-quiet flex w-72 shrink-0 flex-col rounded-lg border p-3 ${
         isOver ? "ring-2 ring-primary" : ""
       }`}
     >

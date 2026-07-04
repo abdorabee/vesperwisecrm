@@ -101,7 +101,8 @@
   --cold-bg: rgba(138, 143, 152, 0.08);
   --cold-border: rgba(138, 143, 152, 0.22);
 
-  /* Sparing-use glow shadows for emphasis (active step, won badge, etc.) */
+  /* Reserved for exactly one emphasis moment per view (e.g. active sequence step,
+     "deal won" confirmation) — never for hover states, never stacked with ring+blur. */
   --glow-cyan: 0 0 40px rgba(223, 255, 0, 0.22), 0 0 80px rgba(223, 255, 0, 0.1);
   --glow-amber: 0 0 40px rgba(245, 181, 68, 0.2), 0 0 80px rgba(245, 181, 68, 0.1);
   --glow-emerald: 0 0 40px rgba(74, 222, 128, 0.2), 0 0 80px rgba(74, 222, 128, 0.1);
@@ -119,15 +120,30 @@
   }
 
   /* Glass surface treatment, applied via data-slot rather than per-component edits —
-     every shadcn overlay/card primitive already carries one of these slots. */
-  [data-slot="card"],
+     reserved for true floating overlays. Cards are flat, static surfaces (elevation
+     comes from bg-card + ring-foreground/10, not blur) since they sit in the page flow
+     rather than floating over other content. */
   [data-slot="popover-content"],
   [data-slot="dialog-content"],
   [data-slot="sheet-content"],
   [data-slot="dropdown-menu-content"],
   [data-slot="dropdown-menu-sub-content"] {
-    backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  /* Hide native number-input spinners — the browser renders them as unstyleable
+     OS chrome that ignores the dark theme, so they read as stray white arrows. */
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
   }
 
   .text-hot {
@@ -173,5 +189,23 @@
 
   .email-body-content p:last-child {
     margin-bottom: 0;
+  }
+}
+
+@layer utilities {
+  /* Consolidated surface/opacity scale — prefer these over ad hoc bg-foreground/NN
+     fractions so elevation reads as a small, intentional set of steps rather than
+     scattered one-off opacities. bg-card (.72) and bg-popover (.88) remain the two
+     "real" elevated surfaces. */
+  .surface-quiet {
+    background-color: color-mix(in oklch, var(--foreground) 4%, transparent);
+  }
+
+  .surface-subtle {
+    background-color: color-mix(in oklch, var(--foreground) 8%, transparent);
+  }
+
+  .divider-quiet {
+    border-color: color-mix(in oklch, var(--foreground) 10%, transparent);
   }
 }

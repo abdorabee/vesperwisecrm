@@ -54,7 +54,7 @@ function DnsValue({
     <div className="group/value flex min-w-0 items-center gap-2">
       <code
         title={value}
-        className="min-w-0 flex-1 truncate rounded-md border border-border/70 bg-muted/35 px-2.5 py-1.5 font-mono text-[0.72rem] leading-5 text-foreground/90 shadow-inner shadow-black/10 transition-colors group-hover/value:border-primary/35 group-hover/value:bg-primary/5"
+        className="min-w-0 flex-1 truncate rounded-md border border-border/70 bg-muted/35 px-2.5 py-1.5 font-mono text-[0.72rem] leading-5 text-foreground/90 shadow-inner shadow-black/10 transition-colors group-hover/value:border-foreground/20"
       >
         {value}
       </code>
@@ -64,7 +64,7 @@ function DnsValue({
         size="icon-sm"
         aria-label={`Copy ${label}`}
         title={`Copy ${label}`}
-        className="shrink-0 border border-border/70 bg-background/70 text-muted-foreground hover:border-primary/40 hover:bg-primary hover:text-primary-foreground"
+        className="shrink-0 border border-border/70 bg-background/70 text-muted-foreground hover:bg-foreground/10 hover:text-foreground"
         onClick={() => onCopy(copyKey, value, label)}
       >
         {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
@@ -96,7 +96,7 @@ export function DnsRecordsTable({ records }: DnsRecordsTableProps) {
   }
 
   return (
-    <div className="rounded-lg border bg-card/30 shadow-[0_24px_80px_rgba(0,0,0,0.18)]">
+    <div className="rounded-lg border bg-card/30 ring-1 ring-foreground/10">
       <Table className="min-w-[980px] table-fixed">
         <colgroup>
           <col className="w-[10%]" />
@@ -131,7 +131,7 @@ export function DnsRecordsTable({ records }: DnsRecordsTableProps) {
             return (
               <TableRow
                 key={rowKey}
-                className="group/row hover:bg-primary/[0.035]"
+                className="group/row hover:bg-foreground/[0.03]"
               >
                 <TableCell className="px-3 py-3.5 align-middle">
                   <span className="font-medium text-foreground">

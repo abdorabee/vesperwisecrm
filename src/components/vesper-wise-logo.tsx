@@ -16,14 +16,17 @@ interface VesperWiseLogoProps {
   size?: keyof typeof sizeStyles;
   href?: string;
   className?: string;
+  iconOnly?: boolean;
 }
 
 function Wordmark({
   size = "sm",
   className,
+  iconOnly,
 }: {
   size?: keyof typeof sizeStyles;
   className?: string;
+  iconOnly?: boolean;
 }) {
   const styles = sizeStyles[size];
 
@@ -35,14 +38,16 @@ function Wordmark({
       )}
       aria-hidden
     >
-      <span
-        className={cn(
-          "self-center font-bold uppercase tracking-tight text-foreground",
-          styles.word,
-        )}
-      >
-        VESPER
-      </span>
+      {!iconOnly && (
+        <span
+          className={cn(
+            "self-center font-bold uppercase tracking-tight text-foreground",
+            styles.word,
+          )}
+        >
+          VESPER
+        </span>
+      )}
       <span
         className={cn(
           "inline-flex items-center justify-center bg-primary font-bold uppercase tracking-tight text-primary-foreground",
@@ -50,7 +55,7 @@ function Wordmark({
           styles.word,
         )}
       >
-        WISE.
+        {iconOnly ? "W" : "WISE."}
       </span>
     </span>
   );
@@ -60,6 +65,7 @@ export function VesperWiseLogo({
   size = "sm",
   href,
   className,
+  iconOnly,
 }: VesperWiseLogoProps) {
   if (href) {
     return (
@@ -71,7 +77,7 @@ export function VesperWiseLogo({
           className,
         )}
       >
-        <Wordmark size={size} />
+        <Wordmark size={size} iconOnly={iconOnly} />
       </Link>
     );
   }
@@ -82,7 +88,7 @@ export function VesperWiseLogo({
       role="img"
       aria-label="Vesper Wise"
     >
-      <Wordmark size={size} />
+      <Wordmark size={size} iconOnly={iconOnly} />
     </span>
   );
 }

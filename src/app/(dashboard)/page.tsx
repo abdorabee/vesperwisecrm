@@ -51,7 +51,7 @@ export default async function DashboardPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm text-muted-foreground">
@@ -59,7 +59,7 @@ export default async function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">{stats.totalLeads}</p>
+            <p className="mt-1 text-3xl font-semibold tabular-nums">{stats.totalLeads}</p>
           </CardContent>
         </Card>
         <Card>
@@ -69,7 +69,7 @@ export default async function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">{stats.leadsThisWeek}</p>
+            <p className="mt-1 text-3xl font-semibold tabular-nums">{stats.leadsThisWeek}</p>
           </CardContent>
         </Card>
         <Card>
@@ -79,7 +79,7 @@ export default async function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="mt-1 text-3xl font-semibold tabular-nums">
               {formatDecimal(stats.averageTouchesPerLead)}
             </p>
           </CardContent>
@@ -91,7 +91,7 @@ export default async function DashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-3xl font-semibold tabular-nums">
+            <p className="mt-1 text-3xl font-semibold tabular-nums">
               {formatPercent(stats.closeRate)}
             </p>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2 lg:gap-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Leads by stage</CardTitle>
