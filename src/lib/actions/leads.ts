@@ -7,14 +7,22 @@ import { runTriggeredWorkflows } from "@/lib/workflows/engine";
 import { createLeadRecord } from "@/lib/leads/create-lead";
 import {
   addLeadNoteSchema,
-  importLeadsCsvSchema,
+  importLeadsCsvMappedSchema,
   leadPropertySchema,
   newLeadSchema,
+  previewCsvMappingSchema,
   type AddLeadNoteInput,
-  type ImportLeadsCsvInput,
+  type ImportLeadsCsvMappedInput,
   type LeadPropertyFormInput,
   type NewLeadFormInput,
+  type PreviewCsvMappingInput,
 } from "@/lib/validations/lead";
+import {
+  applyMapping,
+  guessMapping,
+  parseCsv,
+  type MappedRow,
+} from "@/lib/leads/csv-import";
 
 export interface ImportLeadsCsvResult {
   imported: number;
@@ -22,73 +30,10 @@ export interface ImportLeadsCsvResult {
   errors: string[];
 }
 
-type CsvRow = Record<string, string>;
-
-function parseCsvLine(line: string): string[] {
-  const values: string[] = [];
-  let current = "";
-  let inQuotes = false;
-
-  for (let index = 0; index < line.length; index += 1) {
-    const char = line[index];
-    const next = line[index + 1];
-
-    if (char === '"' && inQuotes && next === '"') {
-      current += '"';
-      index += 1;
-      continue;
-    }
-
-    if (char === '"') {
-      inQuotes = !inQuotes;
-      continue;
-    }
-
-    if (char === "," && !inQuotes) {
-      values.push(current.trim());
-      current = "";
-      continue;
-    }
-
-    current += char;
-  }
-
-  values.push(current.trim());
-  return values;
-}
-
-function parseCsv(text: string): CsvRow[] {
-  const lines = text
-    .replace(/^\uFEFF/, "")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean);
-
-  if (lines.length < 2) {
-    throw new Error("CSV must include a header row and at least one lead row");
-  }
-
-  const headers = parseCsvLine(lines[0]).map((header) =>
-    header.trim().toLowerCase().replace(/[\s-]+/g, "_"),
-  );
-
-  return lines.slice(1).map((line) => {
-    const values = parseCsvLine(line);
-    return headers.reduce<CsvRow>((row, header, index) => {
-      row[header] = values[index]?.trim() ?? "";
-      return row;
-    }, {});
-  });
-}
-
-function firstValue(row: CsvRow, aliases: string[]): string {
-  for (const alias of aliases) {
-    const value = row[alias];
-    if (value) {
-      return value;
-    }
-  }
-  return "";
+export interface CsvMappingPreview {
+  headers: string[];
+  sampleRows: Record<string, string>[];
+  suggestedMapping: Record<string, string>;
 }
 
 function optionalNumber(value: string | number | null | undefined): number | null {
@@ -118,35 +63,6 @@ function normalizeContractStatus(value: string | null | undefined): string {
   }
 
   return "none";
-}
-
-function namesFromRow(row: CsvRow): { firstName: string; lastName: string } {
-  const firstName = firstValue(row, ["first_name", "firstname", "first"]);
-  const lastName = firstValue(row, ["last_name", "lastname", "last"]);
-
-  if (firstName) {
-    return { firstName, lastName };
-  }
-
-  const fullName = firstValue(row, ["name", "full_name", "contact_name"]);
-  const parts = fullName.split(/\s+/).filter(Boolean);
-
-  return {
-    firstName: parts[0] ?? "",
-    lastName: parts.slice(1).join(" "),
-  };
-}
-
-function titleFromRow(row: CsvRow, firstName: string, lastName: string): string {
-  const title = firstValue(row, ["title", "lead_title", "opportunity"]);
-  if (title) {
-    return title;
-  }
-
-  const company = firstValue(row, ["company", "organization"]);
-  const contactName = [firstName, lastName].filter(Boolean).join(" ");
-
-  return company || contactName || "Imported lead";
 }
 
 export async function createLead(
@@ -199,14 +115,70 @@ export async function createLead(
   return { leadId };
 }
 
-export async function importLeadsCsv(
-  input: ImportLeadsCsvInput,
+export async function previewCsvMapping(
+  input: PreviewCsvMappingInput,
+): Promise<CsvMappingPreview> {
+  const data = previewCsvMappingSchema.parse(input);
+  const { headers, rows } = parseCsv(data.csvText);
+
+  return {
+    headers,
+    sampleRows: rows.slice(0, 3),
+    suggestedMapping: guessMapping(headers),
+  };
+}
+
+function propertyInputFromMappedRow(
+  property: MappedRow["property"],
+): NonNullable<Parameters<typeof createLeadRecord>[1]["property"]> {
+  return {
+    addressLine1: property.addressLine1,
+    addressLine2: property.addressLine2,
+    city: property.city,
+    state: property.state,
+    postalCode: property.postalCode,
+    propertyType: property.propertyType,
+    bedrooms: optionalNumber(property.bedrooms),
+    bathrooms: optionalNumber(property.bathrooms),
+    squareFeet: optionalNumber(property.squareFeet),
+    askingPrice: optionalNumber(property.askingPrice),
+    estimatedValue: optionalNumber(property.estimatedValue),
+    contractStatus: normalizeContractStatus(property.contractStatus),
+    contractAmount: optionalNumber(property.contractAmount),
+    contractCloseDate: property.contractCloseDate,
+    notes: property.notes,
+    condition: property.condition,
+    updatesDone: property.updatesDone,
+    updatesNeeded: property.updatesNeeded,
+    occupancyStatus: property.occupancyStatus,
+    tenantDurationRent: property.tenantDurationRent,
+    motivation: property.motivation,
+    timeline: property.timeline,
+    workNeeded: property.workNeeded,
+    roofCondition: property.roofCondition,
+    flooringCondition: property.flooringCondition,
+    kitchenBathCondition: property.kitchenBathCondition,
+    mortgage: property.mortgage,
+    frameSidingCondition: property.frameSidingCondition,
+    windowsCondition: property.windowsCondition,
+    basementType: property.basementType,
+    wallsCondition: property.wallsCondition,
+    electricalPlumbingCondition: property.electricalPlumbingCondition,
+    furnaceCondition: property.furnaceCondition,
+    waterHeaterCondition: property.waterHeaterCondition,
+    acCondition: property.acCondition,
+    followUpContact: property.followUpContact,
+  };
+}
+
+export async function importLeadsCsvMapped(
+  input: ImportLeadsCsvMappedInput,
 ): Promise<ImportLeadsCsvResult> {
-  const data = importLeadsCsvSchema.parse(input);
+  const data = importLeadsCsvMappedSchema.parse(input);
   const accountId = await requireAccountId();
   const userId = await requireUserId();
   const supabase = await createClient();
-  const rows = parseCsv(data.csvText);
+  const { rows } = parseCsv(data.csvText);
 
   if (rows.length > 500) {
     throw new Error("Import up to 500 leads at a time");
@@ -220,13 +192,11 @@ export async function importLeadsCsv(
 
   for (const [index, row] of rows.entries()) {
     const rowNumber = index + 2;
-    const { firstName, lastName } = namesFromRow(row);
-    const title = titleFromRow(row, firstName, lastName);
-    const value = firstValue(row, ["value", "deal_value", "amount"]);
+    const mapped = applyMapping(row, data.mapping);
 
-    if (!firstName) {
+    if (!mapped.contact.firstName) {
       result.failed += 1;
-      result.errors.push(`Row ${rowNumber}: first_name or name is required`);
+      result.errors.push(`Row ${rowNumber}: a name column is required`);
       continue;
     }
 
@@ -234,61 +204,22 @@ export async function importLeadsCsv(
       const { leadId } = await createLeadRecord(supabase, {
         accountId,
         actorUserId: userId,
-        title,
-        pipelineStageId:
-          firstValue(row, ["pipeline_stage_id", "stage_id"]) ||
-          data.pipelineStageId ||
-          null,
-        firstName,
-        lastName,
-        email: firstValue(row, ["email", "email_address"]),
-        phone: firstValue(row, ["phone", "phone_number", "mobile"]),
-        company: firstValue(row, ["company", "organization"]),
-        source:
-          firstValue(row, ["source", "lead_source"]) ||
-          data.fallbackSource ||
-          "CSV import",
-        value: value ? Number(value) : null,
-        property: {
-          addressLine1: firstValue(row, [
-            "property_address",
-            "address",
-            "address_line1",
-            "street_address",
-          ]),
-          addressLine2: firstValue(row, ["address_line2", "unit", "suite"]),
-          city: firstValue(row, ["property_city", "city"]),
-          state: firstValue(row, ["property_state", "state"]),
-          postalCode: firstValue(row, [
-            "property_zip",
-            "property_postal_code",
-            "postal_code",
-            "zip",
-          ]),
-          propertyType: firstValue(row, ["property_type", "type"]),
-          bedrooms: optionalNumber(firstValue(row, ["bedrooms", "beds"])),
-          bathrooms: optionalNumber(firstValue(row, ["bathrooms", "baths"])),
-          squareFeet: optionalNumber(
-            firstValue(row, ["square_feet", "sqft", "area"]),
-          ),
-          askingPrice: optionalNumber(
-            firstValue(row, ["asking_price", "list_price"]),
-          ),
-          estimatedValue: optionalNumber(
-            firstValue(row, ["estimated_value", "property_value", "arv"]),
-          ),
-          contractStatus: normalizeContractStatus(
-            firstValue(row, ["contract_status"]),
-          ),
-          contractAmount: optionalNumber(
-            firstValue(row, ["contract_amount", "contract_price"]),
-          ),
-          contractCloseDate: firstValue(row, [
-            "contract_close_date",
-            "close_date",
-          ]),
-          notes: firstValue(row, ["property_notes", "property_note"]),
-        },
+        title:
+          mapped.lead.title ||
+          mapped.contact.company ||
+          [mapped.contact.firstName, mapped.contact.lastName]
+            .filter(Boolean)
+            .join(" ") ||
+          "Imported lead",
+        pipelineStageId: data.pipelineStageId || null,
+        firstName: mapped.contact.firstName,
+        lastName: mapped.contact.lastName,
+        email: mapped.contact.email,
+        phone: mapped.contact.phone,
+        company: mapped.contact.company,
+        source: mapped.contact.source || data.fallbackSource || "CSV import",
+        value: mapped.lead.value ? Number(mapped.lead.value) : null,
+        property: propertyInputFromMappedRow(mapped.property),
       });
 
       await runTriggeredWorkflows(supabase, accountId, "lead_created", {

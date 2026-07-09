@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAtRiskLeads, getDashboardStats } from "@/lib/queries/reporting";
 import { getYourDayTasks } from "@/lib/queries/tasks";
+import { getAccountMemberProfiles } from "@/lib/queries/members";
 import { YourDay } from "./_components/your-day";
+import { GettingStartedChecklist } from "./_components/getting-started-checklist";
 
 function formatDecimal(value: number | null): string {
   if (value == null) {
@@ -23,10 +25,11 @@ function formatPercent(value: number | null): string {
 }
 
 export default async function DashboardPage() {
-  const [stats, yourDayTasks, atRiskLeads] = await Promise.all([
+  const [stats, yourDayTasks, atRiskLeads, members] = await Promise.all([
     getDashboardStats(),
     getYourDayTasks(),
     getAtRiskLeads(),
+    getAccountMemberProfiles(),
   ]);
   const maxStageCount = Math.max(1, ...stats.leadsByStage.map((s) => s.count));
   const maxSourceCount = Math.max(1, ...stats.leadsBySource.map((s) => s.count));
@@ -43,6 +46,10 @@ export default async function DashboardPage() {
           Go to pipeline
         </Button>
       </div>
+
+      {stats.totalLeads === 0 && (
+        <GettingStartedChecklist hasTeammates={members.length > 1} />
+      )}
 
       <Card>
         <CardHeader>

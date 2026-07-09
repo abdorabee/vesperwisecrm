@@ -25,6 +25,8 @@ export async function signIn(formData: FormData): Promise<void> {
 export async function signUp(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const nicheValue = String(formData.get("niche") ?? "");
+  const niche = nicheValue === "agency" ? "agency" : "wholesaler";
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
     process.env.VERCEL_PROJECT_PRODUCTION_URL ??
@@ -43,6 +45,7 @@ export async function signUp(formData: FormData): Promise<void> {
         redirectTo,
         data: {
           app_name: "VesperwiseCRM",
+          niche,
         },
       },
     });
@@ -76,6 +79,7 @@ export async function signUp(formData: FormData): Promise<void> {
       password,
       options: {
         emailRedirectTo: redirectTo,
+        data: { niche },
       },
     });
 

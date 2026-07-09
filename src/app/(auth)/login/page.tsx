@@ -44,6 +44,20 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               />
               <FieldDescription>At least 6 characters.</FieldDescription>
             </Field>
+            <Field>
+              <FieldLabel htmlFor="niche">
+                What best describes your business? (only used for sign up)
+              </FieldLabel>
+              <select
+                id="niche"
+                name="niche"
+                defaultValue="wholesaler"
+                className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
+              >
+                <option value="wholesaler">Wholesaler / flipper</option>
+                <option value="agency">Cold-calling agency (source for clients)</option>
+              </select>
+            </Field>
           </FieldGroup>
 
           {params.error && (

@@ -94,13 +94,20 @@ export const intakeLeadSchema = newLeadSchema
 
 export type IntakeLeadInput = z.infer<typeof intakeLeadSchema>;
 
-export const importLeadsCsvSchema = z.object({
+export const previewCsvMappingSchema = z.object({
   csvText: z.string().min(1, "CSV content is required"),
+});
+
+export type PreviewCsvMappingInput = z.infer<typeof previewCsvMappingSchema>;
+
+export const importLeadsCsvMappedSchema = z.object({
+  csvText: z.string().min(1, "CSV content is required"),
+  mapping: z.record(z.string(), z.string()),
   pipelineStageId: z.string().uuid("Select a stage").optional().or(z.literal("")),
   fallbackSource: z.string().optional(),
 });
 
-export type ImportLeadsCsvInput = z.infer<typeof importLeadsCsvSchema>;
+export type ImportLeadsCsvMappedInput = z.infer<typeof importLeadsCsvMappedSchema>;
 
 // Caller quick-intake: script-speed submission for cold callers. Only the
 // seller's phone and property address are required so a caller doing
