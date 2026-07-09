@@ -5,12 +5,15 @@
 // short-lived auth users, cleaned up in afterAll.
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { randomBytes } from "node:crypto";
 import type { Database } from "../src/lib/supabase/types";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const PASSWORD = "RlsAuditTest123!";
+// Generated per run, not hardcoded: these are throwaway test accounts
+// deleted in afterAll, but a fixed literal is still a bad habit to commit.
+const PASSWORD = `Aa1!${randomBytes(18).toString("base64url")}`;
 const RUN_ID = Date.now();
 
 const admin = createClient<Database>(SUPABASE_URL, SERVICE_ROLE_KEY);

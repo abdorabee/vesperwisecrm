@@ -5,12 +5,15 @@
 import { test, expect, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
+import { randomBytes } from "node:crypto";
 
 config({ path: ".env.local" });
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const PASSWORD = "E2eAcquisitionTest123!";
+// Generated per run, not hardcoded: this is a throwaway test account
+// deleted in afterAll, but a fixed literal is still a bad habit to commit.
+const PASSWORD = `Aa1!${randomBytes(18).toString("base64url")}`;
 const EMAIL = `e2e-acquisition-${Date.now()}@vesperwisecrm.test`;
 
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
