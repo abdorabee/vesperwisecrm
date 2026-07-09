@@ -46,6 +46,7 @@ export default async function TeamPage() {
             <TableRow>
               <TableHead>Member</TableHead>
               <TableHead>Role</TableHead>
+              <TableHead>Job function</TableHead>
               <TableHead>Lead visibility</TableHead>
               <TableHead>Max open leads</TableHead>
               <TableHead>Sender identity</TableHead>

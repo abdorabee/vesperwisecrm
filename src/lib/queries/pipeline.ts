@@ -120,12 +120,12 @@ export async function getPipelineData(filters: {
       await supabase.rpc("smart_search_leads", {
         p_account_id: accountId,
         p_query: smartQuery,
-        p_stage_id: filters.stageId ?? null,
-        p_tag_id: filters.tagId ?? null,
+        p_stage_id: filters.stageId ?? undefined,
+        p_tag_id: filters.tagId ?? undefined,
         p_owner_id:
           filters.ownerId && filters.ownerId !== "unassigned"
             ? filters.ownerId
-            : null,
+            : undefined,
         p_owner_unassigned: filters.ownerId === "unassigned",
         p_limit: 100,
       });

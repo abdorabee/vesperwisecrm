@@ -50,6 +50,9 @@ export async function saveWorkflow(
   if (data.triggerType === "no_activity_days" && data.triggerDays) {
     triggerConfig.days = Number(data.triggerDays);
   }
+  if (data.triggerType === "no_next_action" && data.triggerHours) {
+    triggerConfig.hours = Number(data.triggerHours);
+  }
 
   let id = workflowId;
 

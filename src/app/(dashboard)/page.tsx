@@ -1,7 +1,8 @@
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getDashboardStats } from "@/lib/queries/reporting";
+import { getAtRiskLeads, getDashboardStats } from "@/lib/queries/reporting";
 import { getYourDayTasks } from "@/lib/queries/tasks";
 import { YourDay } from "./_components/your-day";
 
@@ -22,9 +23,10 @@ function formatPercent(value: number | null): string {
 }
 
 export default async function DashboardPage() {
-  const [stats, yourDayTasks] = await Promise.all([
+  const [stats, yourDayTasks, atRiskLeads] = await Promise.all([
     getDashboardStats(),
     getYourDayTasks(),
+    getAtRiskLeads(),
   ]);
   const maxStageCount = Math.max(1, ...stats.leadsByStage.map((s) => s.count));
   const maxSourceCount = Math.max(1, ...stats.leadsBySource.map((s) => s.count));
@@ -50,6 +52,38 @@ export default async function DashboardPage() {
           <YourDay tasks={yourDayTasks} />
         </CardContent>
       </Card>
+
+      {atRiskLeads.length > 0 && (
+        <Card className="border-destructive/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base text-destructive">
+              <AlertTriangle className="size-4" />
+              At risk — no next action ({atRiskLeads.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col divide-y divide-border">
+              {atRiskLeads.slice(0, 8).map((lead) => (
+                <Link
+                  key={lead.id}
+                  href={`/leads/${lead.id}`}
+                  className="flex items-center justify-between gap-3 py-2 text-sm hover:underline"
+                >
+                  <span className="truncate">{lead.title}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
+                    Created {new Date(lead.createdAt).toLocaleDateString()}
+                  </span>
+                </Link>
+              ))}
+            </div>
+            {atRiskLeads.length > 8 && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                +{atRiskLeads.length - 8} more open leads with no scheduled follow-up.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
         <Card>

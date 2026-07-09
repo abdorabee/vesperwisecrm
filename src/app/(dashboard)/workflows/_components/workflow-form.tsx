@@ -41,6 +41,7 @@ const TRIGGER_LABELS: Record<WorkflowInput["triggerType"], string> = {
   stage_changed: "When a lead's stage changes",
   tag_added: "When a tag is added",
   no_activity_days: "When a lead has no activity for N days",
+  no_next_action: "When a lead has no next action for N hours",
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -197,6 +198,16 @@ export function WorkflowForm({
             <FieldLabel htmlFor="triggerDays">Days without activity</FieldLabel>
             <Input id="triggerDays" inputMode="numeric" {...register("triggerDays")} />
             <FieldError errors={[errors.triggerDays]} />
+          </Field>
+        )}
+
+        {triggerType === "no_next_action" && (
+          <Field>
+            <FieldLabel htmlFor="triggerHours">
+              Hours without an open task or active sequence
+            </FieldLabel>
+            <Input id="triggerHours" inputMode="numeric" {...register("triggerHours")} />
+            <FieldError errors={[errors.triggerHours]} />
           </Field>
         )}
 

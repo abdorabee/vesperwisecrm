@@ -9,6 +9,7 @@ export interface MemberProfile {
   maxOpenLeads: number | null;
   fromDisplayName: string | null;
   fromEmailLocalPart: string | null;
+  jobFunction: string | null;
 }
 
 export async function getAccountMemberProfiles(): Promise<MemberProfile[]> {
@@ -31,6 +32,7 @@ export async function getAccountMemberProfiles(): Promise<MemberProfile[]> {
     maxOpenLeads: row.max_open_leads,
     fromDisplayName: row.from_display_name ?? null,
     fromEmailLocalPart: row.from_email_local_part ?? null,
+    jobFunction: row.job_function ?? null,
   }));
 }
 

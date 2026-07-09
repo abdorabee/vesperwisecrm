@@ -6,11 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Award,
+  ClipboardCheck,
   FolderKanban,
   Kanban,
   Mail,
   PanelLeftClose,
   PanelLeftOpen,
+  PhoneCall,
   Trophy,
   User,
   Users,
@@ -164,6 +166,8 @@ export function DashboardSidebar({
 }: DashboardSidebarProps) {
   const links: NavLink[] = [
     { href: "/pipeline", label: "Pipeline", icon: Kanban },
+    { href: "/intake", label: "Submit Lead", icon: PhoneCall },
+    { href: "/queue", label: "Lead Queue", icon: ClipboardCheck },
     { href: "/sequences", label: "Sequences", icon: Workflow },
     { href: "/workflows", label: "Workflows", icon: FolderKanban },
     { href: "/scorecard", label: "My Scorecard", icon: Trophy },

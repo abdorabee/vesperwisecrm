@@ -26,6 +26,7 @@ export function MemberRestrictionsRow({
   sendingDomain,
 }: MemberRestrictionsRowProps) {
   const [leadVisibility, setLeadVisibility] = useState(member.leadVisibility);
+  const [jobFunction, setJobFunction] = useState(member.jobFunction ?? "");
   const [maxOpenLeads, setMaxOpenLeads] = useState(
     member.maxOpenLeads != null ? String(member.maxOpenLeads) : "",
   );
@@ -45,6 +46,11 @@ export function MemberRestrictionsRow({
         maxOpenLeads,
         fromDisplayName,
         fromEmailLocalPart,
+        jobFunction: jobFunction as
+          | "cold_caller"
+          | "lead_manager"
+          | "acquisitions_manager"
+          | "",
       });
       toast.success("Member settings saved");
     } catch (error) {
@@ -70,6 +76,38 @@ export function MemberRestrictionsRow({
       </TableCell>
       <TableCell className="py-4">
         <Badge variant="secondary">{member.role}</Badge>
+      </TableCell>
+      <TableCell className="py-4">
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted-foreground">Job function</span>
+          <Select
+            value={jobFunction || "__none__"}
+            onValueChange={(value) =>
+              value && setJobFunction(value === "__none__" ? "" : value)
+            }
+          >
+            <SelectTrigger size="sm" className="w-44">
+              <SelectValue>
+                {(value: string) =>
+                  ({
+                    __none__: "—",
+                    cold_caller: "Cold caller",
+                    lead_manager: "Lead manager",
+                    acquisitions_manager: "Acquisitions manager",
+                  })[value] ?? "—"
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">—</SelectItem>
+              <SelectItem value="cold_caller">Cold caller</SelectItem>
+              <SelectItem value="lead_manager">Lead manager</SelectItem>
+              <SelectItem value="acquisitions_manager">
+                Acquisitions manager
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </TableCell>
       <TableCell className="py-4">
         <div className="flex flex-col gap-1">

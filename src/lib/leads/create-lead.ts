@@ -36,9 +36,32 @@ export interface CreateLeadRecordInput {
     contractAmount?: number | null;
     contractCloseDate?: string | null;
     notes?: string | null;
+    condition?: string | null;
+    updatesDone?: string | null;
+    updatesNeeded?: string | null;
+    occupancyStatus?: string | null;
+    tenantDurationRent?: string | null;
+    motivation?: string | null;
+    timeline?: string | null;
+    workNeeded?: string | null;
+    roofCondition?: string | null;
+    flooringCondition?: string | null;
+    kitchenBathCondition?: string | null;
+    mortgage?: string | null;
+    frameSidingCondition?: string | null;
+    windowsCondition?: string | null;
+    basementType?: string | null;
+    wallsCondition?: string | null;
+    electricalPlumbingCondition?: string | null;
+    furnaceCondition?: string | null;
+    waterHeaterCondition?: string | null;
+    acCondition?: string | null;
+    followUpContact?: string | null;
   };
   actorUserId?: string | null;
   notifyMembers?: boolean;
+  qualificationStatus?: "submitted" | "needs_info" | "qualified" | "rejected" | null;
+  submittedByUserId?: string | null;
 }
 
 export interface CreateLeadRecordResult {
@@ -242,6 +265,8 @@ export async function createLeadRecord(
       pipeline_stage_id: pipelineStageId,
       title: input.title.trim(),
       value: input.value ?? null,
+      qualification_status: input.qualificationStatus ?? null,
+      submitted_by_user_id: input.submittedByUserId ?? null,
     })
     .select("id")
     .single();
@@ -273,6 +298,45 @@ export async function createLeadRecord(
           input.property.contractCloseDate,
         ),
         notes: normalizeOptionalText(input.property.notes),
+        condition: normalizeOptionalText(input.property.condition),
+        updates_done: normalizeOptionalText(input.property.updatesDone),
+        updates_needed: normalizeOptionalText(input.property.updatesNeeded),
+        occupancy_status: normalizeOptionalText(input.property.occupancyStatus),
+        tenant_duration_rent: normalizeOptionalText(
+          input.property.tenantDurationRent,
+        ),
+        motivation: normalizeOptionalText(input.property.motivation),
+        timeline: normalizeOptionalText(input.property.timeline),
+        work_needed: normalizeOptionalText(input.property.workNeeded),
+        roof_condition: normalizeOptionalText(input.property.roofCondition),
+        flooring_condition: normalizeOptionalText(
+          input.property.flooringCondition,
+        ),
+        kitchen_bath_condition: normalizeOptionalText(
+          input.property.kitchenBathCondition,
+        ),
+        mortgage: normalizeOptionalText(input.property.mortgage),
+        frame_siding_condition: normalizeOptionalText(
+          input.property.frameSidingCondition,
+        ),
+        windows_condition: normalizeOptionalText(
+          input.property.windowsCondition,
+        ),
+        basement_type: normalizeOptionalText(input.property.basementType),
+        walls_condition: normalizeOptionalText(input.property.wallsCondition),
+        electrical_plumbing_condition: normalizeOptionalText(
+          input.property.electricalPlumbingCondition,
+        ),
+        furnace_condition: normalizeOptionalText(
+          input.property.furnaceCondition,
+        ),
+        water_heater_condition: normalizeOptionalText(
+          input.property.waterHeaterCondition,
+        ),
+        ac_condition: normalizeOptionalText(input.property.acCondition),
+        follow_up_contact: normalizeOptionalText(
+          input.property.followUpContact,
+        ),
       });
 
     if (propertyError) {

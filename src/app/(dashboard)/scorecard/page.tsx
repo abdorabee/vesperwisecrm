@@ -75,7 +75,73 @@ export default async function ScorecardPage() {
             </p>
           </CardContent>
         </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">
+              Leads submitted
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tabular-nums">
+              {stats.leadsSubmitted}
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">
+              Qualification rate
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tabular-nums">
+              {stats.qualificationRate != null
+                ? `${Math.round(stats.qualificationRate * 100)}%`
+                : "—"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {stats.leadsQualified} qualified / {stats.leadsRejected} rejected
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">
+              Avg. hours to qualify
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-3xl font-semibold tabular-nums">
+              {stats.avgHoursToQualify != null
+                ? stats.avgHoursToQualify.toFixed(1)
+                : "—"}
+            </p>
+          </CardContent>
+        </Card>
       </div>
+
+      {stats.topRejectionReasons.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Top rejection reasons</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-2">
+              {stats.topRejectionReasons.map((entry) => (
+                <div
+                  key={entry.reason}
+                  className="flex items-center justify-between text-sm"
+                >
+                  <span>{entry.reason}</span>
+                  <span className="text-muted-foreground tabular-nums">
+                    {entry.count}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

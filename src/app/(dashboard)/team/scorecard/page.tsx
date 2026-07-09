@@ -29,6 +29,9 @@ export default async function TeamScorecardPage() {
             <TableHead>Win rate</TableHead>
             <TableHead>Avg. days to won</TableHead>
             <TableHead>Sequence sends this week</TableHead>
+            <TableHead>Submitted</TableHead>
+            <TableHead>Qualification rate</TableHead>
+            <TableHead>Avg. hours to qualify</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -52,6 +55,17 @@ export default async function TeamScorecardPage() {
                 {entry.avgDaysToWon != null ? entry.avgDaysToWon.toFixed(1) : "—"}
               </TableCell>
               <TableCell className="tabular-nums">{entry.sequenceStepsSentThisWeek}</TableCell>
+              <TableCell className="tabular-nums">{entry.leadsSubmitted}</TableCell>
+              <TableCell className="tabular-nums">
+                {entry.qualificationRate != null
+                  ? `${Math.round(entry.qualificationRate * 100)}%`
+                  : "—"}
+              </TableCell>
+              <TableCell className="tabular-nums">
+                {entry.avgHoursToQualify != null
+                  ? entry.avgHoursToQualify.toFixed(1)
+                  : "—"}
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

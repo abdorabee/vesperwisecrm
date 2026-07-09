@@ -32,6 +32,29 @@ export const leadPropertySchema = z.object({
   contractAmount: optionalNonNegativeNumberString,
   contractCloseDate: z.string().optional(),
   notes: z.string().optional(),
+  // Acquisition intake fields (call-script order): condition, occupancy,
+  // financials, timeline, then system-by-system condition detail.
+  condition: z.string().optional(),
+  updatesDone: z.string().optional(),
+  updatesNeeded: z.string().optional(),
+  occupancyStatus: z.string().optional(),
+  tenantDurationRent: z.string().optional(),
+  motivation: z.string().optional(),
+  timeline: z.string().optional(),
+  workNeeded: z.string().optional(),
+  roofCondition: z.string().optional(),
+  flooringCondition: z.string().optional(),
+  kitchenBathCondition: z.string().optional(),
+  mortgage: z.string().optional(),
+  frameSidingCondition: z.string().optional(),
+  windowsCondition: z.string().optional(),
+  basementType: z.string().optional(),
+  wallsCondition: z.string().optional(),
+  electricalPlumbingCondition: z.string().optional(),
+  furnaceCondition: z.string().optional(),
+  waterHeaterCondition: z.string().optional(),
+  acCondition: z.string().optional(),
+  followUpContact: z.string().optional(),
 });
 
 export const newLeadSchema = z.object({
@@ -78,3 +101,43 @@ export const importLeadsCsvSchema = z.object({
 });
 
 export type ImportLeadsCsvInput = z.infer<typeof importLeadsCsvSchema>;
+
+// Caller quick-intake: script-speed submission for cold callers. Only the
+// seller's phone and property address are required so a caller doing
+// hundreds of dials a day is never blocked from submitting a lead.
+export const callerIntakeSchema = z.object({
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+  phone: z.string().min(1, "Phone is required"),
+  email: z.string().email("Invalid email").optional().or(z.literal("")),
+  addressLine1: z.string().min(1, "Property address is required"),
+  addressLine2: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  postalCode: z.string().optional(),
+  property: leadPropertySchema.omit({
+    addressLine1: true,
+    addressLine2: true,
+    city: true,
+    state: true,
+    postalCode: true,
+    contractStatus: true,
+    contractAmount: true,
+    contractCloseDate: true,
+  }).partial(),
+});
+
+export type CallerIntakeInput = z.infer<typeof callerIntakeSchema>;
+export type CallerIntakeFormInput = z.input<typeof callerIntakeSchema>;
+
+export const rejectLeadSchema = z.object({
+  reason: z.string().trim().min(1, "A rejection reason is required").max(500),
+});
+
+export type RejectLeadInput = z.infer<typeof rejectLeadSchema>;
+
+export const requestLeadInfoSchema = z.object({
+  note: z.string().trim().min(1, "Explain what's missing").max(1000),
+});
+
+export type RequestLeadInfoInput = z.infer<typeof requestLeadInfoSchema>;

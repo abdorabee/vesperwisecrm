@@ -14,47 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      account_members: {
-        Row: {
-          account_id: string
-          created_at: string
-          from_display_name: string | null
-          from_email_local_part: string | null
-          lead_visibility: string
-          max_open_leads: number | null
-          role: string
-          user_id: string
-        }
-        Insert: {
-          account_id: string
-          created_at?: string
-          from_display_name?: string | null
-          from_email_local_part?: string | null
-          lead_visibility?: string
-          max_open_leads?: number | null
-          role?: string
-          user_id: string
-        }
-        Update: {
-          account_id?: string
-          created_at?: string
-          from_display_name?: string | null
-          from_email_local_part?: string | null
-          lead_visibility?: string
-          max_open_leads?: number | null
-          role?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "account_members_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       account_email_settings: {
         Row: {
           account_id: string
@@ -114,102 +73,46 @@ export type Database = {
           },
         ]
       }
-      email_reply_tokens: {
+      account_members: {
         Row: {
           account_id: string
           created_at: string
-          expires_at: string
-          lead_id: string
-          outbound_activity_id: string | null
-          thread_id: string
-          token: string
+          from_display_name: string | null
+          from_email_local_part: string | null
+          job_function: string | null
+          lead_visibility: string
+          max_open_leads: number | null
+          role: string
+          user_id: string
         }
         Insert: {
           account_id: string
           created_at?: string
-          expires_at?: string
-          lead_id: string
-          outbound_activity_id?: string | null
-          thread_id: string
-          token: string
+          from_display_name?: string | null
+          from_email_local_part?: string | null
+          job_function?: string | null
+          lead_visibility?: string
+          max_open_leads?: number | null
+          role?: string
+          user_id: string
         }
         Update: {
           account_id?: string
           created_at?: string
-          expires_at?: string
-          lead_id?: string
-          outbound_activity_id?: string | null
-          thread_id?: string
-          token?: string
+          from_display_name?: string | null
+          from_email_local_part?: string | null
+          job_function?: string | null
+          lead_visibility?: string
+          max_open_leads?: number | null
+          role?: string
+          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "email_reply_tokens_account_id_fkey"
+            foreignKeyName: "account_members_account_id_fkey"
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_reply_tokens_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_reply_tokens_outbound_activity_id_fkey"
-            columns: ["outbound_activity_id"]
-            isOneToOne: false
-            referencedRelation: "activities"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      email_delivery_events: {
-        Row: {
-          account_id: string
-          created_at: string
-          event_type: string
-          id: string
-          lead_id: string | null
-          payload: Json
-          recipient: string | null
-          resend_email_id: string
-        }
-        Insert: {
-          account_id: string
-          created_at?: string
-          event_type: string
-          id?: string
-          lead_id?: string | null
-          payload?: Json
-          recipient?: string | null
-          resend_email_id: string
-        }
-        Update: {
-          account_id?: string
-          created_at?: string
-          event_type?: string
-          id?: string
-          lead_id?: string | null
-          payload?: Json
-          recipient?: string | null
-          resend_email_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "email_delivery_events_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "email_delivery_events_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -333,6 +236,106 @@ export type Database = {
           },
         ]
       }
+      email_delivery_events: {
+        Row: {
+          account_id: string
+          created_at: string
+          event_type: string
+          id: string
+          lead_id: string | null
+          payload: Json
+          recipient: string | null
+          resend_email_id: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          lead_id?: string | null
+          payload?: Json
+          recipient?: string | null
+          resend_email_id: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          lead_id?: string | null
+          payload?: Json
+          recipient?: string | null
+          resend_email_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_delivery_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_delivery_events_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_reply_tokens: {
+        Row: {
+          account_id: string
+          created_at: string
+          expires_at: string
+          lead_id: string
+          outbound_activity_id: string | null
+          thread_id: string
+          token: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          expires_at?: string
+          lead_id: string
+          outbound_activity_id?: string | null
+          thread_id: string
+          token: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          expires_at?: string
+          lead_id?: string
+          outbound_activity_id?: string | null
+          thread_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_reply_tokens_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_reply_tokens_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_reply_tokens_outbound_activity_id_fkey"
+            columns: ["outbound_activity_id"]
+            isOneToOne: false
+            referencedRelation: "activities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_group_members: {
         Row: {
           account_id: string
@@ -404,6 +407,188 @@ export type Database = {
           },
         ]
       }
+      lead_intake_sources: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          name: string
+          revoked_at: string | null
+          token: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          name: string
+          revoked_at?: string | null
+          token: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          revoked_at?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_intake_sources_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_properties: {
+        Row: {
+          ac_condition: string | null
+          account_id: string
+          address_line1: string | null
+          address_line2: string | null
+          asking_price: number | null
+          basement_type: string | null
+          bathrooms: number | null
+          bedrooms: number | null
+          city: string | null
+          condition: string | null
+          contract_amount: number | null
+          contract_close_date: string | null
+          contract_status: string
+          created_at: string
+          electrical_plumbing_condition: string | null
+          estimated_value: number | null
+          flooring_condition: string | null
+          follow_up_contact: string | null
+          frame_siding_condition: string | null
+          furnace_condition: string | null
+          id: string
+          kitchen_bath_condition: string | null
+          lead_id: string
+          mortgage: string | null
+          motivation: string | null
+          notes: string | null
+          occupancy_status: string | null
+          postal_code: string | null
+          property_type: string | null
+          roof_condition: string | null
+          square_feet: number | null
+          state: string | null
+          tenant_duration_rent: string | null
+          timeline: string | null
+          updated_at: string
+          updates_done: string | null
+          updates_needed: string | null
+          walls_condition: string | null
+          water_heater_condition: string | null
+          windows_condition: string | null
+          work_needed: string | null
+        }
+        Insert: {
+          ac_condition?: string | null
+          account_id: string
+          address_line1?: string | null
+          address_line2?: string | null
+          asking_price?: number | null
+          basement_type?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          condition?: string | null
+          contract_amount?: number | null
+          contract_close_date?: string | null
+          contract_status?: string
+          created_at?: string
+          electrical_plumbing_condition?: string | null
+          estimated_value?: number | null
+          flooring_condition?: string | null
+          follow_up_contact?: string | null
+          frame_siding_condition?: string | null
+          furnace_condition?: string | null
+          id?: string
+          kitchen_bath_condition?: string | null
+          lead_id: string
+          mortgage?: string | null
+          motivation?: string | null
+          notes?: string | null
+          occupancy_status?: string | null
+          postal_code?: string | null
+          property_type?: string | null
+          roof_condition?: string | null
+          square_feet?: number | null
+          state?: string | null
+          tenant_duration_rent?: string | null
+          timeline?: string | null
+          updated_at?: string
+          updates_done?: string | null
+          updates_needed?: string | null
+          walls_condition?: string | null
+          water_heater_condition?: string | null
+          windows_condition?: string | null
+          work_needed?: string | null
+        }
+        Update: {
+          ac_condition?: string | null
+          account_id?: string
+          address_line1?: string | null
+          address_line2?: string | null
+          asking_price?: number | null
+          basement_type?: string | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          city?: string | null
+          condition?: string | null
+          contract_amount?: number | null
+          contract_close_date?: string | null
+          contract_status?: string
+          created_at?: string
+          electrical_plumbing_condition?: string | null
+          estimated_value?: number | null
+          flooring_condition?: string | null
+          follow_up_contact?: string | null
+          frame_siding_condition?: string | null
+          furnace_condition?: string | null
+          id?: string
+          kitchen_bath_condition?: string | null
+          lead_id?: string
+          mortgage?: string | null
+          motivation?: string | null
+          notes?: string | null
+          occupancy_status?: string | null
+          postal_code?: string | null
+          property_type?: string | null
+          roof_condition?: string | null
+          square_feet?: number | null
+          state?: string | null
+          tenant_duration_rent?: string | null
+          timeline?: string | null
+          updated_at?: string
+          updates_done?: string | null
+          updates_needed?: string | null
+          walls_condition?: string | null
+          water_heater_condition?: string | null
+          windows_condition?: string | null
+          work_needed?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_properties_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_properties_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_sequence_enrollments: {
         Row: {
           account_id: string
@@ -464,90 +649,6 @@ export type Database = {
             columns: ["sequence_id"]
             isOneToOne: false
             referencedRelation: "sequences"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lead_properties: {
-        Row: {
-          account_id: string
-          address_line1: string | null
-          address_line2: string | null
-          asking_price: number | null
-          bathrooms: number | null
-          bedrooms: number | null
-          city: string | null
-          contract_amount: number | null
-          contract_close_date: string | null
-          contract_status: string
-          created_at: string
-          estimated_value: number | null
-          id: string
-          lead_id: string
-          notes: string | null
-          postal_code: string | null
-          property_type: string | null
-          square_feet: number | null
-          state: string | null
-          updated_at: string
-        }
-        Insert: {
-          account_id: string
-          address_line1?: string | null
-          address_line2?: string | null
-          asking_price?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          contract_amount?: number | null
-          contract_close_date?: string | null
-          contract_status?: string
-          created_at?: string
-          estimated_value?: number | null
-          id?: string
-          lead_id: string
-          notes?: string | null
-          postal_code?: string | null
-          property_type?: string | null
-          square_feet?: number | null
-          state?: string | null
-          updated_at?: string
-        }
-        Update: {
-          account_id?: string
-          address_line1?: string | null
-          address_line2?: string | null
-          asking_price?: number | null
-          bathrooms?: number | null
-          bedrooms?: number | null
-          city?: string | null
-          contract_amount?: number | null
-          contract_close_date?: string | null
-          contract_status?: string
-          created_at?: string
-          estimated_value?: number | null
-          id?: string
-          lead_id?: string
-          notes?: string | null
-          postal_code?: string | null
-          property_type?: string | null
-          square_feet?: number | null
-          state?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lead_properties_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lead_properties_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -680,8 +781,13 @@ export type Database = {
           id: string
           owner_user_id: string | null
           pipeline_stage_id: string
+          qualification_status: string | null
+          qualified_at: string | null
+          qualified_by_user_id: string | null
+          rejection_reason: string | null
           routing_group_id: string | null
           status: string
+          submitted_by_user_id: string | null
           title: string
           updated_at: string
           value: number | null
@@ -694,8 +800,13 @@ export type Database = {
           id?: string
           owner_user_id?: string | null
           pipeline_stage_id: string
+          qualification_status?: string | null
+          qualified_at?: string | null
+          qualified_by_user_id?: string | null
+          rejection_reason?: string | null
           routing_group_id?: string | null
           status?: string
+          submitted_by_user_id?: string | null
           title: string
           updated_at?: string
           value?: number | null
@@ -708,8 +819,13 @@ export type Database = {
           id?: string
           owner_user_id?: string | null
           pipeline_stage_id?: string
+          qualification_status?: string | null
+          qualified_at?: string | null
+          qualified_by_user_id?: string | null
+          rejection_reason?: string | null
           routing_group_id?: string | null
           status?: string
+          submitted_by_user_id?: string | null
           title?: string
           updated_at?: string
           value?: number | null
@@ -1061,6 +1177,20 @@ export type Database = {
         Args: { p_group_id: string; p_lead_id: string }
         Returns: string
       }
+      get_account_member_profiles: {
+        Args: { p_account_id: string }
+        Returns: {
+          email: string
+          from_display_name: string
+          from_email_local_part: string
+          job_function: string
+          lead_visibility: string
+          max_open_leads: number
+          role: string
+          user_id: string
+        }[]
+      }
+      get_lead_owner_email: { Args: { p_lead_id: string }; Returns: string }
       get_related_leads: {
         Args: { p_account_id: string; p_lead_id: string; p_limit?: number }
         Returns: {
@@ -1068,22 +1198,6 @@ export type Database = {
           match_reasons: string[]
           relevance: number
         }[]
-      }
-      get_account_member_profiles: {
-        Args: { p_account_id: string }
-        Returns: {
-          email: string
-          from_display_name: string | null
-          from_email_local_part: string | null
-          lead_visibility: string
-          max_open_leads: number
-          role: string
-          user_id: string
-        }[]
-      }
-      get_lead_owner_email: {
-        Args: { p_lead_id: string }
-        Returns: string
       }
       is_account_admin: { Args: { check_account_id: string }; Returns: boolean }
       is_account_member: {
@@ -1095,11 +1209,11 @@ export type Database = {
         Args: {
           p_account_id: string
           p_limit?: number
-          p_owner_id?: string | null
+          p_owner_id?: string
           p_owner_unassigned?: boolean
           p_query: string
-          p_stage_id?: string | null
-          p_tag_id?: string | null
+          p_stage_id?: string
+          p_tag_id?: string
         }
         Returns: {
           lead_id: string

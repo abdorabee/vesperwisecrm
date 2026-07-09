@@ -35,6 +35,73 @@ export interface DashboardStats {
   activitiesByDay: DailyActivityCount[];
 }
 
+export interface AtRiskLead {
+  id: string;
+  title: string;
+  createdAt: string;
+}
+
+// "No lead left behind": every open lead should have an open task or an
+// active sequence enrollment. Anything without either is silently leaking,
+// the exact failure mode competitor CRMs don't surface.
+export async function getAtRiskLeads(): Promise<AtRiskLead[]> {
+  const accountId = await requireAccountId();
+  const supabase = await createClient();
+
+  const { data: openLeads, error: leadsError } = await supabase
+    .from("leads")
+    .select("id, title, created_at")
+    .eq("account_id", accountId)
+    .eq("status", "open")
+    .is("deleted_at", null)
+    .order("created_at", { ascending: true });
+
+  if (leadsError) {
+    throw new Error(leadsError.message);
+  }
+  if (!openLeads || openLeads.length === 0) {
+    return [];
+  }
+
+  const leadIds = openLeads.map((lead) => lead.id);
+
+  const [{ data: openTasks, error: tasksError }, { data: activeEnrollments, error: enrollmentsError }] =
+    await Promise.all([
+      supabase
+        .from("lead_tasks")
+        .select("lead_id")
+        .eq("account_id", accountId)
+        .is("completed_at", null)
+        .in("lead_id", leadIds),
+      supabase
+        .from("lead_sequence_enrollments")
+        .select("lead_id")
+        .eq("account_id", accountId)
+        .eq("status", "active")
+        .in("lead_id", leadIds),
+    ]);
+
+  if (tasksError) {
+    throw new Error(tasksError.message);
+  }
+  if (enrollmentsError) {
+    throw new Error(enrollmentsError.message);
+  }
+
+  const covered = new Set([
+    ...(openTasks ?? []).map((task) => task.lead_id),
+    ...(activeEnrollments ?? []).map((enrollment) => enrollment.lead_id),
+  ]);
+
+  return openLeads
+    .filter((lead) => !covered.has(lead.id))
+    .map((lead) => ({
+      id: lead.id,
+      title: lead.title,
+      createdAt: lead.created_at,
+    }));
+}
+
 function getStartOfWeekIso(): string {
   const now = new Date();
   const day = now.getUTCDay();
@@ -183,6 +250,12 @@ export interface UserScorecard {
   winRate: number | null;
   avgDaysToWon: number | null;
   sequenceStepsSentThisWeek: number;
+  leadsSubmitted: number;
+  leadsQualified: number;
+  leadsRejected: number;
+  qualificationRate: number | null;
+  avgHoursToQualify: number | null;
+  topRejectionReasons: { reason: string; count: number }[];
 }
 
 async function computeScorecard(
@@ -245,6 +318,61 @@ async function computeScorecard(
     .eq("sent_by_user_id", userId)
     .gte("sent_at", startOfWeek);
 
+  // Caller-side: of the leads this person submitted, how many were qualified
+  // vs rejected, and why. Lead-manager-side: how fast they clear the queue.
+  const { count: leadsSubmitted } = await supabase
+    .from("leads")
+    .select("*", { count: "exact", head: true })
+    .eq("account_id", accountId)
+    .eq("submitted_by_user_id", userId);
+
+  const { data: submittedOutcomes } = await supabase
+    .from("leads")
+    .select("qualification_status, rejection_reason")
+    .eq("account_id", accountId)
+    .eq("submitted_by_user_id", userId)
+    .in("qualification_status", ["qualified", "rejected"]);
+
+  const leadsQualified =
+    submittedOutcomes?.filter((lead) => lead.qualification_status === "qualified")
+      .length ?? 0;
+  const rejectedSubmissions =
+    submittedOutcomes?.filter((lead) => lead.qualification_status === "rejected") ??
+    [];
+  const leadsRejected = rejectedSubmissions.length;
+  const qualificationRate =
+    leadsQualified + leadsRejected > 0
+      ? leadsQualified / (leadsQualified + leadsRejected)
+      : null;
+
+  const reasonCounts = new Map<string, number>();
+  for (const lead of rejectedSubmissions) {
+    const reason = lead.rejection_reason?.trim() || "No reason given";
+    reasonCounts.set(reason, (reasonCounts.get(reason) ?? 0) + 1);
+  }
+  const topRejectionReasons = Array.from(reasonCounts.entries())
+    .map(([reason, count]) => ({ reason, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+
+  const { data: qualifiedByUser } = await supabase
+    .from("leads")
+    .select("created_at, qualified_at")
+    .eq("account_id", accountId)
+    .eq("qualified_by_user_id", userId)
+    .not("qualified_at", "is", null);
+
+  const avgHoursToQualify =
+    qualifiedByUser && qualifiedByUser.length > 0
+      ? qualifiedByUser.reduce((sum, lead) => {
+          const hours =
+            (new Date(lead.qualified_at!).getTime() -
+              new Date(lead.created_at).getTime()) /
+            (1000 * 60 * 60);
+          return sum + hours;
+        }, 0) / qualifiedByUser.length
+      : null;
+
   return {
     openLeadsOwned: openLeadsOwned ?? 0,
     leadsCreatedThisWeek: leadsCreatedThisWeek ?? 0,
@@ -252,6 +380,12 @@ async function computeScorecard(
     winRate,
     avgDaysToWon,
     sequenceStepsSentThisWeek: sequenceStepsSentThisWeek ?? 0,
+    leadsSubmitted: leadsSubmitted ?? 0,
+    leadsQualified,
+    leadsRejected,
+    qualificationRate,
+    avgHoursToQualify,
+    topRejectionReasons,
   };
 }
 

@@ -57,10 +57,18 @@ export const workflowSchema = z.object({
     "stage_changed",
     "tag_added",
     "no_activity_days",
+    "no_next_action",
   ]),
   triggerStageId: z.string().optional(),
   triggerTagId: z.string().optional(),
   triggerDays: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || (/^\d+$/.test(v) && Number(v) > 0),
+      "Must be a positive whole number",
+    ),
+  triggerHours: z
     .string()
     .optional()
     .refine(

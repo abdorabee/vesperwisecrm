@@ -2,8 +2,15 @@ import { z } from "zod";
 
 const emailLocalPartPattern = /^[a-z0-9._-]+$/;
 
+const jobFunctionSchema = z.enum([
+  "cold_caller",
+  "lead_manager",
+  "acquisitions_manager",
+]);
+
 export const updateMemberRestrictionsSchema = z.object({
   leadVisibility: z.enum(["all", "assigned_only"]),
+  jobFunction: jobFunctionSchema.optional().or(z.literal("")),
   maxOpenLeads: z
     .string()
     .optional()

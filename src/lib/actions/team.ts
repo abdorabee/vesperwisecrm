@@ -46,6 +46,7 @@ export async function updateMemberRestrictions(
       max_open_leads: data.maxOpenLeads ? Number(data.maxOpenLeads) : null,
       from_display_name: data.fromDisplayName?.trim() || null,
       from_email_local_part: data.fromEmailLocalPart?.trim() || null,
+      job_function: data.jobFunction || null,
     })
     .eq("account_id", accountId)
     .eq("user_id", userId);
