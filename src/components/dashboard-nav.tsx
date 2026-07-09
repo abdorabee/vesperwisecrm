@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Award,
+  Briefcase,
   ClipboardCheck,
   FileText,
   FolderKanban,
@@ -179,6 +180,7 @@ export function DashboardSidebar({
           { href: "/settings/email", label: "Email", icon: Mail },
           { href: "/settings/google", label: "Google", icon: FileText },
           { href: "/team/groups", label: "Groups", icon: FolderKanban },
+          { href: "/team/clients", label: "Clients", icon: Briefcase },
           {
             href: "/team/scorecard",
             label: "Employee Scorecard",
@@ -214,6 +216,23 @@ export function PlatformSidebar({
       logoHref="/pipeline"
       label="Platform"
       links={[{ href: "/platform/email", label: "Email", icon: Mail }]}
+      footer={footer}
+      collapsedFooter={collapsedFooter}
+    />
+  );
+}
+
+interface PortalSidebarProps {
+  footer?: ReactNode;
+  collapsedFooter?: ReactNode;
+}
+
+export function PortalSidebar({ footer, collapsedFooter }: PortalSidebarProps) {
+  return (
+    <SidebarShell
+      logoHref="/portal"
+      label="Client Portal"
+      links={[{ href: "/portal", label: "Properties", icon: Briefcase, exact: true }]}
       footer={footer}
       collapsedFooter={collapsedFooter}
     />

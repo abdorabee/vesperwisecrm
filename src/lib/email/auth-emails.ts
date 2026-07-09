@@ -130,6 +130,40 @@ export async function sendSignupConfirmationEmail({
   }
 }
 
+export async function sendClientPortalInvitationEmail({
+  to,
+  actionLink,
+  accountName,
+}: InviteEmailInput): Promise<void> {
+  const resend = getResendClient();
+  const { error } = await resend.emails.send({
+    from: authEmailFromAddress(),
+    to,
+    subject: `${accountName} invited you to view your properties`,
+    html: renderAuthEmail({
+      title: "You're invited to your property portal",
+      eyebrow: "Client portal",
+      body: `${accountName} invited you to a portal where you can review properties sourced for you, leave comments, and mark your interest.`,
+      buttonLabel: "Open portal",
+      actionLink,
+      footer: "If you were not expecting this invitation, you can safely ignore this email.",
+    }),
+    text: [
+      `${accountName} invited you to view your properties`,
+      "",
+      `${accountName} invited you to a portal where you can review properties sourced for you.`,
+      "",
+      actionLink,
+      "",
+      "If you were not expecting this invitation, you can safely ignore this email.",
+    ].join("\n"),
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 export async function sendTeamInvitationEmail({
   to,
   actionLink,

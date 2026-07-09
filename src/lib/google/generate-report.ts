@@ -78,6 +78,7 @@ function buildReportText(lead: LeadDetail): string {
 export async function generatePropertyReportDoc(
   accountId: string,
   lead: LeadDetail,
+  folderIdOverride?: string | null,
 ): Promise<string> {
   const { client, integration } = await getAuthorizedGoogleClient(accountId);
   const docs = google.docs({ version: "v1", auth: client });
@@ -105,12 +106,17 @@ export async function generatePropertyReportDoc(
     },
   });
 
-  if (integration.drive_folder_id) {
+  // A lead's assigned client can have its own Drive folder; fall back to
+  // the account-level default when the lead has no client or the client
+  // hasn't set one.
+  const folderId = folderIdOverride ?? integration.drive_folder_id;
+
+  if (folderId) {
     const file = await drive.files.get({ fileId: documentId, fields: "parents" });
     const previousParents = (file.data.parents ?? []).join(",");
     await drive.files.update({
       fileId: documentId,
-      addParents: integration.drive_folder_id,
+      addParents: folderId,
       removeParents: previousParents,
       fields: "id, parents",
     });

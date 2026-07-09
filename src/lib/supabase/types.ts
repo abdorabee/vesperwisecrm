@@ -76,6 +76,7 @@ export type Database = {
       account_members: {
         Row: {
           account_id: string
+          client_id: string | null
           created_at: string
           from_display_name: string | null
           from_email_local_part: string | null
@@ -87,6 +88,7 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          client_id?: string | null
           created_at?: string
           from_display_name?: string | null
           from_email_local_part?: string | null
@@ -98,6 +100,7 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          client_id?: string | null
           created_at?: string
           from_display_name?: string | null
           from_email_local_part?: string | null
@@ -113,6 +116,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "account_members_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
@@ -176,6 +186,50 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          account_id: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          drive_folder_id: string | null
+          id: string
+          name: string
+          notes: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          drive_folder_id?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          drive_folder_id?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clients_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
         ]
@@ -376,6 +430,58 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: true
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_client_comments: {
+        Row: {
+          account_id: string
+          author_user_id: string | null
+          body: string
+          client_id: string
+          created_at: string
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          account_id: string
+          author_user_id?: string | null
+          body: string
+          client_id: string
+          created_at?: string
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          account_id?: string
+          author_user_id?: string | null
+          body?: string
+          client_id?: string
+          created_at?: string
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_client_comments_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_client_comments_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_client_comments_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
         ]
@@ -819,6 +925,9 @@ export type Database = {
       leads: {
         Row: {
           account_id: string
+          client_decided_at: string | null
+          client_id: string | null
+          client_interest_status: string | null
           contact_id: string
           created_at: string
           deleted_at: string | null
@@ -839,6 +948,9 @@ export type Database = {
         }
         Insert: {
           account_id: string
+          client_decided_at?: string | null
+          client_id?: string | null
+          client_interest_status?: string | null
           contact_id: string
           created_at?: string
           deleted_at?: string | null
@@ -859,6 +971,9 @@ export type Database = {
         }
         Update: {
           account_id?: string
+          client_decided_at?: string | null
+          client_id?: string | null
+          client_interest_status?: string | null
           contact_id?: string
           created_at?: string
           deleted_at?: string | null
@@ -883,6 +998,13 @@ export type Database = {
             columns: ["account_id"]
             isOneToOne: false
             referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
           {
@@ -1237,7 +1359,17 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_client_portal_members: {
+        Args: { p_account_id: string }
+        Returns: {
+          client_id: string
+          client_name: string
+          email: string
+          user_id: string
+        }[]
+      }
       get_lead_owner_email: { Args: { p_lead_id: string }; Returns: string }
+      get_my_client_id: { Args: { check_account_id: string }; Returns: string }
       get_related_leads: {
         Args: { p_account_id: string; p_lead_id: string; p_limit?: number }
         Returns: {
@@ -1247,9 +1379,17 @@ export type Database = {
         }[]
       }
       is_account_admin: { Args: { check_account_id: string }; Returns: boolean }
+      is_account_client: {
+        Args: { check_account_id: string }
+        Returns: boolean
+      }
       is_account_member: {
         Args: { check_account_id: string }
         Returns: boolean
+      }
+      set_client_lead_interest: {
+        Args: { p_lead_id: string; p_status: string }
+        Returns: undefined
       }
       smart_search_digits: { Args: { p_value: string }; Returns: string }
       smart_search_leads: {

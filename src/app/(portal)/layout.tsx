@@ -1,13 +1,12 @@
 import { redirect } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentMembership } from "@/lib/queries/members";
 import { signOutAction } from "@/lib/actions/auth";
-import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
-import { isPlatformAdminEmail } from "@/lib/supabase/platform-admin";
 import { Button } from "@/components/ui/button";
-import { DashboardSidebar } from "@/components/dashboard-nav";
+import { PortalSidebar } from "@/components/dashboard-nav";
 
-export default async function DashboardLayout({
+export default async function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -23,18 +22,13 @@ export default async function DashboardLayout({
 
   const membership = await getCurrentMembership();
 
-  if (membership?.role === "client") {
-    redirect("/portal");
+  if (membership?.role !== "client") {
+    redirect("/");
   }
-
-  const isAdmin = membership ? isAdminRole(membership.role) : false;
-  const isPlatformAdmin = isPlatformAdminEmail(user.email);
 
   return (
     <div className="flex min-h-screen">
-      <DashboardSidebar
-        isAdmin={isAdmin}
-        isPlatformAdmin={isPlatformAdmin}
+      <PortalSidebar
         footer={
           <div className="flex flex-col gap-2 px-1.5">
             <span className="truncate text-xs text-muted-foreground">

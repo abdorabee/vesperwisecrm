@@ -9,6 +9,9 @@ import { getStages, getTags } from "@/lib/queries/pipeline";
 import { getLeadEnrollments, getSequences } from "@/lib/queries/sequences";
 import { getAccountMemberProfiles, getCurrentMembership, isAdminRole } from "@/lib/queries/members";
 import { getLeadTasks } from "@/lib/queries/tasks";
+import { getClientsForAssignment } from "@/lib/queries/clients";
+import { getLeadClientComments } from "@/lib/queries/portal";
+import { requireUserId } from "@/lib/supabase/account";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StageSelect } from "./_components/stage-select";
 import { ActivityFeed } from "./_components/activity-feed";
@@ -21,6 +24,8 @@ import { TaskPanel } from "./_components/task-panel";
 import { ContactEmailOptOutBadge } from "./_components/contact-email-opt-out-badge";
 import { PropertyPanel } from "./_components/property-panel";
 import { GenerateReportButton } from "./_components/generate-report-button";
+import { ClientAssignmentPanel } from "./_components/client-assignment-panel";
+import { ClientCommentThread } from "@/components/client-comment-thread";
 
 interface LeadDetailPageProps {
   params: Promise<{ leadId: string }>;
@@ -38,6 +43,8 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
     allTags,
     enrollments,
     sequences,
+    clients,
+    currentUserId,
   ] =
     await Promise.all([
       getLeadDetail(leadId),
@@ -49,7 +56,13 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
       getTags(),
       getLeadEnrollments(leadId),
       getSequences(),
+      getClientsForAssignment(),
+      requireUserId(),
     ]);
+
+  const clientComments = lead.client_id
+    ? await getLeadClientComments(leadId)
+    : [];
 
   const contactName = [lead.contact.first_name, lead.contact.last_name]
     .filter(Boolean)
@@ -167,6 +180,29 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             </CardHeader>
             <CardContent>
               <RelatedLeadsPanel leads={relatedLeads} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Client</CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4">
+              <ClientAssignmentPanel
+                leadId={lead.id}
+                clientId={lead.client_id}
+                clientInterestStatus={lead.client_interest_status}
+                clients={clients}
+              />
+              {lead.client_id && (
+                <ClientCommentThread
+                  leadId={lead.id}
+                  comments={clientComments}
+                  currentUserId={currentUserId}
+                  viewerLabel="You"
+                  otherLabel="Client"
+                />
+              )}
             </CardContent>
           </Card>
         </div>

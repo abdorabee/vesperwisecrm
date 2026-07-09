@@ -64,3 +64,36 @@ export async function requireAdminAccountId(): Promise<string> {
 
   return data.account_id;
 }
+
+export interface ClientContext {
+  accountId: string;
+  clientId: string;
+}
+
+export async function requireClientContext(): Promise<ClientContext> {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+
+  const { data, error } = await supabase
+    .from("account_members")
+    .select("account_id, role, client_id")
+    .eq("user_id", user.id)
+    .limit(1)
+    .single();
+
+  if (error || !data) {
+    throw new Error("No account found for the current user");
+  }
+
+  if (data.role !== "client" || !data.client_id) {
+    throw new Error("Client portal access required");
+  }
+
+  return { accountId: data.account_id, clientId: data.client_id };
+}

@@ -19,7 +19,17 @@ export async function generateLeadReport(
   const supabase = await createClient();
   const lead = await getLeadDetail(leadId);
 
-  const url = await generatePropertyReportDoc(accountId, lead);
+  let clientFolderId: string | null = null;
+  if (lead.client_id) {
+    const { data: client } = await supabase
+      .from("clients")
+      .select("drive_folder_id")
+      .eq("id", lead.client_id)
+      .maybeSingle();
+    clientFolderId = client?.drive_folder_id ?? null;
+  }
+
+  const url = await generatePropertyReportDoc(accountId, lead, clientFolderId);
 
   const { error } = await supabase
     .from("leads")
