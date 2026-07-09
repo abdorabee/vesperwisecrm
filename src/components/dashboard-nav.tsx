@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
   Award,
   ClipboardCheck,
+  FileText,
   FolderKanban,
   Kanban,
   Mail,
@@ -176,6 +177,7 @@ export function DashboardSidebar({
       ? [
           { href: "/team", label: "Team", icon: Users, exact: true },
           { href: "/settings/email", label: "Email", icon: Mail },
+          { href: "/settings/google", label: "Google", icon: FileText },
           { href: "/team/groups", label: "Groups", icon: FolderKanban },
           {
             href: "/team/scorecard",

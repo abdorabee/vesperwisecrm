@@ -336,6 +336,50 @@ export type Database = {
           },
         ]
       }
+      google_integrations: {
+        Row: {
+          access_token: string
+          account_id: string
+          connected_at: string
+          connected_by_user_id: string | null
+          connected_email: string | null
+          drive_folder_id: string | null
+          refresh_token: string
+          token_expires_at: string
+          updated_at: string
+        }
+        Insert: {
+          access_token: string
+          account_id: string
+          connected_at?: string
+          connected_by_user_id?: string | null
+          connected_email?: string | null
+          drive_folder_id?: string | null
+          refresh_token: string
+          token_expires_at: string
+          updated_at?: string
+        }
+        Update: {
+          access_token?: string
+          account_id?: string
+          connected_at?: string
+          connected_by_user_id?: string | null
+          connected_email?: string | null
+          drive_folder_id?: string | null
+          refresh_token?: string
+          token_expires_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "google_integrations_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_group_members: {
         Row: {
           account_id: string
@@ -778,6 +822,7 @@ export type Database = {
           contact_id: string
           created_at: string
           deleted_at: string | null
+          google_doc_url: string | null
           id: string
           owner_user_id: string | null
           pipeline_stage_id: string
@@ -797,6 +842,7 @@ export type Database = {
           contact_id: string
           created_at?: string
           deleted_at?: string | null
+          google_doc_url?: string | null
           id?: string
           owner_user_id?: string | null
           pipeline_stage_id: string
@@ -816,6 +862,7 @@ export type Database = {
           contact_id?: string
           created_at?: string
           deleted_at?: string | null
+          google_doc_url?: string | null
           id?: string
           owner_user_id?: string | null
           pipeline_stage_id?: string

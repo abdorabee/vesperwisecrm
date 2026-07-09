@@ -20,6 +20,7 @@ import { AddNoteForm } from "./_components/add-note-form";
 import { TaskPanel } from "./_components/task-panel";
 import { ContactEmailOptOutBadge } from "./_components/contact-email-opt-out-badge";
 import { PropertyPanel } from "./_components/property-panel";
+import { GenerateReportButton } from "./_components/generate-report-button";
 
 interface LeadDetailPageProps {
   params: Promise<{ leadId: string }>;
@@ -95,7 +96,11 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             <CardHeader>
               <CardTitle className="text-base">Property & Contract</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-col gap-4">
+              <GenerateReportButton
+                leadId={lead.id}
+                existingDocUrl={lead.google_doc_url}
+              />
               <PropertyPanel leadId={lead.id} property={lead.property} />
             </CardContent>
           </Card>

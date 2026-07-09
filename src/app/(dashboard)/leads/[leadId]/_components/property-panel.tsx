@@ -21,6 +21,8 @@ import {
   type LeadPropertyFormInput,
 } from "@/lib/validations/lead";
 import type { Tables } from "@/lib/supabase/types";
+import { AiParseNotes } from "../../../_components/ai-parse-notes";
+import type { ExtractedCallNoteFields } from "@/lib/ai/parse-call-notes";
 
 interface PropertyPanelProps {
   leadId: string;
@@ -56,6 +58,7 @@ export function PropertyPanel({ leadId, property }: PropertyPanelProps) {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<LeadPropertyFormInput>({
     resolver: zodResolver(leadPropertySchema),
@@ -75,8 +78,40 @@ export function PropertyPanel({ leadId, property }: PropertyPanelProps) {
       contractAmount: numberValue(property?.contract_amount),
       contractCloseDate: textValue(property?.contract_close_date),
       notes: textValue(property?.notes),
+      condition: textValue(property?.condition),
+      updatesDone: textValue(property?.updates_done),
+      updatesNeeded: textValue(property?.updates_needed),
+      occupancyStatus: textValue(property?.occupancy_status),
+      tenantDurationRent: textValue(property?.tenant_duration_rent),
+      motivation: textValue(property?.motivation),
+      timeline: textValue(property?.timeline),
+      workNeeded: textValue(property?.work_needed),
+      roofCondition: textValue(property?.roof_condition),
+      flooringCondition: textValue(property?.flooring_condition),
+      kitchenBathCondition: textValue(property?.kitchen_bath_condition),
+      mortgage: textValue(property?.mortgage),
+      frameSidingCondition: textValue(property?.frame_siding_condition),
+      windowsCondition: textValue(property?.windows_condition),
+      basementType: textValue(property?.basement_type),
+      wallsCondition: textValue(property?.walls_condition),
+      electricalPlumbingCondition: textValue(
+        property?.electrical_plumbing_condition,
+      ),
+      furnaceCondition: textValue(property?.furnace_condition),
+      waterHeaterCondition: textValue(property?.water_heater_condition),
+      acCondition: textValue(property?.ac_condition),
+      followUpContact: textValue(property?.follow_up_contact),
     },
   });
+
+  function handleExtracted(fields: ExtractedCallNoteFields) {
+    for (const [key, value] of Object.entries(fields)) {
+      if (value == null || value === "") {
+        continue;
+      }
+      setValue(key as keyof LeadPropertyFormInput, value, { shouldDirty: true });
+    }
+  }
 
   async function onSubmit(data: LeadPropertyFormInput) {
     try {
@@ -92,6 +127,8 @@ export function PropertyPanel({ leadId, property }: PropertyPanelProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <AiParseNotes onExtracted={handleExtracted} />
+
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="property-addressLine1">Address</FieldLabel>
@@ -243,6 +280,165 @@ export function PropertyPanel({ leadId, property }: PropertyPanelProps) {
                 id="property-contractCloseDate"
                 type="date"
                 {...register("contractCloseDate")}
+              />
+            </Field>
+          </div>
+        </div>
+
+        <div className="border-t pt-4">
+          <p className="mb-3 text-xs font-medium text-muted-foreground">
+            Acquisition intake
+          </p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <Field>
+              <FieldLabel htmlFor="property-condition">Condition</FieldLabel>
+              <Input id="property-condition" {...register("condition")} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-occupancyStatus">
+                Occupancy
+              </FieldLabel>
+              <Input
+                id="property-occupancyStatus"
+                {...register("occupancyStatus")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-tenantDurationRent">
+                Tenant duration & rent
+              </FieldLabel>
+              <Input
+                id="property-tenantDurationRent"
+                {...register("tenantDurationRent")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-motivation">Motivation</FieldLabel>
+              <Input id="property-motivation" {...register("motivation")} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-timeline">Timeline</FieldLabel>
+              <Input id="property-timeline" {...register("timeline")} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-updatesDone">
+                Updates done
+              </FieldLabel>
+              <Input id="property-updatesDone" {...register("updatesDone")} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-updatesNeeded">
+                Updates needed
+              </FieldLabel>
+              <Input
+                id="property-updatesNeeded"
+                {...register("updatesNeeded")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-workNeeded">
+                Work needed
+              </FieldLabel>
+              <Input id="property-workNeeded" {...register("workNeeded")} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-roofCondition">Roof</FieldLabel>
+              <Input
+                id="property-roofCondition"
+                {...register("roofCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-flooringCondition">
+                Flooring
+              </FieldLabel>
+              <Input
+                id="property-flooringCondition"
+                {...register("flooringCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-kitchenBathCondition">
+                Kitchen / bath
+              </FieldLabel>
+              <Input
+                id="property-kitchenBathCondition"
+                {...register("kitchenBathCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-mortgage">Mortgage</FieldLabel>
+              <Input id="property-mortgage" {...register("mortgage")} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-frameSidingCondition">
+                Frame / siding
+              </FieldLabel>
+              <Input
+                id="property-frameSidingCondition"
+                {...register("frameSidingCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-windowsCondition">
+                Windows
+              </FieldLabel>
+              <Input
+                id="property-windowsCondition"
+                {...register("windowsCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-basementType">
+                Basement
+              </FieldLabel>
+              <Input id="property-basementType" {...register("basementType")} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-wallsCondition">Walls</FieldLabel>
+              <Input
+                id="property-wallsCondition"
+                {...register("wallsCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-electricalPlumbingCondition">
+                Electrical / plumbing
+              </FieldLabel>
+              <Input
+                id="property-electricalPlumbingCondition"
+                {...register("electricalPlumbingCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-furnaceCondition">
+                Furnace
+              </FieldLabel>
+              <Input
+                id="property-furnaceCondition"
+                {...register("furnaceCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-waterHeaterCondition">
+                Water heater
+              </FieldLabel>
+              <Input
+                id="property-waterHeaterCondition"
+                {...register("waterHeaterCondition")}
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-acCondition">AC</FieldLabel>
+              <Input id="property-acCondition" {...register("acCondition")} />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="property-followUpContact">
+                Follow-up contact
+              </FieldLabel>
+              <Input
+                id="property-followUpContact"
+                {...register("followUpContact")}
               />
             </Field>
           </div>

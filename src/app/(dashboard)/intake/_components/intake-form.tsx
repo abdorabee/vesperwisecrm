@@ -14,6 +14,8 @@ import {
   callerIntakeSchema,
   type CallerIntakeFormInput,
 } from "@/lib/validations/lead";
+import { AiParseNotes } from "../../_components/ai-parse-notes";
+import type { ExtractedCallNoteFields } from "@/lib/ai/parse-call-notes";
 
 interface ChipFieldProps {
   label: string;
@@ -78,6 +80,19 @@ export function IntakeForm() {
   const condition = watch("property.condition") ?? "";
   const occupancyStatus = watch("property.occupancyStatus") ?? "";
 
+  function handleExtracted(fields: ExtractedCallNoteFields) {
+    for (const [key, value] of Object.entries(fields)) {
+      if (value == null || value === "") {
+        continue;
+      }
+      setValue(
+        `property.${key as keyof CallerIntakeFormInput["property"]}`,
+        value,
+        { shouldDirty: true },
+      );
+    }
+  }
+
   async function onSubmit(data: CallerIntakeFormInput) {
     try {
       await submitCallerLead(data);
@@ -93,6 +108,8 @@ export function IntakeForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-8">
+      <AiParseNotes onExtracted={handleExtracted} />
+
       <FieldGroup>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field>
