@@ -42,6 +42,8 @@ function describeActivity(activity: Tables<"activities">): string {
       return `Email received from ${payload.from ?? ""}: "${payload.subject ?? ""}"`;
     case "sms_sent":
       return `SMS sent to ${payload.to ?? ""}`;
+    case "sms_received":
+      return `SMS received from ${payload.from ?? ""}`;
     case "note_added":
       return payload.system ? String(payload.note ?? "System note") : "Note added";
     case "sequence_enrolled":
@@ -64,6 +66,7 @@ function getActivityIcon(type: string): LucideIcon {
     case "email_sent":
       return ArrowUpRight;
     case "email_received":
+    case "sms_received":
       return ArrowDownLeft;
     case "sms_sent":
       return MessageSquare;
@@ -99,11 +102,34 @@ function normalizeSubject(subject: unknown): string {
     .toLowerCase();
 }
 
+function isSmsActivity(type: string): boolean {
+  return type === "sms_sent" || type === "sms_received";
+}
+
+function normalizePhoneDigits(phone: unknown): string {
+  if (typeof phone !== "string") {
+    return "";
+  }
+  const digits = phone.replace(/\D/g, "");
+  return digits.length > 10 ? digits.slice(-10) : digits;
+}
+
 function getThreadKey(activity: Tables<"activities">): string | null {
+  const payload = getPayload(activity);
+
+  if (isSmsActivity(activity.type)) {
+    if (typeof payload.thread_key === "string") {
+      return payload.thread_key;
+    }
+    const counterparty =
+      activity.type === "sms_sent" ? payload.to : payload.from;
+    const digits = normalizePhoneDigits(counterparty);
+    return digits ? `sms:${digits}` : null;
+  }
+
   if (activity.type !== "email_sent" && activity.type !== "email_received") {
     return null;
   }
-  const payload = getPayload(activity);
   if (typeof payload.thread_id === "string") {
     return payload.thread_id;
   }
@@ -150,11 +176,20 @@ function buildFeedItems(activities: Tables<"activities">[]): FeedItem[] {
       items.push({ kind: "activity", activity });
     } else {
       const payload = getPayload(activity);
+      const smsCounterparty =
+        activity.type === "sms_sent" ? payload.to : payload.from;
+      const smsSubject =
+        typeof smsCounterparty === "string" && smsCounterparty
+          ? `SMS with ${smsCounterparty}`
+          : "SMS conversation";
       items.push({
         kind: "email_thread",
         threadKey,
-        subject:
-          typeof payload.subject === "string" ? payload.subject : "Email thread",
+        subject: isSmsActivity(activity.type)
+          ? smsSubject
+          : typeof payload.subject === "string"
+            ? payload.subject
+            : "Email thread",
         activities: [...threadActivities].sort(
           (a, b) =>
             new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
@@ -245,6 +280,7 @@ function ActivityItem({ activity }: { activity: Tables<"activities"> }) {
   const payload = getPayload(activity);
   const isEmail =
     activity.type === "email_sent" || activity.type === "email_received";
+  const isSms = isSmsActivity(activity.type);
   const isNote =
     activity.type === "note_added" &&
     typeof payload.note === "string" &&
@@ -255,7 +291,7 @@ function ActivityItem({ activity }: { activity: Tables<"activities"> }) {
     <TimelineItem icon={Icon}>
       <div className="flex flex-col gap-1 pb-1">
         <p className="text-sm">{describeActivity(activity)}</p>
-        {(isEmail || isNote) && <EmailBody activity={activity} />}
+        {(isEmail || isSms || isNote) && <EmailBody activity={activity} />}
         <p className="text-xs text-muted-foreground tabular-nums">
           {new Date(activity.created_at).toLocaleString()}
         </p>
@@ -265,14 +301,16 @@ function ActivityItem({ activity }: { activity: Tables<"activities"> }) {
 }
 
 function EmailThreadItem({
+  threadKey,
   subject,
   activities,
 }: {
+  threadKey: string;
   subject: string;
   activities: Tables<"activities">[];
 }) {
   return (
-    <TimelineItem icon={Mail}>
+    <TimelineItem icon={threadKey.startsWith("sms:") ? MessageSquare : Mail}>
       <details className="group pb-1">
         <summary className="flex cursor-pointer list-none items-center gap-1 text-sm font-medium">
           <ChevronRight className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 motion-reduce:transition-none group-open:rotate-90" />
@@ -319,6 +357,7 @@ export function ActivityFeed({
         item.kind === "email_thread" ? (
           <EmailThreadItem
             key={item.threadKey}
+            threadKey={item.threadKey}
             subject={item.subject}
             activities={item.activities}
           />

@@ -14,6 +14,9 @@ const OPTIONAL_FEATURE_VARS: { key: string; feature: string }[] = [
   { key: "RESEND_API_KEY", feature: "outbound email" },
   { key: "RESEND_FROM_EMAIL", feature: "outbound email" },
   { key: "ANTHROPIC_API_KEY", feature: "AI paste-to-parse" },
+  { key: "TWILIO_ACCOUNT_SID", feature: "outbound SMS" },
+  { key: "TWILIO_AUTH_TOKEN", feature: "outbound SMS + inbound SMS webhook" },
+  { key: "TWILIO_FROM_NUMBER", feature: "outbound SMS" },
   { key: "GOOGLE_CLIENT_ID", feature: "Google Docs report generation" },
   { key: "GOOGLE_CLIENT_SECRET", feature: "Google Docs report generation" },
 ];

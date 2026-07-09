@@ -126,6 +126,8 @@ export async function sendDueStep(
         actor_user_id: actorUserId,
         payload: {
           to: contact.phone,
+          snippet: body.slice(0, 280),
+          body_text: body,
           twilio_message_id: smsResult.messageId,
         },
       })
