@@ -1263,6 +1263,41 @@ export type Database = {
           },
         ]
       }
+      tv_display_tokens: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          name: string
+          revoked_at: string | null
+          token: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          name: string
+          revoked_at?: string | null
+          token?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          revoked_at?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tv_display_tokens_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_actions: {
         Row: {
           account_id: string

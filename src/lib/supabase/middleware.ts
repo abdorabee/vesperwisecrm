@@ -5,7 +5,7 @@ import type { Database } from "@/lib/supabase/types";
 // /sw.js and /manifest.webmanifest must stay public: browsers fetch them
 // without auth cookies-context guarantees, and a redirected service-worker
 // script is rejected outright ("behind a redirect, which is disallowed").
-const PUBLIC_PATHS = ["/login", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/leads/intake", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe"];
+const PUBLIC_PATHS = ["/login", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/leads/intake", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe", "/tv/"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

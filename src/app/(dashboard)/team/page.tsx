@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireAdminAccountId } from "@/lib/supabase/account";
 import { getAccountMemberProfiles } from "@/lib/queries/members";
 import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
+import { getTvDisplayTokensForAdmin } from "@/lib/queries/tv";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,12 +14,14 @@ import {
 } from "@/components/ui/table";
 import { MemberRestrictionsRow } from "./_components/member-restrictions-row";
 import { InviteMemberDialog } from "./_components/invite-member-dialog";
+import { TvDisplayPanel } from "./_components/tv-display-panel";
 
 export default async function TeamPage() {
   await requireAdminAccountId();
-  const [members, emailSettings] = await Promise.all([
+  const [members, emailSettings, tvTokens] = await Promise.all([
     getAccountMemberProfiles(),
     getAccountEmailSettingsForAdmin(),
+    getTvDisplayTokensForAdmin(),
   ]);
   const sendingDomain = emailSettings?.sending_domain ?? null;
 
@@ -64,6 +67,17 @@ export default async function TeamPage() {
           </TableBody>
         </Table>
       </div>
+
+      <section className="flex flex-col gap-3">
+        <div>
+          <h2 className="text-lg font-semibold">TV KPI wall</h2>
+          <p className="text-sm text-muted-foreground">
+            Shareable read-only dashboard links for office displays: leads
+            submitted, qualification rate, deals won, and top submitters.
+          </p>
+        </div>
+        <TvDisplayPanel tokens={tvTokens} />
+      </section>
     </div>
   );
 }
