@@ -2,7 +2,10 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
 
-const PUBLIC_PATHS = ["/login", "/auth", "/offline", "/api/cron", "/api/leads/intake", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe"];
+// /sw.js and /manifest.webmanifest must stay public: browsers fetch them
+// without auth cookies-context guarantees, and a redirected service-worker
+// script is rejected outright ("behind a redirect, which is disallowed").
+const PUBLIC_PATHS = ["/login", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/leads/intake", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

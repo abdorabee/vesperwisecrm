@@ -14,6 +14,7 @@ import { getLeadClientComments } from "@/lib/queries/portal";
 import { requireUserId } from "@/lib/supabase/account";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StageSelect } from "./_components/stage-select";
+import { AiScorePanel } from "./_components/ai-score-panel";
 import { ActivityFeed } from "./_components/activity-feed";
 import { TagEditor } from "./_components/tag-editor";
 import { SendEmailDialog } from "./_components/send-email-dialog";
@@ -102,6 +103,13 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
               </div>
 
               <TagEditor leadId={lead.id} leadTags={lead.tags} allTags={allTags} />
+
+              <AiScorePanel
+                leadId={lead.id}
+                score={lead.ai_score}
+                factors={lead.ai_score_factors}
+                scoredAt={lead.ai_scored_at}
+              />
             </CardContent>
           </Card>
 

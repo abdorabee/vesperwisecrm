@@ -1,5 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
+import type Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
+import { getAnthropicClient } from "@/lib/ai/client";
 
 const extractedFieldsSchema = z.object({
   condition: z.string().nullable().optional(),
@@ -72,20 +73,6 @@ const EXTRACT_TOOL = {
   },
 };
 
-let client: Anthropic | null = null;
-
-function getClient(): Anthropic {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error(
-      "AI parsing isn't configured yet. An admin needs to set ANTHROPIC_API_KEY.",
-    );
-  }
-
-  client ??= new Anthropic({ apiKey });
-  return client;
-}
-
 export async function parseCallNotes(
   rawText: string,
 ): Promise<ExtractedCallNoteFields> {
@@ -94,7 +81,7 @@ export async function parseCallNotes(
     throw new Error("Paste some call notes first");
   }
 
-  const anthropic = getClient();
+  const anthropic = getAnthropicClient();
 
   const message = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",

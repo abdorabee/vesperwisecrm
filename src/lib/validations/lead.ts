@@ -90,6 +90,14 @@ export const intakeLeadSchema = newLeadSchema
       .union([z.string(), z.number()])
       .optional()
       .transform((value) => (value == null ? undefined : String(value))),
+    // Raw call summary/transcript from the dialer partner. Stored on the
+    // activity feed and, when AI is configured, parsed into property fields.
+    callSummary: z
+      .string()
+      .trim()
+      .min(1, "callSummary cannot be empty")
+      .max(20000, "callSummary is too long")
+      .optional(),
   });
 
 export type IntakeLeadInput = z.infer<typeof intakeLeadSchema>;

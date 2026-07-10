@@ -3,6 +3,80 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { createLeadRecord } from "@/lib/leads/create-lead";
 import { intakeLeadSchema } from "@/lib/validations/lead";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
+import { isAiConfigured } from "@/lib/ai/client";
+import { parseCallNotes } from "@/lib/ai/parse-call-notes";
+import { extractedFieldsToPropertyUpdate } from "@/lib/ai/apply-extracted-fields";
+import type { TablesUpdate } from "@/lib/supabase/types";
+
+// Records the dialer partner's call summary on the lead's activity feed and,
+// when AI is configured, parses it into any lead_properties fields the
+// payload didn't already fill. Never fails the intake request: the lead is
+// already created and the raw summary is preserved as a note either way.
+async function ingestCallSummary(
+  supabase: ReturnType<typeof createServiceRoleClient>,
+  accountId: string,
+  leadId: string,
+  callSummary: string,
+  sourceName: string,
+): Promise<void> {
+  await supabase.from("activities").insert({
+    account_id: accountId,
+    lead_id: leadId,
+    type: "note_added",
+    actor_user_id: null,
+    payload: {
+      note: `Call summary from ${sourceName}:\n\n${callSummary}`,
+      system: true,
+    },
+  });
+
+  if (!isAiConfigured()) {
+    return;
+  }
+
+  try {
+    const extracted = await parseCallNotes(callSummary);
+    const update = extractedFieldsToPropertyUpdate(extracted);
+    if (Object.keys(update).length === 0) {
+      return;
+    }
+
+    const { data: existing } = await supabase
+      .from("lead_properties")
+      .select("*")
+      .eq("lead_id", leadId)
+      .maybeSingle();
+
+    if (!existing) {
+      await supabase.from("lead_properties").insert({
+        account_id: accountId,
+        lead_id: leadId,
+        ...update,
+      });
+      return;
+    }
+
+    // Only fill gaps — webhook payload fields win over AI extraction.
+    const gapFill: TablesUpdate<"lead_properties"> = {};
+    for (const [column, value] of Object.entries(update)) {
+      if (existing[column as keyof typeof existing] == null) {
+        (gapFill as Record<string, unknown>)[column] = value;
+      }
+    }
+    if (Object.keys(gapFill).length > 0) {
+      await supabase.from("lead_properties").update(gapFill).eq("id", existing.id);
+    }
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        scope: "intake",
+        event: "call_summary_parse_failed",
+        lead_id: leadId,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }),
+    );
+  }
+}
 
 interface AuthResult {
   authorized: boolean;
@@ -137,6 +211,16 @@ export async function POST(request: Request): Promise<NextResponse> {
     qualificationStatus: "submitted",
     notifyMembers: true,
   });
+
+  if (data.callSummary) {
+    await ingestCallSummary(
+      supabase,
+      data.accountId,
+      leadId,
+      data.callSummary,
+      auth.sourceName ?? "webhook",
+    );
+  }
 
   await runTriggeredWorkflows(
     supabase as Parameters<typeof runTriggeredWorkflows>[0],
