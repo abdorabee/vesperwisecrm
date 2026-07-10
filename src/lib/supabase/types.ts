@@ -83,6 +83,7 @@ export type Database = {
           job_function: string | null
           lead_visibility: string
           max_open_leads: number | null
+          onboarding_tour_completed_at: string | null
           role: string
           user_id: string
         }
@@ -95,6 +96,7 @@ export type Database = {
           job_function?: string | null
           lead_visibility?: string
           max_open_leads?: number | null
+          onboarding_tour_completed_at?: string | null
           role?: string
           user_id: string
         }
@@ -107,6 +109,7 @@ export type Database = {
           job_function?: string | null
           lead_visibility?: string
           max_open_leads?: number | null
+          onboarding_tour_completed_at?: string | null
           role?: string
           user_id?: string
         }

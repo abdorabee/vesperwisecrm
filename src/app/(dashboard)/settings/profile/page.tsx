@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SenderIdentityForm } from "./_components/sender-identity-form";
+import { ReplayTourButton } from "./_components/replay-tour-button";
 
 export default async function ProfileSettingsPage() {
   const identity = await getOwnSenderIdentity();
@@ -33,6 +34,18 @@ export default async function ProfileSettingsPage() {
             fromEmailLocalPart={identity.fromEmailLocalPart}
             sendingDomain={identity.sendingDomain}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Product tour</CardTitle>
+          <CardDescription>
+            Revisit the dashboard walkthrough whenever you want a quick reset.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ReplayTourButton />
         </CardContent>
       </Card>
     </div>

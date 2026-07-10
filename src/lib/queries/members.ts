@@ -78,6 +78,7 @@ export async function getOwnSenderIdentity(): Promise<{
 export interface CurrentMembership {
   accountId: string;
   role: string;
+  onboardingTourCompletedAt: string | null;
 }
 
 export async function getCurrentMembership(): Promise<CurrentMembership | null> {
@@ -92,7 +93,7 @@ export async function getCurrentMembership(): Promise<CurrentMembership | null> 
 
   const { data, error } = await supabase
     .from("account_members")
-    .select("account_id, role")
+    .select("account_id, role, onboarding_tour_completed_at")
     .eq("user_id", user.id)
     .limit(1)
     .maybeSingle();
@@ -101,7 +102,11 @@ export async function getCurrentMembership(): Promise<CurrentMembership | null> 
     return null;
   }
 
-  return { accountId: data.account_id, role: data.role };
+  return {
+    accountId: data.account_id,
+    role: data.role,
+    onboardingTourCompletedAt: data.onboarding_tour_completed_at,
+  };
 }
 
 export function isAdminRole(role: string): boolean {
