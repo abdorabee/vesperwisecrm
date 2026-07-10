@@ -107,7 +107,7 @@ function SidebarShell({
   return (
     <aside
       className={cn(
-        "flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar py-4 transition-[width] duration-200",
+        "sticky top-0 flex h-screen shrink-0 flex-col border-r border-sidebar-border bg-sidebar py-4 transition-[width] duration-200",
         collapsed ? "w-16 px-2" : "w-60 px-3",
       )}
     >
