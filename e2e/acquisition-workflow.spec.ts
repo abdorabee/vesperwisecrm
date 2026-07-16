@@ -38,6 +38,13 @@ test.beforeAll(async () => {
     .eq("user_id", userId)
     .single();
   accountId = member!.account_id;
+
+  // Skip the first-run onboarding tour overlay so it can't intercept clicks.
+  await admin
+    .from("account_members")
+    .update({ onboarding_tour_completed_at: new Date().toISOString() })
+    .eq("account_id", accountId)
+    .eq("user_id", userId);
 });
 
 test.afterAll(async () => {
