@@ -1,7 +1,9 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { requireAdminAccountId, requireUserId } from "@/lib/supabase/account";
 import { exchangeGoogleCode, isGoogleConfigured } from "@/lib/google/client";
+import { GOOGLE_OAUTH_STATE_COOKIE } from "@/lib/google/oauth-state";
 
 export async function GET(request: Request): Promise<NextResponse> {
   const url = new URL(request.url);
@@ -21,11 +23,18 @@ export async function GET(request: Request): Promise<NextResponse> {
     return NextResponse.redirect(settingsUrl);
   }
 
-  const accountId = await requireAdminAccountId();
-  if (accountId !== state) {
-    settingsUrl.searchParams.set("error", "account_mismatch");
+  // CSRF check: the state Google echoes back must match the nonce we set
+  // when starting the flow. The account itself comes from the session.
+  const cookieStore = await cookies();
+  const expectedState = cookieStore.get(GOOGLE_OAUTH_STATE_COOKIE)?.value;
+  cookieStore.delete(GOOGLE_OAUTH_STATE_COOKIE);
+
+  if (!expectedState || expectedState !== state) {
+    settingsUrl.searchParams.set("error", "state_mismatch");
     return NextResponse.redirect(settingsUrl);
   }
+
+  const accountId = await requireAdminAccountId();
 
   const userId = await requireUserId();
 

@@ -122,10 +122,12 @@ beforeAll(async () => {
     .single();
   accountId = member!.account_id;
 
-  memberUserId = await createConfirmedUser("member", {
-    invited_account_id: accountId,
-    invited_role: "member",
+  await admin.from("invites").insert({
+    account_id: accountId,
+    email: `onboarding-tour-member-${RUN_ID}@vesperwisecrm.test`,
+    role: "member",
   });
+  memberUserId = await createConfirmedUser("member");
 
   memberSupabase = await signInAs(memberUserId);
 });

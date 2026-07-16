@@ -63,6 +63,7 @@ export async function inviteTeamMember(
 ): Promise<void> {
   const data = inviteTeamMemberSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  const invitedBy = await requireUserId();
   const supabase = await createClient();
   const serviceRole = createServiceRoleClient();
 
@@ -84,9 +85,22 @@ export async function inviteTeamMember(
     ? `${siteUrl}/auth/callback`
     : `https://${siteUrl}/auth/callback`;
 
+  // The signup trigger grants membership only from this server-issued
+  // invite row -- signup metadata is never trusted for membership.
+  const { error: inviteRecordError } = await serviceRole
+    .from("invites")
+    .insert({
+      account_id: accountId,
+      email: data.email,
+      role: data.role,
+      invited_by: invitedBy,
+    });
+
+  if (inviteRecordError) {
+    throw new Error(inviteRecordError.message);
+  }
+
   const inviteMetadata = {
-    invited_account_id: accountId,
-    invited_role: data.role,
     account_name: account.name,
   };
 

@@ -18,12 +18,16 @@ const RUN_ID = Date.now();
 
 const admin = createClient<Database>(SUPABASE_URL, SERVICE_ROLE_KEY);
 
+function testEmail(label: string): string {
+  return `rls-audit-${label}-${RUN_ID}@vesperwisecrm.test`;
+}
+
 async function createConfirmedUser(
   label: string,
   userMetadata?: Record<string, string>,
 ): Promise<string> {
   const { data, error } = await admin.auth.admin.createUser({
-    email: `rls-audit-${label}-${RUN_ID}@vesperwisecrm.test`,
+    email: testEmail(label),
     password: PASSWORD,
     email_confirm: true,
     user_metadata: userMetadata,
@@ -91,25 +95,29 @@ beforeAll(async () => {
     .single();
   investorClientId = client!.id;
 
-  // Restricted member and client user are created via the same
-  // invited_account_id metadata path the real invite flow uses, so the
-  // signup trigger joins them into account A directly instead of also
-  // auto-provisioning a personal account for each of them.
-  accountARestrictedId = await createConfirmedUser("restricted-a", {
-    invited_account_id: accountAId,
-    invited_role: "member",
+  // Restricted member and client user go through the same server-issued
+  // invites rows the real invite flow writes, so the signup trigger joins
+  // them into account A directly instead of also auto-provisioning a
+  // personal account for each of them.
+  await admin.from("invites").insert({
+    account_id: accountAId,
+    email: testEmail("restricted-a"),
+    role: "member",
   });
+  accountARestrictedId = await createConfirmedUser("restricted-a");
   await admin
     .from("account_members")
     .update({ lead_visibility: "assigned_only" })
     .eq("account_id", accountAId)
     .eq("user_id", accountARestrictedId);
 
-  clientUserId = await createConfirmedUser("client", {
-    invited_account_id: accountAId,
-    invited_role: "client",
-    invited_client_id: investorClientId,
+  await admin.from("invites").insert({
+    account_id: accountAId,
+    email: testEmail("client"),
+    role: "client",
+    client_id: investorClientId,
   });
+  clientUserId = await createConfirmedUser("client");
 
   const { data: stage } = await admin
     .from("pipeline_stages")
@@ -318,5 +326,61 @@ describe("team roster excludes client logins", () => {
     });
     const roles = (data ?? []).map((m) => m.role);
     expect(roles).not.toContain("client");
+  });
+});
+
+describe("invite security", () => {
+  test("forged invited_account_id signup metadata does not grant membership", async () => {
+    // The pre-fix trigger trusted raw_user_meta_data, letting anyone with
+    // the anon key join an arbitrary account as admin. The trigger fires on
+    // any auth.users insert, so creating the user with forged metadata here
+    // (Supabase rejects .test emails on public signUp, not on admin create)
+    // exercises the exact same code path the attack used. This must now
+    // fail: membership comes only from server-issued invites rows.
+    const forgedUserId = await createConfirmedUser("forged", {
+      invited_account_id: accountAId,
+      invited_role: "admin",
+    });
+
+    const { data: memberships } = await admin
+      .from("account_members")
+      .select("account_id, role")
+      .eq("user_id", forgedUserId);
+
+    const inTargetAccount = (memberships ?? []).filter(
+      (m) => m.account_id === accountAId,
+    );
+    expect(inTargetAccount).toHaveLength(0);
+
+    // The forger only gets their own auto-provisioned account.
+    for (const membership of memberships ?? []) {
+      await admin.from("accounts").delete().eq("id", membership.account_id);
+    }
+    await admin.auth.admin.deleteUser(forgedUserId);
+  });
+
+  test("expired invites do not grant membership", async () => {
+    await admin.from("invites").insert({
+      account_id: accountAId,
+      email: testEmail("expired"),
+      role: "member",
+      expires_at: new Date(Date.now() - 60_000).toISOString(),
+    });
+    const expiredUserId = await createConfirmedUser("expired");
+
+    const { data: memberships } = await admin
+      .from("account_members")
+      .select("account_id")
+      .eq("user_id", expiredUserId);
+
+    const inTargetAccount = (memberships ?? []).filter(
+      (m) => m.account_id === accountAId,
+    );
+    expect(inTargetAccount).toHaveLength(0);
+
+    for (const membership of memberships ?? []) {
+      await admin.from("accounts").delete().eq("id", membership.account_id);
+    }
+    await admin.auth.admin.deleteUser(expiredUserId);
   });
 });

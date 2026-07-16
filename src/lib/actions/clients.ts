@@ -3,7 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { requireAccountId, requireAdminAccountId } from "@/lib/supabase/account";
+import {
+  requireAccountId,
+  requireAdminAccountId,
+  requireUserId,
+} from "@/lib/supabase/account";
 import {
   clientSchema,
   inviteClientUserSchema,
@@ -91,6 +95,7 @@ export async function inviteClientUser(
 ): Promise<void> {
   const data = inviteClientUserSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  const invitedBy = await requireUserId();
   const supabase = await createClient();
   const serviceRole = createServiceRoleClient();
 
@@ -123,10 +128,23 @@ export async function inviteClientUser(
     ? `${siteUrl}/auth/callback`
     : `https://${siteUrl}/auth/callback`;
 
+  // The signup trigger grants membership only from this server-issued
+  // invite row -- signup metadata is never trusted for membership.
+  const { error: inviteRecordError } = await serviceRole
+    .from("invites")
+    .insert({
+      account_id: accountId,
+      email: data.email,
+      role: "client",
+      client_id: clientId,
+      invited_by: invitedBy,
+    });
+
+  if (inviteRecordError) {
+    throw new Error(inviteRecordError.message);
+  }
+
   const inviteMetadata = {
-    invited_account_id: accountId,
-    invited_role: "client",
-    invited_client_id: clientId,
     account_name: account.name,
   };
 

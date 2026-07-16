@@ -437,6 +437,57 @@ export type Database = {
           },
         ]
       }
+      invites: {
+        Row: {
+          account_id: string
+          client_id: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          redeemed_at: string | null
+          role: string
+        }
+        Insert: {
+          account_id: string
+          client_id?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          redeemed_at?: string | null
+          role: string
+        }
+        Update: {
+          account_id?: string
+          client_id?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          redeemed_at?: string | null
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invites_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invites_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_client_comments: {
         Row: {
           account_id: string

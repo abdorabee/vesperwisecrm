@@ -95,11 +95,9 @@ async function authorize(
     return { authorized: false };
   }
 
-  const legacySecret = process.env.LEAD_INTAKE_SECRET;
-  if (legacySecret && token === legacySecret) {
-    return { authorized: true, sourceName: "legacy" };
-  }
-
+  // Per-source tokens only: they are account-scoped and individually
+  // revocable, unlike the retired global LEAD_INTAKE_SECRET which
+  // authorized intake into any account.
   const { data: source } = await supabase
     .from("lead_intake_sources")
     .select("name, account_id, revoked_at")
