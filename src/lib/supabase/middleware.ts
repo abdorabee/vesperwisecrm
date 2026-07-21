@@ -5,7 +5,7 @@ import type { Database } from "@/lib/supabase/types";
 // /sw.js and /manifest.webmanifest must stay public: browsers fetch them
 // without auth cookies-context guarantees, and a redirected service-worker
 // script is rejected outright ("behind a redirect, which is disallowed").
-const PUBLIC_PATHS = ["/login", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/leads/intake", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe", "/tv/"];
+const PUBLIC_PATHS = ["/login", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/leads/intake", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe", "/tv/", "/home", "/sitemap.xml", "/robots.txt"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -40,8 +40,10 @@ export async function updateSession(request: NextRequest) {
   );
 
   if (!user && !isPublicPath) {
-    const loginUrl = new URL("/login", request.url);
-    return NextResponse.redirect(loginUrl);
+    // Logged-out visitors hitting the root land on the marketing page;
+    // deep links into the app still go to login.
+    const target = request.nextUrl.pathname === "/" ? "/home" : "/login";
+    return NextResponse.redirect(new URL(target, request.url));
   }
 
   return response;
