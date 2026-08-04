@@ -15,6 +15,7 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   PhoneCall,
+  Search,
   Trophy,
   User,
   Users,
@@ -25,6 +26,10 @@ import { cn } from "@/lib/utils";
 import { VesperWiseLogo } from "@/components/vesper-wise-logo";
 
 const COLLAPSE_STORAGE_KEY = "sidebar-collapsed";
+
+// Fired to open the global command palette (src/components/command-palette.tsx)
+// from the sidebar's search trigger, in addition to its own ⌘K/Ctrl+K listener.
+export const OPEN_COMMAND_PALETTE_EVENT = "vesperwise:open-command-palette";
 
 interface NavLink {
   href: string;
@@ -94,12 +99,14 @@ function SidebarShell({
   label,
   footer,
   collapsedFooter,
+  showSearchTrigger = false,
 }: {
   links: NavLink[];
   logoHref?: string;
   label?: string;
   footer?: ReactNode;
   collapsedFooter?: ReactNode;
+  showSearchTrigger?: boolean;
 }) {
   const { collapsed, toggle } = useSidebarCollapsed();
   const activeFooter = collapsed ? (collapsedFooter ?? footer) : footer;
@@ -139,6 +146,29 @@ function SidebarShell({
           )}
         </button>
       </div>
+      {showSearchTrigger && (
+        <button
+          type="button"
+          title="Search (⌘K)"
+          onClick={() =>
+            window.dispatchEvent(new Event(OPEN_COMMAND_PALETTE_EVENT))
+          }
+          className={cn(
+            "mb-2 flex shrink-0 items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
+            collapsed && "justify-center px-0",
+          )}
+        >
+          <Search className="size-4 shrink-0" />
+          {!collapsed && (
+            <>
+              <span className="truncate">Search</span>
+              <span className="ml-auto text-xs text-muted-foreground/70">
+                ⌘K
+              </span>
+            </>
+          )}
+        </button>
+      )}
       <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
         {links.map((link) => (
           <NavItem key={link.href} {...link} collapsed={collapsed} />
@@ -198,6 +228,7 @@ export function DashboardSidebar({
       links={links}
       footer={footer}
       collapsedFooter={collapsedFooter}
+      showSearchTrigger
     />
   );
 }

@@ -16,6 +16,21 @@ const SNIPPET_LENGTH = 280;
 const CONTACT_CANDIDATE_LIMIT = 100;
 const LEAD_CANDIDATE_LIMIT = 20;
 
+// Standard carrier-recognized opt-out keywords (Twilio's default advanced
+// opt-out list). Matched as the whole trimmed message body, case-insensitive.
+const SMS_OPT_OUT_KEYWORDS = new Set([
+  "stop",
+  "stopall",
+  "unsubscribe",
+  "cancel",
+  "end",
+  "quit",
+]);
+
+export function isSmsOptOutKeyword(body: string): boolean {
+  return SMS_OPT_OUT_KEYWORDS.has(body.trim().toLowerCase());
+}
+
 // Compare phone numbers on their last 10 digits so "+15551234567",
 // "5551234567", and "(555) 123-4567" all resolve to the same contact.
 export function normalizePhoneDigits(phone: string): string {
@@ -84,6 +99,19 @@ export async function processInboundSms(
     });
   }
 
+  const isOptOut = isSmsOptOutKeyword(event.body);
+
+  if (isOptOut) {
+    await supabase
+      .from("contacts")
+      .update({ sms_opted_out_at: new Date().toISOString() })
+      .in(
+        "id",
+        matchedContacts.map((contact) => contact.id),
+      )
+      .is("sms_opted_out_at", null);
+  }
+
   const { data: leads, error: leadError } = await supabase
     .from("leads")
     .select("id, account_id, contact_id, status, created_at")
@@ -128,6 +156,7 @@ export async function processInboundSms(
         body_text: body,
         twilio_message_sid: event.messageSid,
         thread_key: buildSmsThreadKey(event.from),
+        opted_out: isOptOut,
       },
     })
     .select("id")

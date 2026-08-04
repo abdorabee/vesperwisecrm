@@ -23,6 +23,7 @@ import { RelatedLeadsPanel } from "./_components/related-leads-panel";
 import { AddNoteForm } from "./_components/add-note-form";
 import { TaskPanel } from "./_components/task-panel";
 import { ContactEmailOptOutBadge } from "./_components/contact-email-opt-out-badge";
+import { ContactSmsOptOutBadge } from "./_components/contact-sms-opt-out-badge";
 import { PropertyPanel } from "./_components/property-panel";
 import { GenerateReportButton } from "./_components/generate-report-button";
 import { ClientAssignmentPanel } from "./_components/client-assignment-panel";
@@ -176,6 +177,11 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
                 isAdmin={isAdmin}
               />
               {lead.contact.phone && <p>{lead.contact.phone}</p>}
+              <ContactSmsOptOutBadge
+                contactId={lead.contact.id}
+                smsOptedOutAt={lead.contact.sms_opted_out_at}
+                isAdmin={isAdmin}
+              />
               <div className="mt-2">
                 <SendEmailDialog leadId={lead.id} contactEmail={lead.contact.email} />
               </div>

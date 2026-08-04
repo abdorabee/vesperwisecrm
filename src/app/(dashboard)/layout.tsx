@@ -6,6 +6,7 @@ import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
 import { isPlatformAdminEmail } from "@/lib/supabase/platform-admin";
 import { Button } from "@/components/ui/button";
 import { DashboardSidebar } from "@/components/dashboard-nav";
+import { CommandPalette } from "@/components/command-palette";
 import { OnboardingTourProvider } from "@/components/onboarding-tour-context";
 import { OnboardingTour } from "./_components/onboarding-tour";
 
@@ -75,6 +76,7 @@ export default async function DashboardLayout({
           shouldAutoOpen={shouldAutoOpenTour}
           isAdmin={isAdmin}
         />
+        <CommandPalette isAdmin={isAdmin} />
       </div>
     </OnboardingTourProvider>
   );

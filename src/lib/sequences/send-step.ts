@@ -52,7 +52,7 @@ export async function sendDueStep(
   const { data: lead, error: leadError } = await supabase
     .from("leads")
     .select(
-      "contact:contact_id(id, first_name, last_name, email, phone, email_opted_out_at)",
+      "contact:contact_id(id, first_name, last_name, email, phone, email_opted_out_at, sms_opted_out_at)",
     )
     .eq("id", enrollment.lead_id)
     .single();
@@ -114,6 +114,35 @@ export async function sendDueStep(
   } else if (step.channel === "sms") {
     if (!contact?.phone) {
       throw new Error("This lead's contact has no phone number on file");
+    }
+
+    // Unlike email opt-out (marketing sequences only), an SMS STOP reply
+    // suppresses every future send on this channel regardless of the
+    // sequence's marketing flag — carriers/TCPA treat STOP as universal.
+    if (contact.sms_opted_out_at) {
+      await supabase
+        .from("lead_sequence_enrollments")
+        .update({
+          status: "cancelled",
+          completed_at: new Date().toISOString(),
+          next_step_due_at: null,
+        })
+        .eq("id", enrollmentId);
+
+      await supabase.from("activities").insert({
+        account_id: enrollment.account_id,
+        lead_id: enrollment.lead_id,
+        type: "sequence_step_sent",
+        actor_user_id: actorUserId,
+        payload: {
+          channel: step.channel,
+          step_number: enrollment.current_step_number,
+          status: "skipped",
+          reason: "contact_opted_out",
+        },
+      });
+
+      return { completed: true };
     }
 
     const smsResult = await sendSms({ to: contact.phone, body });

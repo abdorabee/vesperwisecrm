@@ -250,6 +250,7 @@ export type Database = {
           last_name: string | null
           notes: string | null
           phone: string | null
+          sms_opted_out_at: string | null
           source: string | null
           updated_at: string
         }
@@ -265,6 +266,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           phone?: string | null
+          sms_opted_out_at?: string | null
           source?: string | null
           updated_at?: string
         }
@@ -280,6 +282,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           phone?: string | null
+          sms_opted_out_at?: string | null
           source?: string | null
           updated_at?: string
         }
