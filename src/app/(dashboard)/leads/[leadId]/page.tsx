@@ -32,6 +32,8 @@ import { getLeadCallHistory } from "@/lib/queries/dialer";
 import { Badge } from "@/components/ui/badge";
 import { ContactDoNotCallControl } from "@/components/dialer/contact-do-not-call-control";
 import { isDialerEnabled } from "@/lib/dialer/config";
+import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
+import { formatWorkspaceCurrency, formatWorkspaceDateTime } from "@/lib/workspace-settings";
 
 interface LeadDetailPageProps {
   params: Promise<{ leadId: string }>;
@@ -52,6 +54,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
     clients,
     currentUserId,
     callHistory,
+    workspace,
   ] =
     await Promise.all([
       getLeadDetail(leadId),
@@ -66,6 +69,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
       getClientsForAssignment(),
       requireUserId(),
       isDialerEnabled() ? getLeadCallHistory(leadId) : Promise.resolve([]),
+      getWorkspaceSettings(),
     ]);
 
   const clientComments = lead.client_id
@@ -104,7 +108,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
                 />
                 {lead.value != null && (
                   <span className="text-sm text-muted-foreground tabular-nums">
-                    ${Number(lead.value).toLocaleString()}
+                    {formatWorkspaceCurrency(Number(lead.value), workspace)}
                   </span>
                 )}
               </div>
@@ -207,7 +211,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
                 <p className="text-sm text-muted-foreground">No calls recorded for this lead.</p>
               ) : callHistory.slice(0, 5).map((call) => (
                 <div key={call.id} className="flex items-start justify-between gap-3 border-b pb-3 last:border-0 last:pb-0">
-                  <div><p className="text-sm font-medium capitalize">{call.status.replace("_", " ")}</p><p className="text-xs text-muted-foreground">{new Date(call.created_at).toLocaleString()} · {call.attempts.length} attempt{call.attempts.length === 1 ? "" : "s"}</p></div>
+                  <div><p className="text-sm font-medium capitalize">{call.status.replace("_", " ")}</p><p className="text-xs text-muted-foreground">{formatWorkspaceDateTime(call.created_at, workspace)} · {call.attempts.length} attempt{call.attempts.length === 1 ? "" : "s"}</p></div>
                   {call.disposition && <Badge variant="secondary">{call.disposition.name}</Badge>}
                 </div>
               ))}

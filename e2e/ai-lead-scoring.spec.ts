@@ -40,12 +40,6 @@ test.beforeAll(async () => {
     .single();
   accountId = member!.account_id;
 
-  // Skip the first-run onboarding tour overlay so it can't intercept clicks.
-  await admin
-    .from("account_members")
-    .update({ onboarding_tour_completed_at: new Date().toISOString() })
-    .eq("user_id", userId);
-
   const { data: stage } = await admin
     .from("pipeline_stages")
     .select("id")

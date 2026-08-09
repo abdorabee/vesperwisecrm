@@ -17,6 +17,7 @@ import {
 import { createLeadTask, completeLeadTask } from "@/lib/actions/tasks";
 import type { MemberProfile } from "@/lib/queries/members";
 import type { LeadTask } from "@/lib/queries/tasks";
+import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
 
 interface TaskPanelProps {
   leadId: string;
@@ -187,7 +188,7 @@ export function TaskPanel({ leadId, tasks, members }: TaskPanelProps) {
                     </p>
                   )}
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Due {new Date(task.due_at).toLocaleString()}
+                    Due <WorkspaceDateTime value={task.due_at} />
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
@@ -304,7 +305,7 @@ export function TaskPanel({ leadId, tasks, members }: TaskPanelProps) {
           </p>
           {completedTasks.slice(0, 4).map((task) => (
             <div key={task.id} className="text-sm text-muted-foreground">
-              {task.title} · {new Date(task.completed_at ?? task.updated_at).toLocaleString()}
+              {task.title} · <WorkspaceDateTime value={task.completed_at ?? task.updated_at} />
             </div>
           ))}
         </div>

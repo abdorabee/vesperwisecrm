@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import type { LeadWithContact } from "@/lib/queries/pipeline";
 import type { Tables } from "@/lib/supabase/types";
 import { ClickToCallButton } from "@/components/dialer/click-to-call-button";
+import { WorkspaceCurrency } from "@/components/workspace-formatting-context";
 
 interface KanbanCardProps {
   lead: LeadWithContact;
@@ -60,7 +61,7 @@ export function KanbanCard({
           </Link>
           {lead.value != null && (
             <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-              ${Number(lead.value).toLocaleString()}
+              <WorkspaceCurrency value={Number(lead.value)} />
             </span>
           )}
         </div>

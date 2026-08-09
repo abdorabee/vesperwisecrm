@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -37,7 +37,7 @@ function ChipField({ label, value, options, onChange }: ChipFieldProps) {
             className={cn(
               "rounded-full border px-3 py-1 text-sm transition-colors duration-150",
               value === option
-                ? "border-primary bg-primary/10 text-primary"
+                ? "border-primary bg-primary/10 text-brand-strong"
                 : "border-input text-muted-foreground hover:bg-muted",
             )}
           >
@@ -56,7 +56,7 @@ export function IntakeForm() {
   const router = useRouter();
   const {
     register,
-    watch,
+    control,
     setValue,
     handleSubmit,
     reset,
@@ -77,8 +77,8 @@ export function IntakeForm() {
     },
   });
 
-  const condition = watch("property.condition") ?? "";
-  const occupancyStatus = watch("property.occupancyStatus") ?? "";
+  const condition = useWatch({ control, name: "property.condition" }) ?? "";
+  const occupancyStatus = useWatch({ control, name: "property.occupancyStatus" }) ?? "";
 
   function handleExtracted(fields: ExtractedCallNoteFields) {
     for (const [key, value] of Object.entries(fields)) {

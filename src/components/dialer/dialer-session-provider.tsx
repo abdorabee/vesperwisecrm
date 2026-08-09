@@ -79,7 +79,7 @@ export function DialerSessionProvider({
       return;
     }
     if (!twilioConnected) {
-      toast.error("Connect a Twilio account in Dialer → Settings before calling");
+      toast.error("Connect a Twilio account in Settings → Calling before calling");
       return;
     }
     setStarting(true);

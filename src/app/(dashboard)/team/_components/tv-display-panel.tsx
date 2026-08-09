@@ -10,6 +10,7 @@ import {
 import type { Tables } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { WorkspaceDate } from "@/components/workspace-formatting-context";
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "Something went wrong";
@@ -86,7 +87,7 @@ export function TvDisplayPanel({
             >
               <span className="font-medium">{token.name}</span>
               <span className="text-xs text-muted-foreground">
-                created {new Date(token.created_at).toLocaleDateString()}
+                created <WorkspaceDate value={token.created_at} />
               </span>
               <span className="ml-auto flex items-center gap-1">
                 <Button
@@ -103,7 +104,6 @@ export function TvDisplayPanel({
                   variant="outline"
                   size="sm"
                   render={
-                    // eslint-disable-next-line jsx-a11y/anchor-has-content
                     <a
                       href={`/tv/${token.token}`}
                       target="_blank"

@@ -105,10 +105,9 @@ test("click-to-call reaches answered, supports mute, and saves an outcome", asyn
   await expect(page.getByText("Call outcome saved")).toBeVisible();
 });
 
-test("dialer settings tab shows the connected Twilio account, masked", async ({ page }) => {
+test("calling settings show the connected Twilio account, masked", async ({ page }) => {
   await login(page);
-  await page.goto("/dialer");
-  await page.getByRole("tab", { name: "Settings" }).click();
+  await page.goto("/settings/calling");
   await expect(page.getByText("Connected", { exact: true })).toBeVisible();
   await expect(page.getByText("ACfake…0000")).toBeVisible();
   await expect(page.getByText("+14155550100")).toBeVisible();

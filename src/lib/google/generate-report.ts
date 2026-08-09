@@ -1,14 +1,16 @@
 import { google } from "googleapis";
 import { getAuthorizedGoogleClient } from "@/lib/google/client";
 import type { LeadDetail } from "@/lib/queries/leads";
+import { getWorkspaceSettingsForAccount } from "@/lib/queries/workspace-settings";
+import { formatWorkspaceCurrency, formatWorkspaceDate, withArtifactTimezone, type WorkspaceSettings } from "@/lib/workspace-settings";
 
 const EMPTY = "—";
 
-function formatCurrency(value: number | null): string {
-  return value == null ? EMPTY : `$${Number(value).toLocaleString()}`;
+function formatCurrency(value: number | null, settings: WorkspaceSettings): string {
+  return value == null ? EMPTY : formatWorkspaceCurrency(Number(value), settings, "en-US");
 }
 
-function buildReportText(lead: LeadDetail): string {
+function buildReportText(lead: LeadDetail, settings: WorkspaceSettings): string {
   const contact = lead.contact;
   const property = lead.property;
   const contactName = [contact.first_name, contact.last_name].filter(Boolean).join(" ");
@@ -39,7 +41,7 @@ function buildReportText(lead: LeadDetail): string {
       "Property",
       `Address: ${address || EMPTY}`,
       `Beds / Baths / Sq ft: ${property.bedrooms ?? EMPTY} / ${property.bathrooms ?? EMPTY} / ${property.square_feet ?? EMPTY}`,
-      `Asking price: ${formatCurrency(property.asking_price)}`,
+      `Asking price: ${formatCurrency(property.asking_price, settings)}`,
       "",
       "Condition",
       `Overall: ${property.condition ?? EMPTY}`,
@@ -81,10 +83,11 @@ export async function generatePropertyReportDoc(
   folderIdOverride?: string | null,
 ): Promise<string> {
   const { client, integration } = await getAuthorizedGoogleClient(accountId);
+  const workspace = withArtifactTimezone(await getWorkspaceSettingsForAccount(accountId));
   const docs = google.docs({ version: "v1", auth: client });
   const drive = google.drive({ version: "v3", auth: client });
 
-  const title = `Property Report — ${lead.title} — ${new Date().toLocaleDateString()}`;
+  const title = `Property Report — ${lead.title} — ${formatWorkspaceDate(new Date(), workspace, "en-US")}`;
 
   const { data: doc } = await docs.documents.create({ requestBody: { title } });
   const documentId = doc.documentId;
@@ -99,7 +102,7 @@ export async function generatePropertyReportDoc(
         {
           insertText: {
             location: { index: 1 },
-            text: buildReportText(lead),
+            text: buildReportText(lead, workspace),
           },
         },
       ],

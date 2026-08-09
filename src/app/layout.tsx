@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import { AppearanceProvider } from "@/components/appearance-provider";
+import { LIGHT_THEME_COLOR } from "@/lib/appearance";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,8 +27,12 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "VesperwiseCRM",
-  description: "VesperwiseCRM",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  title: { default: "VesperWise CRM", template: "%s · VesperWise CRM" },
+  description: "An acquisition CRM for intake, qualification, outreach, routing, and team performance.",
+  icons: {
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -35,7 +41,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#000000",
+  themeColor: LIGHT_THEME_COLOR,
   width: "device-width",
   initialScale: 1,
 };
@@ -48,12 +54,15 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        {children}
-        <Toaster />
-        <ServiceWorkerRegistration />
+        <AppearanceProvider>
+          {children}
+          <Toaster />
+          <ServiceWorkerRegistration />
+        </AppearanceProvider>
       </body>
     </html>
   );

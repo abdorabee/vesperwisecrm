@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { LeadTask } from "@/lib/queries/tasks";
+import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
 
 interface YourDayProps {
   tasks: LeadTask[];
@@ -49,7 +50,7 @@ export function YourDay({ tasks }: YourDayProps) {
             </p>
           </div>
           <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-            {new Date(task.due_at).toLocaleString()}
+            <WorkspaceDateTime value={task.due_at} />
           </span>
         </div>
       ))}

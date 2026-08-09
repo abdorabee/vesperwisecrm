@@ -7,6 +7,8 @@ import { requireClientContext } from "@/lib/supabase/account";
 import { createClient } from "@/lib/supabase/server";
 import { ClientCommentThread } from "@/components/client-comment-thread";
 import { InterestActions } from "./_components/interest-actions";
+import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
+import { formatWorkspaceCurrency } from "@/lib/workspace-settings";
 
 interface PortalLeadDetailPageProps {
   params: Promise<{ leadId: string }>;
@@ -24,9 +26,10 @@ export default async function PortalLeadDetailPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [lead, comments] = await Promise.all([
+  const [lead, comments, workspace] = await Promise.all([
     getPortalLeadDetail(leadId),
     getLeadClientComments(leadId),
+    getWorkspaceSettings(),
   ]);
 
   const property = lead.property;
@@ -55,7 +58,7 @@ export default async function PortalLeadDetailPage({
             <p className="text-muted-foreground">Asking price</p>
             <p className="font-medium">
               {property?.asking_price != null
-                ? `$${Number(property.asking_price).toLocaleString()}`
+                ? formatWorkspaceCurrency(Number(property.asking_price), workspace)
                 : EMPTY}
             </p>
           </div>

@@ -1,5 +1,5 @@
-import { PageHeader } from "@/components/page-header";
-import { requireAdminAccountId } from "@/lib/supabase/account";
+import { SettingsPageHeader } from "@/components/settings/settings-primitives";
+import { requireSettingsAdmin } from "@/lib/settings-access";
 import { getAccountEmailSettingsWithDomainForAdmin } from "@/lib/queries/account-email";
 import {
   getEmailSetupUiState,
@@ -28,7 +28,7 @@ import { getInboundAddressPattern } from "@/lib/email/inbound-address";
 import { getEmailHealthStats } from "@/lib/queries/email-health";
 
 export default async function EmailSettingsPage() {
-  await requireAdminAccountId();
+  await requireSettingsAdmin();
   const { settings, domain } = await getAccountEmailSettingsWithDomainForAdmin();
   const uiState = getEmailSetupUiState(settings);
   const healthStats = await getEmailHealthStats();
@@ -50,11 +50,8 @@ export default async function EmailSettingsPage() {
   const inboundAddressPattern = getInboundAddressPattern();
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <PageHeader
-        title="Email"
-        description="Configure your sending domain and From address for outbound emails to leads."
-      />
+    <div className="flex flex-col gap-6">
+      <SettingsPageHeader eyebrow="Communication" title="Email" description="Configure your sending domain, sender identity, and reply handling for outbound lead communication." />
 
       <Card id="domain-verification">
         <CardHeader>

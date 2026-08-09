@@ -67,6 +67,7 @@ export async function saveGroup(
   }
 
   revalidatePath("/team/groups");
+  revalidatePath("/settings/routing");
 
   return { groupId: id! };
 }
@@ -81,6 +82,7 @@ export async function deleteGroup(groupId: string): Promise<void> {
   }
 
   revalidatePath("/team/groups");
+  revalidatePath("/settings/routing");
 }
 
 export async function assignLeadToGroup(

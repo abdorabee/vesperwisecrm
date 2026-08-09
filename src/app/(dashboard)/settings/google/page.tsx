@@ -1,6 +1,6 @@
-import { PageHeader } from "@/components/page-header";
+import { SettingsPageHeader } from "@/components/settings/settings-primitives";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireAdminAccountId } from "@/lib/supabase/account";
+import { requireSettingsAdmin } from "@/lib/settings-access";
 import { getGoogleIntegration } from "@/lib/queries/google";
 import { isGoogleConfigured } from "@/lib/google/client";
 import { GoogleConnectionCard } from "./_components/google-connection-card";
@@ -12,18 +12,15 @@ interface GoogleSettingsPageProps {
 export default async function GoogleSettingsPage({
   searchParams,
 }: GoogleSettingsPageProps) {
-  await requireAdminAccountId();
+  await requireSettingsAdmin();
   const [integration, params] = await Promise.all([
     getGoogleIntegration(),
     searchParams,
   ]);
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-6">
-      <PageHeader
-        title="Google"
-        description="Connect Google Docs and Drive to generate one-click property reports from a lead's intake details."
-      />
+    <div className="flex flex-col gap-6">
+      <SettingsPageHeader eyebrow="Integrations" title="Google" description="Connect Google Docs and Drive to generate property reports from lead intake details." />
 
       {!isGoogleConfigured() && (
         <Card className="border-amber-500/30">

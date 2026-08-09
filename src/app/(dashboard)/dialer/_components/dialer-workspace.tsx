@@ -269,7 +269,7 @@ function TwilioAccountCard({ status }: { status: DialerPageData["twilioCredentia
   </Card>;
 }
 
-function DialerSettings({ data }: { data: DialerPageData }) {
+export function DialerSettings({ data }: { data: DialerPageData }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const settings = data.settings;
@@ -324,17 +324,16 @@ export function DialerWorkspace({ data }: { data: DialerPageData }) {
 
   const twilioConnected = data.twilioCredentialStatus.connected && data.twilioCredentialStatus.status === "active";
   const noTwilioMessage = data.isAdmin
-    ? "Connect your Twilio account in the Settings tab to start dialing."
-    : "Ask an account admin to connect a Twilio account in Dialer → Settings.";
+    ? "Connect your Twilio account in Settings → Calling to start dialing."
+    : "Ask a workspace admin to connect a Twilio account in Settings → Calling.";
 
   // Keyed on connection state so Base UI's uncontrolled Tabs remounts (and
   // re-reads defaultValue) instead of silently keeping stale internal state
   // when an admin connects/disconnects and router.refresh() swaps the panels.
-  return <Tabs key={twilioConnected ? "connected" : "disconnected"} defaultValue={twilioConnected || !data.isAdmin ? "personal" : "settings"}>
-    <div className="flex flex-wrap items-center justify-between gap-3"><TabsList><TabsTrigger value="personal">Personal</TabsTrigger><TabsTrigger value="shared">Shared</TabsTrigger><TabsTrigger value="history">History</TabsTrigger>{data.isAdmin && <TabsTrigger value="settings">Settings</TabsTrigger>}</TabsList>{twilioConnected && <CreateQueueDialog data={data} />}</div>
+  return <Tabs key={twilioConnected ? "connected" : "disconnected"} defaultValue="personal">
+    <div className="flex flex-wrap items-center justify-between gap-3"><TabsList><TabsTrigger value="personal">Personal</TabsTrigger><TabsTrigger value="shared">Shared</TabsTrigger><TabsTrigger value="history">History</TabsTrigger></TabsList>{twilioConnected && <CreateQueueDialog data={data} />}</div>
     <TabsContent value="personal" className="space-y-4">{!twilioConnected ? <Card><CardContent className="py-12 text-center"><h2 className="font-semibold">No Twilio account connected</h2><p className="mt-2 text-sm text-muted-foreground">{noTwilioMessage}</p></CardContent></Card> : personal.length ? personal.map((queue) => <QueueCard key={queue.id} queue={queue} data={data} />) : <p className="rounded-lg border p-10 text-center text-muted-foreground">Create a personal queue to start dialing.</p>}</TabsContent>
     <TabsContent value="shared" className="space-y-4">{!twilioConnected ? <Card><CardContent className="py-12 text-center"><h2 className="font-semibold">No Twilio account connected</h2><p className="mt-2 text-sm text-muted-foreground">{noTwilioMessage}</p></CardContent></Card> : shared.length ? shared.map((queue) => <QueueCard key={queue.id} queue={queue} data={data} />) : <p className="rounded-lg border p-10 text-center text-muted-foreground">No shared queues are available.</p>}</TabsContent>
     <TabsContent value="history">{!twilioConnected ? <Card><CardContent className="py-12 text-center"><h2 className="font-semibold">No Twilio account connected</h2><p className="mt-2 text-sm text-muted-foreground">Call history will appear once calls can be placed.</p></CardContent></Card> : <Card><CardContent className="pt-4">{data.history.length ? <Table><TableHeader><TableRow><TableHead>Contact</TableHead><TableHead>Lead</TableHead><TableHead>Status</TableHead><TableHead>Attempts</TableHead><TableHead>Outcome</TableHead></TableRow></TableHeader><TableBody>{data.history.map((call) => <TableRow key={call.id}><TableCell className="font-medium">{contactName(call.contact)}</TableCell><TableCell>{call.lead?.title ?? "—"}</TableCell><TableCell><Badge variant="secondary">{call.status.replace("_", " ")}</Badge></TableCell><TableCell>{call.attempts.length}</TableCell><TableCell>{call.disposition?.name ?? call.failure_reason ?? "—"}</TableCell></TableRow>)}</TableBody></Table> : <p className="py-10 text-center text-muted-foreground">No call history yet.</p>}</CardContent></Card>}</TabsContent>
-    {data.isAdmin && <TabsContent value="settings"><DialerSettings data={data} /></TabsContent>}
   </Tabs>;
 }

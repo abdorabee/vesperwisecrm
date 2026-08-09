@@ -1,11 +1,8 @@
 import { redirect } from "next/navigation";
-import { LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { signOutAction } from "@/lib/actions/auth";
 import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
 import { isPlatformAdminEmail } from "@/lib/supabase/platform-admin";
-import { Button } from "@/components/ui/button";
-import { DashboardSidebar } from "@/components/dashboard-nav";
+import { DashboardSidebar, MobileNavigation } from "@/components/dashboard-nav";
 import { OnboardingTourProvider } from "@/components/onboarding-tour-context";
 import { OnboardingTour } from "./_components/onboarding-tour";
 import { getDialerShellData } from "@/lib/queries/dialer";
@@ -13,6 +10,8 @@ import { getDialerCredentialStatus } from "@/lib/queries/dialer-credentials";
 import { DialerSessionProvider, type ActiveDialerSession } from "@/components/dialer/dialer-session-provider";
 import { ActiveCallPanel } from "@/components/dialer/active-call-panel";
 import { isDialerEnabled } from "@/lib/dialer/config";
+import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
+import { WorkspaceFormattingProvider } from "@/components/workspace-formatting-context";
 
 export default async function DashboardLayout({
   children,
@@ -36,8 +35,7 @@ export default async function DashboardLayout({
 
   const isAdmin = membership ? isAdminRole(membership.role) : false;
   const isPlatformAdmin = isPlatformAdminEmail(user.email);
-  const shouldAutoOpenTour =
-    membership?.onboardingTourCompletedAt === null;
+  const workspace = await getWorkspaceSettings();
   const dialerShell = isDialerEnabled()
     ? await getDialerShellData()
     : { active: null, dispositions: [] };
@@ -66,47 +64,32 @@ export default async function DashboardLayout({
   return (
     <DialerSessionProvider initialSession={initialSession} enabled={isDialerEnabled()} twilioConnected={twilioConnected}>
       <OnboardingTourProvider>
-        <div className="flex min-h-screen">
-        <DashboardSidebar
-          isAdmin={isAdmin}
-          isPlatformAdmin={isPlatformAdmin}
-          footer={
-            <div className="flex flex-col gap-2 px-1.5">
-              <span className="truncate text-xs text-muted-foreground">
-                {user.email}
-              </span>
-              <form action={signOutAction}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  type="submit"
-                  className="w-full justify-start px-1.5"
-                >
-                  Sign out
-                </Button>
-              </form>
-            </div>
-          }
-          collapsedFooter={
-            <form action={signOutAction} className="flex justify-center">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                type="submit"
-                title="Sign out"
-              >
-                <LogOut className="size-4" />
-              </Button>
-            </form>
-          }
-        />
-        <main className="min-w-0 flex-1 overflow-y-auto p-6">{children}</main>
-          <OnboardingTour
-            shouldAutoOpen={shouldAutoOpenTour}
+        <WorkspaceFormattingProvider settings={workspace}>
+        <a href="#main-content" className="sr-only z-[100] rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
+          Skip to content
+        </a>
+        <div className="flex min-h-dvh">
+          <DashboardSidebar
+            workspaceName={workspace.name}
+            email={user.email ?? "Signed-in member"}
+            role={membership?.role ?? "member"}
             isAdmin={isAdmin}
+            isPlatformAdmin={isPlatformAdmin}
           />
+          <div className="min-w-0 flex-1">
+            <MobileNavigation
+              workspaceName={workspace.name}
+              email={user.email ?? "Signed-in member"}
+              role={membership?.role ?? "member"}
+              isAdmin={isAdmin}
+              isPlatformAdmin={isPlatformAdmin}
+            />
+            <main id="main-content" tabIndex={-1} className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
+          </div>
+          <OnboardingTour isAdmin={isAdmin} />
           <ActiveCallPanel dispositions={dialerShell.dispositions} />
         </div>
+        </WorkspaceFormattingProvider>
       </OnboardingTourProvider>
     </DialerSessionProvider>
   );

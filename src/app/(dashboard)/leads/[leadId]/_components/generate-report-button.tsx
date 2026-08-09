@@ -53,7 +53,7 @@ export function GenerateReportButton({
           href={docUrl}
           target="_blank"
           rel="noreferrer"
-          className="text-sm text-primary hover:underline"
+          className="text-sm text-brand-strong hover:underline"
         >
           Open latest report
         </a>

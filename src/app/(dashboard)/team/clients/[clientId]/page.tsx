@@ -76,7 +76,7 @@ export default async function ClientDetailPage({
         <CardContent className="flex flex-col divide-y divide-border">
           {leads.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No leads assigned to this client yet. Assign one from a lead's
+              No leads assigned to this client yet. Assign one from a lead&apos;s
               detail page.
             </p>
           ) : (

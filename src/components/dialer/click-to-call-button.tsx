@@ -23,7 +23,7 @@ export function ClickToCallButton({
   const blockedReason = !dialer.enabled
     ? "Dialer is not enabled"
     : !dialer.twilioConnected
-      ? "Connect a Twilio account in Dialer → Settings before calling"
+      ? "Connect a Twilio account in Settings → Calling before calling"
       : undefined;
   return (
     <Button

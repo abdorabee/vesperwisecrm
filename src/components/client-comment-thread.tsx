@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { addLeadClientComment } from "@/lib/actions/portal";
 import type { Tables } from "@/lib/supabase/types";
+import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
 
 interface ClientCommentThreadProps {
   leadId: string;
@@ -54,7 +55,7 @@ export function ClientCommentThread({
                     : otherLabel}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {new Date(comment.created_at).toLocaleString()}
+                  <WorkspaceDateTime value={comment.created_at} />
                 </span>
               </div>
               <p className="mt-1 text-sm whitespace-pre-wrap">{comment.body}</p>
