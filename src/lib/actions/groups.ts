@@ -2,7 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { requireAccountId } from "@/lib/supabase/account";
+import {
+  requireAccountId,
+  requireAdminAccountId,
+} from "@/lib/supabase/account";
 import { groupSchema, type GroupInput } from "@/lib/validations/group";
 
 export async function saveGroup(
@@ -131,10 +134,16 @@ export async function manualAssignLead(
     }
   }
 
+  // Explicit account scope rather than relying on the RLS UPDATE policy alone,
+  // and an admin gate so a restricted member cannot reassign a lead to
+  // themselves to gain visibility they were denied.
+  await requireAdminAccountId();
+
   const { error } = await supabase
     .from("leads")
     .update({ owner_user_id: userId })
-    .eq("id", leadId);
+    .eq("id", leadId)
+    .eq("account_id", accountId);
 
   if (error) {
     throw new Error(error.message);

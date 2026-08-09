@@ -118,6 +118,9 @@ export async function createLead(
 export async function previewCsvMapping(
   input: PreviewCsvMappingInput,
 ): Promise<CsvMappingPreview> {
+  // Server actions are POST-able by anyone who can read an action id, so this
+  // needs its own gate even though it touches no tenant data.
+  await requireAccountId();
   const data = previewCsvMappingSchema.parse(input);
   const { headers, rows } = parseCsv(data.csvText);
 

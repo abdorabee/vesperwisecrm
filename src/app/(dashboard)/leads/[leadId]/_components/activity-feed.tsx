@@ -11,6 +11,7 @@ import {
   Inbox,
   Mail,
   MessageSquare,
+  PhoneCall,
   StickyNote,
   Tag,
   Zap,
@@ -56,6 +57,12 @@ function describeActivity(activity: Tables<"activities">): string {
       return `Task created: ${payload.title ?? ""}`;
     case "task_completed":
       return `Task completed: ${payload.title ?? ""}`;
+    case "call_started":
+      return "Outbound call started";
+    case "call_completed":
+      return `Call ended: ${String(payload.status ?? "completed").replace("_", " ")}`;
+    case "call_disposition_set":
+      return `Call outcome: ${payload.disposition ?? "recorded"}`;
     default:
       return activity.type;
   }
@@ -87,6 +94,10 @@ function getActivityIcon(type: string): LucideIcon {
       return GitBranch;
     case "lead_created":
       return CircleDot;
+    case "call_started":
+    case "call_completed":
+    case "call_disposition_set":
+      return PhoneCall;
     default:
       return CircleDot;
   }

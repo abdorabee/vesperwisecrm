@@ -195,8 +195,9 @@ export async function getTvKpis(accountId: string): Promise<TvKpis> {
       if (displayName) {
         return { name: displayName, count };
       }
-      const { data } = await supabase.auth.admin.getUserById(userId);
-      return { name: data.user?.email ?? "Team member", count };
+      // The TV wall is unauthenticated -- anyone holding the display URL sees
+      // this. Never fall back to the email address; it is spear-phishing input.
+      return { name: "Team member", count };
     }),
   );
 

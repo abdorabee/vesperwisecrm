@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { clientAddress, consumeRateLimit } from "@/lib/rate-limit";
+
+const INTAKE_REQUESTS_PER_MINUTE = 60;
 import { createLeadRecord } from "@/lib/leads/create-lead";
 import { intakeLeadSchema } from "@/lib/validations/lead";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
@@ -112,11 +115,36 @@ async function authorize(
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
+  // Throttle before any work: this endpoint is publicly reachable and its only
+  // credential is a bearer string looked up in the database.
+  const withinBudget = await consumeRateLimit({
+    scope: "leads-intake",
+    identifier: clientAddress(request),
+    limit: INTAKE_REQUESTS_PER_MINUTE,
+    windowSeconds: 60,
+  });
+  if (!withinBudget) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
+
   let payload: unknown;
   try {
     payload = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  const supabase = createServiceRoleClient();
+
+  // Authorize before echoing validation detail, so an unauthenticated caller
+  // cannot map the intake schema by submitting deliberately malformed bodies.
+  const claimedAccountId =
+    payload && typeof payload === "object" && "accountId" in payload
+      ? String((payload as { accountId: unknown }).accountId ?? "")
+      : "";
+  const auth = await authorize(request, supabase, claimedAccountId);
+  if (!auth.authorized) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const parsed = intakeLeadSchema.safeParse(payload);
@@ -128,12 +156,6 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const data = parsed.data;
-  const supabase = createServiceRoleClient();
-
-  const auth = await authorize(request, supabase, data.accountId);
-  if (!auth.authorized) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
 
   const { data: account } = await supabase
     .from("accounts")

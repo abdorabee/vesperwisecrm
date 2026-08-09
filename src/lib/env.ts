@@ -21,6 +21,11 @@ const OPTIONAL_FEATURE_VARS: { key: string; feature: string }[] = [
   { key: "GOOGLE_CLIENT_SECRET", feature: "Google Docs report generation" },
 ];
 
+const DIALER_VARS = [
+  "DIALER_PUBLIC_BASE_URL",
+  "DIALER_CREDENTIALS_ENCRYPTION_KEY",
+] as const;
+
 export function validateEnv(): void {
   const missingRequired = REQUIRED_VARS.filter((key) => !process.env[key]);
 
@@ -28,6 +33,18 @@ export function validateEnv(): void {
     throw new Error(
       `Missing required environment variables: ${missingRequired.join(", ")}`,
     );
+  }
+
+  if (process.env.DIALER_ENABLED === "true") {
+    const missingDialer = DIALER_VARS.filter((key) => !process.env[key]);
+    if (missingDialer.length > 0) {
+      throw new Error(
+        `Dialer is enabled but missing environment variables: ${missingDialer.join(", ")}`,
+      );
+    }
+    if ((process.env.DIALER_PROVIDER ?? "twilio") !== "twilio") {
+      throw new Error("DIALER_PROVIDER must be twilio for this deployment");
+    }
   }
 
   const missingOptional = OPTIONAL_FEATURE_VARS.filter(

@@ -1,5 +1,6 @@
 import { logSmsEvent } from "@/lib/sms/logger";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { resolveInboundSmsTenant } from "@/lib/sms/resolve-tenant";
 
 export type InboundSmsResult =
   | { status: "processed"; activityId: string }
@@ -53,16 +54,32 @@ export async function processInboundSms(
 
   const supabase = createServiceRoleClient();
 
+  // The receiving number is the only trustworthy tenant signal -- the sender's
+  // phone can legitimately exist in several accounts at once.
+  const toDigits = normalizePhoneDigits(event.to);
+  const { data: mappedNumber } = toDigits
+    ? await supabase
+        .from("account_phone_numbers")
+        .select("account_id")
+        .eq("phone_digits", toDigits)
+        .is("released_at", null)
+        .maybeSingle()
+    : { data: null };
+  const mappedAccountId = mappedNumber?.account_id ?? null;
+
   // Loose suffix prefilter in SQL, then exact digit-normalized match in JS,
   // because stored phones may carry formatting characters.
   const lastFourDigits = fromDigits.slice(-4);
-  const { data: candidates, error: contactError } = await supabase
+  const contactQuery = supabase
     .from("contacts")
     .select("id, account_id, phone")
     .is("deleted_at", null)
     .not("phone", "is", null)
-    .ilike("phone", `%${lastFourDigits}%`)
-    .limit(CONTACT_CANDIDATE_LIMIT);
+    .ilike("phone", `%${lastFourDigits}%`);
+  const { data: candidates, error: contactError } = await (mappedAccountId
+    ? contactQuery.eq("account_id", mappedAccountId)
+    : contactQuery
+  ).limit(CONTACT_CANDIDATE_LIMIT);
 
   if (contactError) {
     return quarantine("contact_lookup_failed", {
@@ -77,9 +94,15 @@ export async function processInboundSms(
       contact.phone && normalizePhoneDigits(contact.phone) === fromDigits,
   );
 
-  if (matchedContacts.length === 0) {
-    return quarantine("unknown_sender", {
+  const resolution = resolveInboundSmsTenant({
+    mappedAccountId,
+    matchedContacts,
+  });
+
+  if (resolution.status === "quarantined") {
+    return quarantine(resolution.reason, {
       from: event.from,
+      to: event.to,
       twilio_message_sid: event.messageSid,
     });
   }
@@ -87,10 +110,8 @@ export async function processInboundSms(
   const { data: leads, error: leadError } = await supabase
     .from("leads")
     .select("id, account_id, contact_id, status, created_at")
-    .in(
-      "contact_id",
-      matchedContacts.map((contact) => contact.id),
-    )
+    .eq("account_id", resolution.accountId)
+    .in("contact_id", resolution.contactIds)
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
     .limit(LEAD_CANDIDATE_LIMIT);

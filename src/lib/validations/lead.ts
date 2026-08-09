@@ -102,14 +102,23 @@ export const intakeLeadSchema = newLeadSchema
 
 export type IntakeLeadInput = z.infer<typeof intakeLeadSchema>;
 
+// Bounded so an unbounded body cannot be turned into CPU exhaustion.
+const MAX_CSV_BYTES = 5 * 1024 * 1024;
+
 export const previewCsvMappingSchema = z.object({
-  csvText: z.string().min(1, "CSV content is required"),
+  csvText: z
+    .string()
+    .min(1, "CSV content is required")
+    .max(MAX_CSV_BYTES, "CSV content is too large (limit 5 MB)"),
 });
 
 export type PreviewCsvMappingInput = z.infer<typeof previewCsvMappingSchema>;
 
 export const importLeadsCsvMappedSchema = z.object({
-  csvText: z.string().min(1, "CSV content is required"),
+  csvText: z
+    .string()
+    .min(1, "CSV content is required")
+    .max(MAX_CSV_BYTES, "CSV content is too large (limit 5 MB)"),
   mapping: z.record(z.string(), z.string()),
   pipelineStageId: z.string().uuid("Select a stage").optional().or(z.literal("")),
   fallbackSource: z.string().optional(),

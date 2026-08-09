@@ -3,16 +3,9 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { sendDueStep } from "@/lib/sequences/send-step";
 import { runWorkflowAction } from "@/lib/workflows/actions";
 import type { Tables } from "@/lib/supabase/types";
+import { isAuthorizedCronRequest } from "@/lib/cron/authorize";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
-function isAuthorized(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) {
-    return false;
-  }
-  return request.headers.get("authorization") === `Bearer ${secret}`;
-}
 
 async function processDueSequenceSteps(
   supabase: ReturnType<typeof createServiceRoleClient>,
@@ -258,7 +251,7 @@ async function processNoNextActionWorkflows(
 }
 
 export async function GET(request: Request): Promise<NextResponse> {
-  if (!isAuthorized(request)) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

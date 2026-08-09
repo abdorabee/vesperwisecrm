@@ -27,6 +27,11 @@ import { PropertyPanel } from "./_components/property-panel";
 import { GenerateReportButton } from "./_components/generate-report-button";
 import { ClientAssignmentPanel } from "./_components/client-assignment-panel";
 import { ClientCommentThread } from "@/components/client-comment-thread";
+import { ClickToCallButton } from "@/components/dialer/click-to-call-button";
+import { getLeadCallHistory } from "@/lib/queries/dialer";
+import { Badge } from "@/components/ui/badge";
+import { ContactDoNotCallControl } from "@/components/dialer/contact-do-not-call-control";
+import { isDialerEnabled } from "@/lib/dialer/config";
 
 interface LeadDetailPageProps {
   params: Promise<{ leadId: string }>;
@@ -46,6 +51,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
     sequences,
     clients,
     currentUserId,
+    callHistory,
   ] =
     await Promise.all([
       getLeadDetail(leadId),
@@ -59,6 +65,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
       getSequences(),
       getClientsForAssignment(),
       requireUserId(),
+      isDialerEnabled() ? getLeadCallHistory(leadId) : Promise.resolve([]),
     ]);
 
   const clientComments = lead.client_id
@@ -176,9 +183,34 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
                 isAdmin={isAdmin}
               />
               {lead.contact.phone && <p>{lead.contact.phone}</p>}
-              <div className="mt-2">
+              {lead.contact.do_not_call_at && (
+                <ContactDoNotCallControl contactId={lead.contact.id} isAdmin={isAdmin} />
+              )}
+              <div className="mt-2 flex flex-wrap gap-2">
+                {lead.contact.phone && (
+                  <ClickToCallButton
+                    contactId={lead.contact.id}
+                    contactName={contactName || "Contact"}
+                    leadId={lead.id}
+                    disabled={Boolean(lead.contact.do_not_call_at)}
+                  />
+                )}
                 <SendEmailDialog leadId={lead.id} contactEmail={lead.contact.email} />
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader><CardTitle className="text-base">Previous calls</CardTitle></CardHeader>
+            <CardContent className="space-y-3">
+              {callHistory.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No calls recorded for this lead.</p>
+              ) : callHistory.slice(0, 5).map((call) => (
+                <div key={call.id} className="flex items-start justify-between gap-3 border-b pb-3 last:border-0 last:pb-0">
+                  <div><p className="text-sm font-medium capitalize">{call.status.replace("_", " ")}</p><p className="text-xs text-muted-foreground">{new Date(call.created_at).toLocaleString()} · {call.attempts.length} attempt{call.attempts.length === 1 ? "" : "s"}</p></div>
+                  {call.disposition && <Badge variant="secondary">{call.disposition.name}</Badge>}
+                </div>
+              ))}
             </CardContent>
           </Card>
 

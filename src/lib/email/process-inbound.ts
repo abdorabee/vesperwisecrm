@@ -1,6 +1,7 @@
 import { parseTokenFromAddresses } from "@/lib/email/inbound-address";
 import { resolveReplyToken } from "@/lib/email/reply-tokens";
 import { sanitizeHtml, stripHtmlTags } from "@/lib/email/sanitize-html";
+import { redactToken } from "@/lib/email/redact";
 import { getAccountEmailSettings } from "@/lib/email/account-settings";
 import { logEmailEvent } from "@/lib/email/logger";
 import { getResendClient } from "@/lib/resend/client";
@@ -55,7 +56,7 @@ export async function processInboundEmail(
   const resolved = await resolveReplyToken(token);
   if (!resolved) {
     return quarantine("invalid_or_expired_token", {
-      token,
+      token: redactToken(token),
       from: event.from,
       email_id: event.email_id,
     });
