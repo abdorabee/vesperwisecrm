@@ -2,6 +2,7 @@ import { signIn, signUp } from "@/lib/actions/auth";
 import { VesperWiseLogo } from "@/components/vesper-wise-logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AppearanceToggleButton } from "@/components/appearance-toggle";
 import {
   Field,
   FieldGroup,
@@ -17,7 +18,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
 
   return (
-    <div className="flex flex-1 items-center justify-center p-6">
+    <div className="relative flex flex-1 items-center justify-center p-6">
+      <AppearanceToggleButton className="absolute top-4 right-4 size-11" />
       <div className="w-full max-w-sm">
         <div className="mb-4 flex justify-center">
           <VesperWiseLogo size="md" />

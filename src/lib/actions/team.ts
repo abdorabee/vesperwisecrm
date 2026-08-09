@@ -56,6 +56,21 @@ export async function updateMemberRestrictions(
   }
 
   revalidatePath("/team");
+  revalidatePath("/settings/members");
+}
+
+export async function revokeTeamInvite(inviteId: string): Promise<void> {
+  const accountId = await requireAdminAccountId();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("invites")
+    .delete()
+    .eq("account_id", accountId)
+    .eq("id", inviteId)
+    .is("redeemed_at", null);
+
+  if (error) throw new Error(error.message);
+  revalidatePath("/settings/members");
 }
 
 export async function inviteTeamMember(
@@ -158,6 +173,7 @@ export async function inviteTeamMember(
   }
 
   revalidatePath("/team");
+  revalidatePath("/settings/members");
 }
 
 export async function updateOwnSenderIdentity(

@@ -186,18 +186,33 @@ export type Database = {
       accounts: {
         Row: {
           created_at: string
+          currency_code: string
+          date_format: string
           id: string
           name: string
+          time_format: string
+          timezone: string | null
+          updated_at: string
         }
         Insert: {
           created_at?: string
+          currency_code?: string
+          date_format?: string
           id?: string
           name: string
+          time_format?: string
+          timezone?: string | null
+          updated_at?: string
         }
         Update: {
           created_at?: string
+          currency_code?: string
+          date_format?: string
           id?: string
           name?: string
+          time_format?: string
+          timezone?: string | null
+          updated_at?: string
         }
         Relationships: []
       }

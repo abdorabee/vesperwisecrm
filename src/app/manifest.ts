@@ -2,14 +2,14 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "VesperwiseCRM",
-    short_name: "Vesperwise",
+    name: "VesperWise CRM",
+    short_name: "VesperWise",
     description:
       "Acquisition-pipeline CRM: lead intake, qualification, and follow-up from any device.",
     start_url: "/",
     display: "standalone",
-    background_color: "#000000",
-    theme_color: "#000000",
+    background_color: "#f7f7f2",
+    theme_color: "#f7f7f2",
     icons: [
       {
         src: "/icon-192.png",

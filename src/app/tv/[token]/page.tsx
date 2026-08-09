@@ -42,7 +42,7 @@ export default async function TvWallPage({ params }: TvWallPageProps) {
   const kpis = await getTvKpis(resolved.accountId);
 
   return (
-    <div className="flex min-h-screen flex-col gap-10 bg-zinc-950 p-10 text-white">
+    <div className="dark flex min-h-screen flex-col gap-10 bg-zinc-950 p-10 text-white">
       <TvAutoRefresh intervalSeconds={60} />
       <header className="flex items-baseline justify-between">
         <h1 className="text-4xl font-bold">{kpis.accountName}</h1>

@@ -8,17 +8,13 @@ import {
 } from "@/components/ui/card";
 import type { EmailHealthStats } from "@/lib/queries/email-health";
 import type { EmailSetupUiState } from "@/lib/email/account-settings";
+import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
 
 interface EmailHealthCardProps {
   uiState: EmailSetupUiState;
   lastTestSentAt: string | null;
   outboundSuspended: boolean;
   stats: EmailHealthStats;
-}
-
-function formatRelativeTime(iso: string): string {
-  const date = new Date(iso);
-  return date.toLocaleString();
 }
 
 export function EmailHealthCard({
@@ -63,7 +59,7 @@ export function EmailHealthCard({
 
         <p className="text-sm text-muted-foreground">
           Last test send:{" "}
-          {lastTestSentAt ? formatRelativeTime(lastTestSentAt) : "Never"}
+          {lastTestSentAt ? <WorkspaceDateTime value={lastTestSentAt} /> : "Never"}
         </p>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -77,7 +73,7 @@ export function EmailHealthCard({
 
         {(uiState === "failed" || uiState === "pending_dns") && (
           <p className="text-sm">
-            <a href="#domain-verification" className="text-primary underline">
+            <a href="#domain-verification" className="text-brand-strong underline">
               Review DNS records
             </a>{" "}
             to complete domain verification.

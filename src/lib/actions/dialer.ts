@@ -25,6 +25,7 @@ import {
 
 function refreshDialerPaths(leadId?: string | null): void {
   revalidatePath("/dialer");
+  revalidatePath("/settings/calling");
   if (leadId) revalidatePath(`/leads/${leadId}`);
 }
 

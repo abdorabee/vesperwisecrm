@@ -5,6 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getAtRiskLeads, getDashboardStats } from "@/lib/queries/reporting";
 import { getYourDayTasks } from "@/lib/queries/tasks";
 import { getAccountMemberProfiles } from "@/lib/queries/members";
+import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
+import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
+import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
+import { getDialerCredentialStatus } from "@/lib/queries/dialer-credentials";
+import { isAccountEmailReady } from "@/lib/email/account-settings";
+import { formatWorkspaceDate } from "@/lib/workspace-settings";
 import { YourDay } from "./_components/your-day";
 import { GettingStartedChecklist } from "./_components/getting-started-checklist";
 
@@ -25,12 +31,18 @@ function formatPercent(value: number | null): string {
 }
 
 export default async function DashboardPage() {
-  const [stats, yourDayTasks, atRiskLeads, members] = await Promise.all([
+  const [stats, yourDayTasks, atRiskLeads, members, membership, workspace] = await Promise.all([
     getDashboardStats(),
     getYourDayTasks(),
     getAtRiskLeads(),
     getAccountMemberProfiles(),
+    getCurrentMembership(),
+    getWorkspaceSettings(),
   ]);
+  const isAdmin = membership ? isAdminRole(membership.role) : false;
+  const [emailSettings, dialerCredentials] = isAdmin
+    ? await Promise.all([getAccountEmailSettingsForAdmin(), getDialerCredentialStatus()])
+    : [null, null];
   const maxStageCount = Math.max(1, ...stats.leadsByStage.map((s) => s.count));
   const maxSourceCount = Math.max(1, ...stats.leadsBySource.map((s) => s.count));
   const maxDailyActivityCount = Math.max(
@@ -47,9 +59,14 @@ export default async function DashboardPage() {
         </Button>
       </div>
 
-      {stats.totalLeads === 0 && (
-        <GettingStartedChecklist hasTeammates={members.length > 1} />
-      )}
+      <GettingStartedChecklist
+        isAdmin={isAdmin}
+        workspaceReviewed={workspace.name.trim().length > 0}
+        hasTeammates={members.length > 1}
+        hasLeads={stats.totalLeads > 0}
+        emailConnected={isAccountEmailReady(emailSettings)}
+        callingConnected={Boolean(dialerCredentials?.connected && dialerCredentials.status === "active")}
+      />
 
       <Card>
         <CardHeader>
@@ -78,7 +95,7 @@ export default async function DashboardPage() {
                 >
                   <span className="truncate">{lead.title}</span>
                   <span className="shrink-0 text-xs text-muted-foreground">
-                    Created {new Date(lead.createdAt).toLocaleDateString()}
+                    Created {formatWorkspaceDate(lead.createdAt, workspace)}
                   </span>
                 </Link>
               ))}
@@ -224,10 +241,7 @@ export default async function DashboardPage() {
               {stats.activitiesByDay.map((day) => (
                 <div key={day.date} className="flex items-center gap-3">
                   <span className="w-32 shrink-0 text-sm">
-                    {new Intl.DateTimeFormat("en", {
-                      month: "short",
-                      day: "numeric",
-                    }).format(new Date(`${day.date}T00:00:00Z`))}
+                    {formatWorkspaceDate(`${day.date}T00:00:00Z`, workspace)}
                   </span>
                   <div className="h-2 flex-1 rounded-full bg-muted">
                     <div

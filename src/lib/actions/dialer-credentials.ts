@@ -40,6 +40,7 @@ export async function saveDialerCredentials(input: unknown): Promise<void> {
   if (error) throw new Error(error.message);
 
   revalidatePath("/dialer");
+  revalidatePath("/settings/calling");
 }
 
 export async function disconnectDialerCredentials(): Promise<void> {
@@ -52,6 +53,7 @@ export async function disconnectDialerCredentials(): Promise<void> {
   if (error) throw new Error(error.message);
 
   revalidatePath("/dialer");
+  revalidatePath("/settings/calling");
 }
 
 export async function testDialerCredentials(): Promise<{ ok: boolean; message: string }> {
@@ -71,6 +73,7 @@ export async function testDialerCredentials(): Promise<{ ok: boolean; message: s
       .update({ status: "active", last_verified_at: new Date().toISOString() })
       .eq("account_id", accountId);
     revalidatePath("/dialer");
+    revalidatePath("/settings/calling");
     return { ok: true, message: "Connection verified" };
   } catch (verifyError) {
     await supabase
@@ -78,6 +81,7 @@ export async function testDialerCredentials(): Promise<{ ok: boolean; message: s
       .update({ status: "invalid" })
       .eq("account_id", accountId);
     revalidatePath("/dialer");
+    revalidatePath("/settings/calling");
     return {
       ok: false,
       message: verifyError instanceof Error ? verifyError.message : "Could not verify credentials",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,7 +15,6 @@ import { completeOnboardingTour } from "@/lib/actions/onboarding-tour";
 import { cn } from "@/lib/utils";
 
 interface OnboardingTourProps {
-  shouldAutoOpen: boolean;
   isAdmin: boolean;
 }
 
@@ -70,11 +69,8 @@ const TOUR_STEPS: TourStep[] = [
   },
 ];
 
-export function OnboardingTour({
-  shouldAutoOpen,
-  isAdmin,
-}: OnboardingTourProps) {
-  const { open, setOpen, openTour, closeTour } = useOnboardingTour();
+export function OnboardingTour({ isAdmin }: OnboardingTourProps) {
+  const { open, setOpen, closeTour } = useOnboardingTour();
   const [stepIndex, setStepIndex] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
   const completingRef = useRef(false);
@@ -87,11 +83,6 @@ export function OnboardingTour({
   const isFirstStep = stepIndex === 0;
   const isLastStep = stepIndex === steps.length - 1;
 
-  useEffect(() => {
-    if (shouldAutoOpen) {
-      openTour();
-    }
-  }, [openTour, shouldAutoOpen]);
 
   async function completeAndClose() {
     if (completingRef.current) {

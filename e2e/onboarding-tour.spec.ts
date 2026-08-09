@@ -1,6 +1,5 @@
-// End-to-end coverage for first-run onboarding: a fresh user sees the
-// centered tour, can move through steps, can persist completion, and can
-// replay it later from Settings without resetting the saved flag.
+// End-to-end coverage for progressive onboarding: a fresh user sees a real
+// setup checklist without a forced modal and can start the replayable tour.
 import { test, expect, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
@@ -54,11 +53,16 @@ async function login(page: Page): Promise<void> {
   await page.waitForURL(/\/pipeline$/, { timeout: 10_000 });
 }
 
-test("first-run tour persists completion and can be replayed", async ({ page }) => {
+test("first-run setup is contextual and the product tour is user initiated", async ({ page }) => {
   await login(page);
+  await expect(page.getByRole("dialog")).not.toBeVisible();
+  await page.goto("/");
+  await expect(page.getByText("Set up your workspace", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Add or import your first lead/ })).toBeVisible();
 
+  await page.goto("/settings/profile");
+  await page.getByRole("button", { name: "Replay tour" }).click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("heading", { name: "Intake" })).toBeVisible();
   await expect(dialog.getByText("Step 1 of 8")).toBeVisible();
 
@@ -74,20 +78,6 @@ test("first-run tour persists completion and can be replayed", async ({ page }) 
   await dialog.getByRole("button", { name: "Skip" }).click();
   await expect(dialog).not.toBeVisible();
 
-  await page.reload();
-  await expect(page.getByRole("dialog")).not.toBeVisible();
-
-  await page.goto("/settings/profile");
-  await page.getByRole("button", { name: "Replay tour" }).click();
-  await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(
-    page.getByRole("dialog").getByRole("heading", { name: "Intake" }),
-  ).toBeVisible();
-
-  await page.getByRole("dialog").getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("dialog")).not.toBeVisible();
-
-  await page.goto("/");
   await page.reload();
   await expect(page.getByRole("dialog")).not.toBeVisible();
 });

@@ -19,6 +19,7 @@ import { qualifyLead, rejectLead, requestLeadInfo } from "@/lib/actions/qualific
 import type { SubmittedLead } from "@/lib/queries/qualification";
 import type { GroupWithMembers } from "@/lib/queries/groups";
 import { ClickToCallButton } from "@/components/dialer/click-to-call-button";
+import { WorkspaceDateTime, useWorkspaceFormatting } from "@/components/workspace-formatting-context";
 
 const SLA_HOURS = 4;
 
@@ -28,14 +29,14 @@ function hoursSince(dateString: string): number {
   return (Date.now() - new Date(dateString).getTime()) / (1000 * 60 * 60);
 }
 
-function summaryLine(property: SubmittedLead["property"]): string {
+function summaryLine(property: SubmittedLead["property"], currency: (value: number) => string): string {
   if (!property) {
     return "No property details captured yet";
   }
 
   const parts = [
     property.condition ? `Condition: ${property.condition}` : null,
-    property.asking_price ? `$${Number(property.asking_price).toLocaleString()}` : null,
+    property.asking_price ? currency(Number(property.asking_price)) : null,
     property.motivation ? `Motivation: ${property.motivation}` : null,
     property.timeline ? `Timeline: ${property.timeline}` : null,
   ].filter(Boolean);
@@ -49,6 +50,7 @@ interface QueueRowProps {
 }
 
 function QueueRow({ lead, groups }: QueueRowProps) {
+  const { currency } = useWorkspaceFormatting();
   const [isPending, startTransition] = useTransition();
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
   const [note, setNote] = useState("");
@@ -114,7 +116,7 @@ function QueueRow({ lead, groups }: QueueRowProps) {
               {lead.contact.phone ? ` · ${lead.contact.phone}` : ""}
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              {summaryLine(lead.property)}
+              {summaryLine(lead.property, currency)}
             </p>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1">
@@ -125,7 +127,7 @@ function QueueRow({ lead, groups }: QueueRowProps) {
               </Badge>
             )}
             <span className="text-xs text-muted-foreground">
-              Submitted {new Date(lead.created_at).toLocaleString()}
+              Submitted <WorkspaceDateTime value={lead.created_at} />
             </span>
           </div>
         </div>

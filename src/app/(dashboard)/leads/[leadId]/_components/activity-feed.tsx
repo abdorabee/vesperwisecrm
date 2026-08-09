@@ -20,6 +20,7 @@ import type { LucideIcon } from "lucide-react";
 import type { Tables } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
 
 function getPayload(activity: Tables<"activities">): Record<string, unknown> {
   return activity.payload as Record<string, unknown>;
@@ -304,7 +305,7 @@ function ActivityItem({ activity }: { activity: Tables<"activities"> }) {
         <p className="text-sm">{describeActivity(activity)}</p>
         {(isEmail || isSms || isNote) && <EmailBody activity={activity} />}
         <p className="text-xs text-muted-foreground tabular-nums">
-          {new Date(activity.created_at).toLocaleString()}
+          <WorkspaceDateTime value={activity.created_at} />
         </p>
       </div>
     </TimelineItem>
@@ -338,9 +339,7 @@ function EmailThreadItem({
       </details>
       <p className="mt-1 text-xs text-muted-foreground tabular-nums">
         Latest:{" "}
-        {new Date(
-          activities[activities.length - 1]?.created_at ?? "",
-        ).toLocaleString()}
+        <WorkspaceDateTime value={activities[activities.length - 1]?.created_at ?? ""} />
       </p>
     </TimelineItem>
   );

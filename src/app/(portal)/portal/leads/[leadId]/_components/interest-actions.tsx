@@ -33,7 +33,7 @@ export function InterestActions({ leadId, status }: InterestActionsProps) {
   }
 
   if (currentStatus === "interested") {
-    return <Badge className="bg-emerald-500/20 text-emerald-400">You're interested</Badge>;
+    return <Badge className="bg-emerald-500/20 text-emerald-400">You&apos;re interested</Badge>;
   }
   if (currentStatus === "declined") {
     return <Badge variant="secondary">You passed on this one</Badge>;
@@ -48,7 +48,7 @@ export function InterestActions({ leadId, status }: InterestActionsProps) {
         disabled={isPending}
       >
         <Check className="size-3.5" />
-        I'm interested
+        I&apos;m interested
       </Button>
       <Button
         type="button"

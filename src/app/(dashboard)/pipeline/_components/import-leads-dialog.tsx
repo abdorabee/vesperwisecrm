@@ -151,7 +151,7 @@ export function ImportLeadsDialog({ stages }: ImportLeadsDialogProps) {
               <Input id="csv-file" type="file" accept=".csv,text/csv" onChange={readFile} />
               <FieldDescription>
                 Works with exports from Podio, REsimpli, InvestorFuse, Google
-                Sheets, or any other CRM — you'll map columns to fields next.
+                Sheets, or any other CRM — you&apos;ll map columns to fields next.
               </FieldDescription>
             </Field>
 

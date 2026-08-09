@@ -76,8 +76,11 @@ export async function scoreLeadAction(
   const property = Array.isArray(lead.property)
     ? lead.property[0]
     : lead.property;
-  const { account_id: _accountId, lead_id: _leadId, id: _id, ...propertyFields } =
-    property ?? {};
+  const propertyFields = Object.fromEntries(
+    Object.entries(property ?? {}).filter(
+      ([key]) => !["account_id", "lead_id", "id"].includes(key),
+    ),
+  );
 
   const result = await scoreLead({
     title: lead.title,

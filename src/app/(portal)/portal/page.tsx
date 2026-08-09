@@ -3,6 +3,8 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { getPortalLeads } from "@/lib/queries/portal";
+import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
+import { formatWorkspaceCurrency } from "@/lib/workspace-settings";
 
 function interestBadge(status: string | null) {
   if (status === "interested") {
@@ -15,7 +17,7 @@ function interestBadge(status: string | null) {
 }
 
 export default async function PortalLeadsPage() {
-  const leads = await getPortalLeads();
+  const [leads, workspace] = await Promise.all([getPortalLeads(), getWorkspaceSettings()]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -40,7 +42,7 @@ export default async function PortalLeadsPage() {
                   </div>
                   {lead.property?.asking_price != null && (
                     <p className="text-lg font-semibold tabular-nums">
-                      ${Number(lead.property.asking_price).toLocaleString()}
+                      {formatWorkspaceCurrency(Number(lead.property.asking_price), workspace)}
                     </p>
                   )}
                   <p className="text-sm text-muted-foreground">

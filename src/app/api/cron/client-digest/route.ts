@@ -7,6 +7,8 @@ import {
 } from "@/lib/email/account-settings";
 import { getResendClient } from "@/lib/resend/client";
 import { isAuthorizedCronRequest } from "@/lib/cron/authorize";
+import { getWorkspaceSettingsForAccount } from "@/lib/queries/workspace-settings";
+import { formatWorkspaceCurrency, type WorkspaceSettings } from "@/lib/workspace-settings";
 
 interface DigestLead {
   id: string;
@@ -15,7 +17,7 @@ interface DigestLead {
   condition: string | null;
 }
 
-function buildDigestText(clientName: string, leads: DigestLead[]): string {
+function buildDigestText(clientName: string, leads: DigestLead[], workspace: WorkspaceSettings): string {
   const lines = [
     `Hi ${clientName},`,
     "",
@@ -26,7 +28,7 @@ function buildDigestText(clientName: string, leads: DigestLead[]): string {
   for (const lead of leads) {
     const price =
       lead.asking_price != null
-        ? `$${Number(lead.asking_price).toLocaleString()}`
+        ? formatWorkspaceCurrency(Number(lead.asking_price), workspace, "en-US")
         : "price TBD";
     lines.push(`- ${lead.title} — ${price}${lead.condition ? ` — ${lead.condition}` : ""}`);
   }
@@ -66,7 +68,10 @@ export async function GET(request: Request): Promise<NextResponse> {
         continue;
       }
 
-      const emailSettings = await getAccountEmailSettings(client.account_id);
+      const [emailSettings, workspace] = await Promise.all([
+        getAccountEmailSettings(client.account_id),
+        getWorkspaceSettingsForAccount(client.account_id),
+      ]);
       if (!isAccountEmailReady(emailSettings)) {
         skipped += 1;
         continue;
@@ -108,7 +113,7 @@ export async function GET(request: Request): Promise<NextResponse> {
         from: formatFromAddress(emailSettings),
         to,
         subject: `${digestLeads.length} propert${digestLeads.length === 1 ? "y" : "ies"} waiting on your review`,
-        text: buildDigestText(client.name, digestLeads),
+        text: buildDigestText(client.name, digestLeads, workspace),
       });
 
       if (error) {

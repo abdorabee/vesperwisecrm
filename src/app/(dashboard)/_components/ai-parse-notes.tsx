@@ -43,11 +43,11 @@ export function AiParseNotes({ onExtracted }: AiParseNotesProps) {
     <Card className="border-dashed">
       <CardContent className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Sparkles className="size-4 text-primary" />
+          <Sparkles className="size-4 text-brand-strong" />
           Paste raw call notes
         </div>
         <p className="text-xs text-muted-foreground">
-          Paste whatever you jotted down during the call and we'll fill in the fields below for you to review.
+          Paste whatever you jotted down during the call and we&apos;ll fill in the fields below for you to review.
         </p>
         <Textarea
           value={rawText}

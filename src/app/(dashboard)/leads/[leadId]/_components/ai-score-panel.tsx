@@ -7,6 +7,7 @@ import { scoreLeadAction } from "@/lib/actions/ai";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Json } from "@/lib/supabase/types";
+import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
 
 interface AiScorePanelProps {
   leadId: string;
@@ -156,7 +157,7 @@ export function AiScorePanel({
       )}
       {currentScoredAt && (
         <p className="text-xs text-muted-foreground tabular-nums">
-          Last scored {new Date(currentScoredAt).toLocaleString()}
+          Last scored <WorkspaceDateTime value={currentScoredAt} />
         </p>
       )}
     </div>

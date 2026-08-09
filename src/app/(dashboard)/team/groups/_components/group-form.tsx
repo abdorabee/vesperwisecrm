@@ -55,7 +55,7 @@ export function GroupForm({
     try {
       const result = await saveGroup(data, groupId);
       toast.success("Group saved");
-      router.push(`/team/groups/${result.groupId}`);
+      router.push(`/settings/routing/${result.groupId}`);
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to save group",
