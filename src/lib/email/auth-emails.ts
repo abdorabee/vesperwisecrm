@@ -1,4 +1,5 @@
 import { getResendClient } from "@/lib/resend/client";
+import { escapeHtml, sanitizeEmailHeader } from "@/lib/email/escape-html";
 
 interface AuthEmailInput {
   to: string;
@@ -22,7 +23,33 @@ function authEmailFromAddress(): string {
   return from.includes("<") ? from : `Vesperwise <${from}>`;
 }
 
-function renderAuthEmail({
+// Every interpolated value is escaped here rather than at the call sites, so a
+// future caller cannot reintroduce HTML injection by forgetting. accountName in
+// particular is tenant-controlled -- it comes from signup metadata.
+function renderAuthEmail(fields: {
+  title: string;
+  eyebrow: string;
+  body: string;
+  buttonLabel: string;
+  actionLink: string;
+  footer: string;
+}): string {
+  const { title, eyebrow, body, buttonLabel, actionLink, footer } =
+    Object.fromEntries(
+      Object.entries(fields).map(([key, value]) => [key, escapeHtml(value)]),
+    ) as typeof fields;
+
+  return renderAuthEmailFrame({
+    title,
+    eyebrow,
+    body,
+    buttonLabel,
+    actionLink,
+    footer,
+  });
+}
+
+function renderAuthEmailFrame({
   title,
   eyebrow,
   body,
@@ -139,7 +166,9 @@ export async function sendClientPortalInvitationEmail({
   const { error } = await resend.emails.send({
     from: authEmailFromAddress(),
     to,
-    subject: `${accountName} invited you to view your properties`,
+    subject: sanitizeEmailHeader(
+      `${accountName} invited you to view your properties`,
+    ),
     html: renderAuthEmail({
       title: "You're invited to your property portal",
       eyebrow: "Client portal",
@@ -173,7 +202,9 @@ export async function sendTeamInvitationEmail({
   const { error } = await resend.emails.send({
     from: authEmailFromAddress(),
     to,
-    subject: `You are invited to ${accountName} on Vesperwise`,
+    subject: sanitizeEmailHeader(
+      `You are invited to ${accountName} on Vesperwise`,
+    ),
     html: renderAuthEmail({
       title: "You are invited to Vesperwise",
       eyebrow: "Team invitation",

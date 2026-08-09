@@ -18,6 +18,7 @@ import {
 import { qualifyLead, rejectLead, requestLeadInfo } from "@/lib/actions/qualification";
 import type { SubmittedLead } from "@/lib/queries/qualification";
 import type { GroupWithMembers } from "@/lib/queries/groups";
+import { ClickToCallButton } from "@/components/dialer/click-to-call-button";
 
 const SLA_HOURS = 4;
 
@@ -131,6 +132,13 @@ function QueueRow({ lead, groups }: QueueRowProps) {
 
         {pendingAction === null && (
           <div className="flex flex-wrap items-center gap-2">
+            {lead.contact.phone && (
+              <ClickToCallButton
+                contactId={lead.contact.id}
+                contactName={contactName || "Contact"}
+                leadId={lead.id}
+              />
+            )}
             {groups.length > 0 && (
               <Select value={groupId} onValueChange={(value) => value && setGroupId(value)}>
                 <SelectTrigger size="sm" className="w-48">

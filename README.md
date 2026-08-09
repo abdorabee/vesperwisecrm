@@ -1,36 +1,34 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VesperWiseCRM
 
-## Getting Started
+VesperWiseCRM is a multi-tenant acquisition CRM built with Next.js App Router, Supabase Postgres/Auth/RLS, and Vercel. It includes lead intake and qualification, pipeline management, teams, tasks, sequences, workflows, reporting, email/SMS, client portals, and a provider-independent browser dialer.
 
-First, run the development server:
+## Local development
+
+1. Copy `.env.example` to `.env.local` and configure Supabase.
+2. Install dependencies with `npm install`.
+3. Apply the local database migrations with `npx supabase start` and `npx supabase db reset`.
+4. Start the app with `npm run dev`.
+
+The application is available at `http://localhost:3000` by default.
+
+## Validation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm test
+npx tsc --noEmit
+npm run lint
+npm run build
+npm run test:e2e
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Some integration and E2E tests require a reachable Supabase project and, for HTTP smoke tests, a running application server. See the individual test headers for their setup.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Dialer
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The outbound dialer is disabled by default and uses a Twilio Voice adapter behind a provider-neutral domain interface. It supports explicit click-to-call, personal/shared progressive queues, dispositions, DNC suppression, signed/idempotent callbacks, Realtime status updates, and cron reconciliation.
 
-## Learn More
+See [docs/DIALER.md](docs/DIALER.md) for architecture, configuration, migrations, Twilio setup, scheduling, deployment, rollback, and adapter extension instructions.
 
-To learn more about Next.js, take a look at the following resources:
+## Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The web application is designed for Vercel and the data layer for Supabase. Apply migrations before enabling features that use new tables. Keep service-role keys, webhook credentials, provider credentials, and cron secrets server-side.

@@ -130,6 +130,59 @@ export type Database = {
           },
         ]
       }
+      account_phone_numbers: {
+        Row: {
+          account_id: string
+          created_at: string
+          id: string
+          label: string | null
+          phone_digits: string
+          released_at: string | null
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          phone_digits: string
+          released_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          id?: string
+          label?: string | null
+          phone_digits?: string
+          released_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_phone_numbers_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rate_limits: {
+        Row: {
+          bucket_key: string
+          request_count: number
+          window_started_at: string
+        }
+        Insert: {
+          bucket_key: string
+          request_count?: number
+          window_started_at: string
+        }
+        Update: {
+          bucket_key?: string
+          request_count?: number
+          window_started_at?: string
+        }
+        Relationships: []
+      }
       accounts: {
         Row: {
           created_at: string
@@ -193,6 +246,244 @@ export type Database = {
           },
         ]
       }
+      call_attempts: {
+        Row: {
+          account_id: string
+          answered_at: string | null
+          attempt_number: number
+          call_id: string
+          created_at: string
+          disposition_id: string | null
+          ended_at: string | null
+          failure_code: string | null
+          failure_reason: string | null
+          id: string
+          idempotency_key: string
+          initiated_at: string
+          last_provider_sequence: number
+          notes: string | null
+          provider: string
+          provider_call_id: string | null
+          provider_parent_call_id: string | null
+          ringing_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_id: string
+          answered_at?: string | null
+          attempt_number: number
+          call_id: string
+          created_at?: string
+          disposition_id?: string | null
+          ended_at?: string | null
+          failure_code?: string | null
+          failure_reason?: string | null
+          id?: string
+          idempotency_key: string
+          initiated_at?: string
+          last_provider_sequence?: number
+          notes?: string | null
+          provider: string
+          provider_call_id?: string | null
+          provider_parent_call_id?: string | null
+          ringing_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string
+          answered_at?: string | null
+          attempt_number?: number
+          call_id?: string
+          created_at?: string
+          disposition_id?: string | null
+          ended_at?: string | null
+          failure_code?: string | null
+          failure_reason?: string | null
+          id?: string
+          idempotency_key?: string
+          initiated_at?: string
+          last_provider_sequence?: number
+          notes?: string | null
+          provider?: string
+          provider_call_id?: string | null
+          provider_parent_call_id?: string | null
+          ringing_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          { foreignKeyName: "call_attempts_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
+          { foreignKeyName: "call_attempts_call_id_fkey"; columns: ["call_id"]; isOneToOne: false; referencedRelation: "calls"; referencedColumns: ["id"] },
+          { foreignKeyName: "call_attempts_disposition_id_fkey"; columns: ["disposition_id"]; isOneToOne: false; referencedRelation: "call_dispositions"; referencedColumns: ["id"] },
+        ]
+      }
+      call_dispositions: {
+        Row: {
+          account_id: string
+          category: string
+          created_at: string
+          display_order: number
+          id: string
+          is_active: boolean
+          is_retryable: boolean
+          is_system: boolean
+          marks_do_not_call: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_retryable?: boolean
+          is_system?: boolean
+          marks_do_not_call?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          is_retryable?: boolean
+          is_system?: boolean
+          marks_do_not_call?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "call_dispositions_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
+        ]
+      }
+      call_events: {
+        Row: {
+          account_id: string
+          actor_user_id: string | null
+          attempt_id: string | null
+          call_id: string
+          created_at: string
+          event_type: string
+          id: string
+          normalized_status: string | null
+          occurred_at: string
+          payload: Json
+          provider: string | null
+          provider_event_key: string | null
+          provider_sequence: number | null
+          source: string
+        }
+        Insert: {
+          account_id: string
+          actor_user_id?: string | null
+          attempt_id?: string | null
+          call_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          normalized_status?: string | null
+          occurred_at?: string
+          payload?: Json
+          provider?: string | null
+          provider_event_key?: string | null
+          provider_sequence?: number | null
+          source: string
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string | null
+          attempt_id?: string | null
+          call_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          normalized_status?: string | null
+          occurred_at?: string
+          payload?: Json
+          provider?: string | null
+          provider_event_key?: string | null
+          provider_sequence?: number | null
+          source?: string
+        }
+        Relationships: [
+          { foreignKeyName: "call_events_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
+          { foreignKeyName: "call_events_attempt_id_fkey"; columns: ["attempt_id"]; isOneToOne: false; referencedRelation: "call_attempts"; referencedColumns: ["id"] },
+          { foreignKeyName: "call_events_call_id_fkey"; columns: ["call_id"]; isOneToOne: false; referencedRelation: "calls"; referencedColumns: ["id"] },
+        ]
+      }
+      calls: {
+        Row: {
+          account_id: string
+          answered_at: string | null
+          contact_id: string
+          created_at: string
+          direction: string
+          ended_at: string | null
+          failure_reason: string | null
+          id: string
+          latest_disposition_id: string | null
+          lead_id: string | null
+          owner_user_id: string
+          queue_item_id: string | null
+          started_at: string | null
+          status: string
+          to_phone_e164: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          answered_at?: string | null
+          contact_id: string
+          created_at?: string
+          direction?: string
+          ended_at?: string | null
+          failure_reason?: string | null
+          id?: string
+          latest_disposition_id?: string | null
+          lead_id?: string | null
+          owner_user_id: string
+          queue_item_id?: string | null
+          started_at?: string | null
+          status?: string
+          to_phone_e164: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          answered_at?: string | null
+          contact_id?: string
+          created_at?: string
+          direction?: string
+          ended_at?: string | null
+          failure_reason?: string | null
+          id?: string
+          latest_disposition_id?: string | null
+          lead_id?: string | null
+          owner_user_id?: string
+          queue_item_id?: string | null
+          started_at?: string | null
+          status?: string
+          to_phone_e164?: string
+          updated_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "calls_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
+          { foreignKeyName: "calls_contact_id_fkey"; columns: ["contact_id"]; isOneToOne: false; referencedRelation: "contacts"; referencedColumns: ["id"] },
+          { foreignKeyName: "calls_latest_disposition_id_fkey"; columns: ["latest_disposition_id"]; isOneToOne: false; referencedRelation: "call_dispositions"; referencedColumns: ["id"] },
+          { foreignKeyName: "calls_lead_id_fkey"; columns: ["lead_id"]; isOneToOne: false; referencedRelation: "leads"; referencedColumns: ["id"] },
+          { foreignKeyName: "calls_queue_item_id_fkey"; columns: ["queue_item_id"]; isOneToOne: false; referencedRelation: "dialer_queue_items"; referencedColumns: ["id"] },
+        ]
+      }
       clients: {
         Row: {
           account_id: string
@@ -243,6 +534,9 @@ export type Database = {
           company: string | null
           created_at: string
           deleted_at: string | null
+          do_not_call_at: string | null
+          do_not_call_by_user_id: string | null
+          do_not_call_reason: string | null
           email: string | null
           email_opted_out_at: string | null
           first_name: string
@@ -250,6 +544,7 @@ export type Database = {
           last_name: string | null
           notes: string | null
           phone: string | null
+          phone_e164: string | null
           source: string | null
           updated_at: string
         }
@@ -258,6 +553,9 @@ export type Database = {
           company?: string | null
           created_at?: string
           deleted_at?: string | null
+          do_not_call_at?: string | null
+          do_not_call_by_user_id?: string | null
+          do_not_call_reason?: string | null
           email?: string | null
           email_opted_out_at?: string | null
           first_name: string
@@ -265,6 +563,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           phone?: string | null
+          phone_e164?: string | null
           source?: string | null
           updated_at?: string
         }
@@ -273,6 +572,9 @@ export type Database = {
           company?: string | null
           created_at?: string
           deleted_at?: string | null
+          do_not_call_at?: string | null
+          do_not_call_by_user_id?: string | null
+          do_not_call_reason?: string | null
           email?: string | null
           email_opted_out_at?: string | null
           first_name?: string
@@ -280,6 +582,7 @@ export type Database = {
           last_name?: string | null
           notes?: string | null
           phone?: string | null
+          phone_e164?: string | null
           source?: string | null
           updated_at?: string
         }
@@ -291,6 +594,192 @@ export type Database = {
             referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      dialer_provider_credentials: {
+        Row: {
+          account_id: string
+          account_sid: string
+          api_key_secret_ciphertext: string
+          api_key_sid: string
+          auth_token_ciphertext: string
+          connected_by_user_id: string | null
+          created_at: string
+          from_number: string
+          last_verified_at: string | null
+          provider: string
+          status: string
+          twiml_app_sid: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          account_sid: string
+          api_key_secret_ciphertext: string
+          api_key_sid: string
+          auth_token_ciphertext: string
+          connected_by_user_id?: string | null
+          created_at?: string
+          from_number: string
+          last_verified_at?: string | null
+          provider?: string
+          status?: string
+          twiml_app_sid: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          account_sid?: string
+          api_key_secret_ciphertext?: string
+          api_key_sid?: string
+          auth_token_ciphertext?: string
+          connected_by_user_id?: string | null
+          created_at?: string
+          from_number?: string
+          last_verified_at?: string | null
+          provider?: string
+          status?: string
+          twiml_app_sid?: string
+          updated_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "dialer_provider_credentials_account_id_fkey"; columns: ["account_id"]; isOneToOne: true; referencedRelation: "accounts"; referencedColumns: ["id"] },
+        ]
+      }
+      dialer_queue_items: {
+        Row: {
+          account_id: string
+          cancelled_at: string | null
+          cancelled_by_user_id: string | null
+          claimed_at: string | null
+          claimed_by_user_id: string | null
+          contact_id: string
+          created_at: string
+          id: string
+          lead_id: string | null
+          next_attempt_at: string | null
+          position: number
+          queue_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          cancelled_at?: string | null
+          cancelled_by_user_id?: string | null
+          claimed_at?: string | null
+          claimed_by_user_id?: string | null
+          contact_id: string
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          next_attempt_at?: string | null
+          position?: number
+          queue_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          cancelled_at?: string | null
+          cancelled_by_user_id?: string | null
+          claimed_at?: string | null
+          claimed_by_user_id?: string | null
+          contact_id?: string
+          created_at?: string
+          id?: string
+          lead_id?: string | null
+          next_attempt_at?: string | null
+          position?: number
+          queue_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "dialer_queue_items_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
+          { foreignKeyName: "dialer_queue_items_contact_id_fkey"; columns: ["contact_id"]; isOneToOne: false; referencedRelation: "contacts"; referencedColumns: ["id"] },
+          { foreignKeyName: "dialer_queue_items_lead_id_fkey"; columns: ["lead_id"]; isOneToOne: false; referencedRelation: "leads"; referencedColumns: ["id"] },
+          { foreignKeyName: "dialer_queue_items_queue_id_fkey"; columns: ["queue_id"]; isOneToOne: false; referencedRelation: "dialer_queues"; referencedColumns: ["id"] },
+        ]
+      }
+      dialer_queues: {
+        Row: {
+          account_id: string
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          lead_group_id: string | null
+          max_active_calls: number
+          max_attempts: number
+          name: string
+          owner_user_id: string | null
+          retry_delay_seconds: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          lead_group_id?: string | null
+          max_active_calls?: number
+          max_attempts?: number
+          name: string
+          owner_user_id?: string | null
+          retry_delay_seconds?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          lead_group_id?: string | null
+          max_active_calls?: number
+          max_attempts?: number
+          name?: string
+          owner_user_id?: string | null
+          retry_delay_seconds?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "dialer_queues_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
+          { foreignKeyName: "dialer_queues_lead_group_id_fkey"; columns: ["lead_group_id"]; isOneToOne: false; referencedRelation: "lead_groups"; referencedColumns: ["id"] },
+        ]
+      }
+      dialer_settings: {
+        Row: {
+          account_id: string
+          created_at: string
+          default_max_attempts: number
+          default_retry_delay_seconds: number
+          max_active_calls: number
+          max_calls_per_second: number
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          default_max_attempts?: number
+          default_retry_delay_seconds?: number
+          max_active_calls?: number
+          max_calls_per_second?: number
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          default_max_attempts?: number
+          default_retry_delay_seconds?: number
+          max_active_calls?: number
+          max_calls_per_second?: number
+          updated_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: "dialer_settings_account_id_fkey"; columns: ["account_id"]; isOneToOne: true; referencedRelation: "accounts"; referencedColumns: ["id"] },
         ]
       }
       email_delivery_events: {
@@ -1440,8 +1929,37 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      attach_dialer_provider_call: {
+        Args: {
+          p_attempt_id: string
+          p_payload: Json
+          p_provider_event_key: string
+          p_provider_parent_call_id: string
+        }
+        Returns: boolean
+      }
       assign_lead_round_robin: {
         Args: { p_group_id: string; p_lead_id: string }
+        Returns: string
+      }
+      can_access_lead: {
+        Args: { p_lead_id: string }
+        Returns: boolean
+      }
+      consume_rate_limit: {
+        Args: { p_bucket_key: string; p_limit: number; p_window_seconds: number }
+        Returns: boolean
+      }
+      has_assigned_only_visibility: {
+        Args: { p_account_id: string }
+        Returns: boolean
+      }
+      prune_rate_limits: {
+        Args: { p_older_than?: unknown }
+        Returns: number
+      }
+      sanitize_account_name: {
+        Args: { p_name: string }
         Returns: string
       }
       get_account_member_profiles: {
@@ -1476,6 +1994,23 @@ export type Database = {
           relevance: number
         }[]
       }
+      can_access_dialer_lead: {
+        Args: { p_account_id: string; p_lead_id: string }
+        Returns: boolean
+      }
+      clear_contact_do_not_call: {
+        Args: { p_contact_id: string; p_reason: string }
+        Returns: undefined
+      }
+      finalize_dialer_attempt: {
+        Args: {
+          p_attempt_id: string
+          p_failure_code: string
+          p_failure_reason: string
+          p_status: string
+        }
+        Returns: undefined
+      }
       is_account_admin: { Args: { check_account_id: string }; Returns: boolean }
       is_account_client: {
         Args: { check_account_id: string }
@@ -1484,6 +2019,53 @@ export type Database = {
       is_account_member: {
         Args: { check_account_id: string }
         Returns: boolean
+      }
+      is_internal_account_member: {
+        Args: { p_account_id: string }
+        Returns: boolean
+      }
+      prepare_dialer_call: {
+        Args: {
+          p_contact_id: string
+          p_idempotency_key: string
+          p_lead_id: string | null
+          p_phone_e164: string
+          p_provider: string
+          p_queue_item_id: string | null
+          p_max_calls_per_second: number
+        }
+        Returns: {
+          attempt_id: string
+          attempt_status: string
+          call_id: string
+        }[]
+      }
+      process_dialer_provider_event: {
+        Args: {
+          p_attempt_id: string
+          p_event_type: string
+          p_failure_code: string | null
+          p_failure_reason: string | null
+          p_occurred_at: string
+          p_payload: Json
+          p_provider_call_id: string
+          p_provider_event_key: string
+          p_provider_sequence: number
+          p_status: string
+        }
+        Returns: string
+      }
+      save_dialer_attempt_notes: {
+        Args: { p_attempt_id: string; p_notes: string }
+        Returns: undefined
+      }
+      set_dialer_disposition: {
+        Args: {
+          p_attempt_id: string
+          p_disposition_id: string
+          p_notes: string
+        }
+        Returns: undefined
       }
       set_client_lead_interest: {
         Args: { p_lead_id: string; p_status: string }

@@ -1,12 +1,16 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { consumeRateLimit } from "@/lib/rate-limit";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
   canSendBrandedAuthEmail,
   sendSignupConfirmationEmail,
 } from "@/lib/email/auth-emails";
+
+const SIGNUPS_PER_HOUR = 10;
 
 export async function signIn(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
@@ -23,6 +27,20 @@ export async function signIn(formData: FormData): Promise<void> {
 }
 
 export async function signUp(formData: FormData): Promise<void> {
+  // Each signup mints a service-role auth link and sends an email. Unthrottled,
+  // that is a free bulk-mail primitive attached to our sending domain.
+  const withinBudget = await consumeRateLimit({
+    scope: "signup",
+    identifier: (await headers()).get("x-forwarded-for") ?? "unknown",
+    limit: SIGNUPS_PER_HOUR,
+    windowSeconds: 3600,
+  });
+  if (!withinBudget) {
+    redirect(
+      `/login?error=${encodeURIComponent("Too many signup attempts. Try again later.")}`,
+    );
+  }
+
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
   const nicheValue = String(formData.get("niche") ?? "");

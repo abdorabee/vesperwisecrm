@@ -6,14 +6,7 @@ import {
   isAccountEmailReady,
 } from "@/lib/email/account-settings";
 import { getResendClient } from "@/lib/resend/client";
-
-function isAuthorized(request: Request): boolean {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) {
-    return false;
-  }
-  return request.headers.get("authorization") === `Bearer ${secret}`;
-}
+import { isAuthorizedCronRequest } from "@/lib/cron/authorize";
 
 interface DigestLead {
   id: string;
@@ -44,7 +37,7 @@ function buildDigestText(clientName: string, leads: DigestLead[]): string {
 }
 
 export async function GET(request: Request): Promise<NextResponse> {
-  if (!isAuthorized(request)) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

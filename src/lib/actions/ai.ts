@@ -2,15 +2,37 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { requireAccountId } from "@/lib/supabase/account";
+import { requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { consumeRateLimit } from "@/lib/rate-limit";
 import { parseCallNotes } from "@/lib/ai/parse-call-notes";
 import type { ExtractedCallNoteFields } from "@/lib/ai/parse-call-notes";
 import { scoreLead, type LeadScoreResult } from "@/lib/ai/score-lead";
 
+// Each call spends Anthropic tokens, so budget per member rather than per
+// account -- one member should not be able to exhaust the whole team's quota.
+const AI_CALLS_PER_MINUTE = 20;
+
+async function requireAiBudget(scope: string): Promise<string> {
+  const accountId = await requireAccountId();
+  const userId = await requireUserId();
+
+  const withinBudget = await consumeRateLimit({
+    scope,
+    identifier: userId,
+    limit: AI_CALLS_PER_MINUTE,
+    windowSeconds: 60,
+  });
+  if (!withinBudget) {
+    throw new Error("Too many AI requests. Wait a moment and try again.");
+  }
+
+  return accountId;
+}
+
 export async function parseCallNotesAction(
   rawText: string,
 ): Promise<ExtractedCallNoteFields> {
-  await requireAccountId();
+  await requireAiBudget("ai-parse-call-notes");
   return parseCallNotes(rawText);
 }
 
@@ -19,13 +41,14 @@ const MS_PER_DAY = 24 * 60 * 60 * 1000;
 export async function scoreLeadAction(
   leadId: string,
 ): Promise<LeadScoreResult> {
-  await requireAccountId();
+  const accountId = await requireAiBudget("ai-score-lead");
   const supabase = await createClient();
 
   const { data: lead, error: leadError } = await supabase
     .from("leads")
     .select("*, property:lead_properties(*)")
     .eq("id", leadId)
+    .eq("account_id", accountId)
     .is("deleted_at", null)
     .single();
 
@@ -81,7 +104,8 @@ export async function scoreLeadAction(
       },
       ai_scored_at: new Date().toISOString(),
     })
-    .eq("id", leadId);
+    .eq("id", leadId)
+    .eq("account_id", accountId);
 
   if (updateError) {
     throw new Error(updateError.message);

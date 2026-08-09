@@ -169,6 +169,7 @@ export function DashboardSidebar({
   const links: NavLink[] = [
     { href: "/pipeline", label: "Pipeline", icon: Kanban },
     { href: "/intake", label: "Submit Lead", icon: PhoneCall },
+    { href: "/dialer", label: "Dialer", icon: PhoneCall },
     { href: "/queue", label: "Lead Queue", icon: ClipboardCheck },
     { href: "/sequences", label: "Sequences", icon: Workflow },
     { href: "/workflows", label: "Workflows", icon: FolderKanban },

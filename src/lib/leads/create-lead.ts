@@ -267,6 +267,12 @@ export async function createLeadRecord(
       value: input.value ?? null,
       qualification_status: input.qualificationStatus ?? null,
       submitted_by_user_id: input.submittedByUserId ?? null,
+      // The creator owns the lead until routing reassigns it. Without this,
+      // owner_user_id stays null and a member with assigned_only visibility
+      // cannot read back the row they just created -- INSERT ... RETURNING is
+      // subject to the SELECT policy -- so lead creation fails outright for
+      // exactly the users the restriction applies to.
+      owner_user_id: input.actorUserId ?? null,
     })
     .select("id")
     .single();

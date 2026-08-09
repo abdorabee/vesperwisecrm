@@ -6,7 +6,7 @@ import type { Tables } from "@/lib/supabase/types";
 export interface LeadWithContact extends Tables<"leads"> {
   contact: Pick<
     Tables<"contacts">,
-    "id" | "first_name" | "last_name" | "email" | "company"
+    "id" | "first_name" | "last_name" | "email" | "company" | "phone"
   > | null;
   tags: Pick<Tables<"tags">, "id" | "name" | "color">[];
   ownerEmail: string | null;
@@ -150,7 +150,7 @@ export async function getPipelineData(filters: {
   let leadsQuery = supabase
     .from("leads")
     .select(
-      "*, contact:contact_id(id, first_name, last_name, email, company), tags:lead_tags(tag:tag_id(id, name, color))",
+      "*, contact:contact_id(id, first_name, last_name, email, company, phone), tags:lead_tags(tag:tag_id(id, name, color))",
     )
     .eq("account_id", accountId)
     .is("deleted_at", null)
