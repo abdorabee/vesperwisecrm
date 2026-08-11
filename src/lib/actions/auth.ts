@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
+  buildVerificationLink,
   canSendBrandedAuthEmail,
   sendSignupConfirmationEmail,
 } from "@/lib/email/auth-emails";
@@ -68,7 +69,7 @@ export async function signUp(formData: FormData): Promise<void> {
       },
     });
 
-    if (error || !data?.properties?.action_link) {
+    if (error || !data?.properties?.hashed_token) {
       redirect(
         `/login?error=${encodeURIComponent(
           error?.message ?? "Failed to create confirmation link",
@@ -79,7 +80,11 @@ export async function signUp(formData: FormData): Promise<void> {
     try {
       await sendSignupConfirmationEmail({
         to: email,
-        actionLink: data.properties.action_link,
+        actionLink: buildVerificationLink(
+          redirectTo,
+          data.properties.hashed_token,
+          "signup",
+        ),
       });
     } catch (error) {
       redirect(

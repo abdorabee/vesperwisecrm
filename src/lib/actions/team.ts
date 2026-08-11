@@ -15,21 +15,11 @@ import {
   type MemberSenderIdentityInput,
 } from "@/lib/validations/account-email";
 import {
+  buildVerificationLink,
   canSendBrandedAuthEmail,
+  getGeneratedTokenHash,
   sendTeamInvitationEmail,
 } from "@/lib/email/auth-emails";
-
-function getGeneratedActionLink(value: unknown): string | null {
-  if (!value || typeof value !== "object" || !("properties" in value)) {
-    return null;
-  }
-
-  const properties = (value as { properties?: { action_link?: unknown } })
-    .properties;
-  return typeof properties?.action_link === "string"
-    ? properties.action_link
-    : null;
-}
 
 export async function updateMemberRestrictions(
   userId: string,
@@ -142,8 +132,8 @@ export async function inviteTeamMember(
     throw new Error("Invite did not return a user");
   }
 
-  const brandedInviteLink =
-    canSendBrandedAuthEmail() ? getGeneratedActionLink(invited) : null;
+  const brandedTokenHash =
+    canSendBrandedAuthEmail() ? getGeneratedTokenHash(invited) : null;
 
   const { error: memberError } = await serviceRole
     .from("account_members")
@@ -161,13 +151,13 @@ export async function inviteTeamMember(
   }
 
   if (canSendBrandedAuthEmail()) {
-    if (!brandedInviteLink) {
-      throw new Error("Invite did not return an action link");
+    if (!brandedTokenHash) {
+      throw new Error("Invite did not return a token hash");
     }
 
     await sendTeamInvitationEmail({
       to: data.email,
-      actionLink: brandedInviteLink,
+      actionLink: buildVerificationLink(redirectTo, brandedTokenHash, "invite"),
       accountName: account.name,
     });
   }

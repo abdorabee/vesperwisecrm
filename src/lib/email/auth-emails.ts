@@ -14,6 +14,34 @@ export function canSendBrandedAuthEmail(): boolean {
   return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM_EMAIL);
 }
 
+// `admin.generateLink()`'s own `action_link` routes through Supabase's Auth
+// server, which completes verification there and redirects back with session
+// info in the URL fragment -- our server never sees it. Building our own link
+// from `hashed_token` and sending it through `/auth/callback` keeps
+// verification on our own server via `verifyOtp`, where it's actually usable.
+export function buildVerificationLink(
+  redirectTo: string,
+  tokenHash: string,
+  type: "signup" | "invite",
+): string {
+  const url = new URL(redirectTo);
+  url.searchParams.set("token_hash", tokenHash);
+  url.searchParams.set("type", type);
+  return url.toString();
+}
+
+export function getGeneratedTokenHash(value: unknown): string | null {
+  if (!value || typeof value !== "object" || !("properties" in value)) {
+    return null;
+  }
+
+  const properties = (value as { properties?: { hashed_token?: unknown } })
+    .properties;
+  return typeof properties?.hashed_token === "string"
+    ? properties.hashed_token
+    : null;
+}
+
 function authEmailFromAddress(): string {
   const from = process.env.RESEND_FROM_EMAIL;
   if (!from) {
