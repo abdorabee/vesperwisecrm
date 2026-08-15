@@ -18,7 +18,7 @@ export function getAppearanceToggleCopy(appearance: Appearance): {
 }
 
 export function isForcedDarkRoute(pathname: string): boolean {
-  return pathname === "/home" || pathname === "/tv" || pathname.startsWith("/tv/");
+  return pathname === "/tv" || pathname.startsWith("/tv/");
 }
 
 export function getRouteThemeColor(pathname: string, appearance: Appearance): string {

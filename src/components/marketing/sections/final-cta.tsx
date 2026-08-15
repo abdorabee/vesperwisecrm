@@ -1,35 +1,52 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/marketing/motion/reveal";
+
+const CTA_BADGES = [
+  "14-DAY PILOT",
+  "DATA MIGRATION INCLUDED",
+  "NO ANNUAL LOCK-IN",
+];
 
 export function FinalCta() {
   return (
-    <section className="relative overflow-hidden border-t border-border py-24 sm:py-32">
-      <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-80 bg-[radial-gradient(ellipse_at_bottom,rgba(223,255,0,0.05),transparent_60%)]"
-        aria-hidden
-      />
-      <Reveal className="relative mx-auto flex max-w-3xl flex-col items-center gap-6 px-4 text-center sm:px-6">
-        <h2 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
-          Your next deal is already in the queue.
+    <section
+      id="cta"
+      className="mkt-divider relative overflow-hidden bg-[var(--mkt-bg2)] text-[var(--mkt-text)]"
+    >
+      <div className="mkt-grid-bg pointer-events-none absolute inset-0" aria-hidden />
+
+      <Reveal className="relative mx-auto flex max-w-[820px] flex-col items-center px-7 py-24 text-center sm:py-28">
+        <span className="font-mono text-[10.5px] leading-none font-medium tracking-[0.1em] text-[var(--mkt-text3)]">
+          10.0 — GET STARTED
+        </span>
+        <h2 className="mt-5 font-sans text-[clamp(34px,4vw,56px)] leading-[1.02] font-normal tracking-normal text-balance text-[var(--mkt-text)]">
+          Work every lead like it&apos;s the only one.
         </h2>
-        <p className="max-w-xl text-lg text-muted-foreground">
-          Set up VesperWise in minutes. Bring your lead list, plug in your
-          forms, and let the follow-up run itself.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <Button size="lg" render={<Link href="/login" />} nativeButton={false}>
-            Get started free
-          </Button>
-          <Button
-            size="lg"
-            variant="ghost"
-            render={<Link href="/login" />}
-            nativeButton={false}
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-2.5">
+          <Link
+            href="/login"
+            className="rounded-md bg-[var(--mkt-accent)] px-5 py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-accent-ink)] transition-[background,transform] duration-150 hover:bg-[var(--mkt-accent-hover)] active:translate-y-px"
           >
-            Sign in
-          </Button>
+            Book a demo
+          </Link>
+          <a
+            href="#pricing"
+            className="rounded-md border border-[color:var(--mkt-border)] px-[18px] py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-text)] transition-colors duration-150 hover:border-[color:var(--mkt-border-strong)] hover:bg-[var(--mkt-bg)]"
+          >
+            See pricing
+          </a>
+        </div>
+
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
+          {CTA_BADGES.map((badge) => (
+            <span
+              key={badge}
+              className="rounded border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] px-2.5 py-1.5 font-mono text-[10px] leading-none font-medium tracking-[0.08em] text-[var(--mkt-text3)]"
+            >
+              {badge}
+            </span>
+          ))}
         </div>
       </Reveal>
     </section>

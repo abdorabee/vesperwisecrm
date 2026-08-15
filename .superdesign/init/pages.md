@@ -1,0 +1,5 @@
+# Key Page Dependency Trees
+
+These are discovery trees. For design commands, select the UI-rendering branches and apply the Superdesign payload budget; do not pass server/data modules merely because they appear transitively.
+
+## /home\n\nEntry: `src/app/(marketing)/home/page.tsx`\n\nDependencies:\n\n## /\n\nEntry: `src/app/(dashboard)/page.tsx`\n\nDependencies:\n\n## /intake\n\nEntry: `src/app/(dashboard)/intake/page.tsx`\n\nDependencies:\n\n## /pipeline\n\nEntry: `src/app/(dashboard)/pipeline/page.tsx`\n\nDependencies:\n\n## /queue\n\nEntry: `src/app/(dashboard)/queue/page.tsx`\n\nDependencies:\n\n## /dialer\n\nEntry: `src/app/(dashboard)/dialer/page.tsx`\n\nDependencies:\n\n## /workflows\n\nEntry: `src/app/(dashboard)/workflows/page.tsx`\n\nDependencies:\n\n## /sequences\n\nEntry: `src/app/(dashboard)/sequences/page.tsx`\n\nDependencies:\n\n## /settings\n\nEntry: `src/app/(dashboard)/settings/page.tsx`\n\nDependencies:\n\n## /login\n\nEntry: `src/app/(auth)/login/page.tsx`\n\nDependencies:\n\n

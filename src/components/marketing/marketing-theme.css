@@ -1,0 +1,133 @@
+/* Scoped marketing surface tokens and utilities.
+   Loaded only by src/app/(marketing)/layout.tsx. */
+
+[data-theme-surface="marketing"] {
+  --mkt-bg: #F7F7F2;
+  --mkt-bg2: #F1F1EA;
+  --mkt-surface: #FFFFFF;
+  --mkt-raised: #FBFBF7;
+  --mkt-text: #131410;
+  --mkt-text2: #5C5E55;
+  --mkt-text3: #8D8F85;
+  --mkt-border: rgba(19, 20, 16, .13);
+  --mkt-border-subtle: rgba(19, 20, 16, .07);
+  --mkt-border-strong: rgba(19, 20, 16, .24);
+  --mkt-accent: #CBF24D;
+  --mkt-accent-hover: #D8FF5E;
+  --mkt-accent-ink: #131410;
+  --mkt-accent-soft: rgba(203, 242, 77, .18);
+}
+
+.dark [data-theme-surface="marketing"] {
+  --mkt-bg: #0F100D;
+  --mkt-bg2: #141511;
+  --mkt-surface: #171813;
+  --mkt-raised: #1D1F19;
+  --mkt-text: #F5F5EF;
+  --mkt-text2: #9EA097;
+  --mkt-text3: #6C6E65;
+  --mkt-border: rgba(245, 245, 239, .13);
+  --mkt-border-subtle: rgba(245, 245, 239, .07);
+  --mkt-border-strong: rgba(245, 245, 239, .26);
+  --mkt-accent: #D3FA55;
+  --mkt-accent-hover: #E0FF6E;
+  --mkt-accent-ink: #101109;
+  --mkt-accent-soft: rgba(211, 250, 85, .14);
+}
+
+@keyframes mkt-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mkt-fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mkt-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes mkt-pulse {
+  0%,
+  100% {
+    opacity: .45;
+    transform: scale(.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+@layer utilities {
+  .mkt-divider {
+    border-bottom: 1px solid var(--mkt-border-subtle);
+  }
+
+  .mkt-surface {
+    background-color: var(--mkt-bg);
+  }
+
+  .mkt-surface-raised {
+    background-color: var(--mkt-bg2);
+  }
+
+  .mkt-grid-bg {
+    background-image:
+      linear-gradient(
+        to right,
+        color-mix(in oklch, var(--mkt-border) 48%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklch, var(--mkt-border) 48%, transparent) 1px,
+        transparent 1px
+      );
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+  }
+
+  .mkt-rise {
+    animation: mkt-rise 700ms cubic-bezier(.22, 1, .36, 1) both;
+  }
+
+  .mkt-fadein {
+    animation: mkt-fadein 500ms ease both;
+  }
+
+  .mkt-grow {
+    animation: mkt-grow 600ms cubic-bezier(.22, 1, .36, 1) both;
+    transform-origin: bottom;
+  }
+
+  .mkt-pulse {
+    animation: mkt-pulse 1.8s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mkt-rise,
+  .mkt-fadein,
+  .mkt-grow,
+  .mkt-pulse {
+    animation: none;
+  }
+}

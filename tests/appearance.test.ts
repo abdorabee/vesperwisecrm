@@ -38,8 +38,9 @@ describe("appearance behavior", () => {
     });
   });
 
-  test("keeps marketing and TV browser chrome dark", () => {
-    expect(getRouteThemeColor("/home", "light")).toBe(DARK_THEME_COLOR);
+  test("lets marketing use the selected browser chrome while TV stays dark", () => {
+    expect(getRouteThemeColor("/home", "light")).toBe(LIGHT_THEME_COLOR);
+    expect(getRouteThemeColor("/home", "dark")).toBe(DARK_THEME_COLOR);
     expect(getRouteThemeColor("/tv/demo-token", "light")).toBe(DARK_THEME_COLOR);
     expect(getRouteThemeColor("/login", "light")).toBe(LIGHT_THEME_COLOR);
     expect(getRouteThemeColor("/pipeline", "dark")).toBe(DARK_THEME_COLOR);
