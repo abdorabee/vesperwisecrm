@@ -14,10 +14,10 @@ interface MarketingNavLink {
 }
 
 const NAV_LINKS: MarketingNavLink[] = [
-  { label: "Product", href: "#ch1" },
-  { label: "Automation", href: "#ch5" },
-  { label: "Teams", href: "#proof" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Product", href: "/home#ch1" },
+  { label: "Automation", href: "/home#ch5" },
+  { label: "Teams", href: "/home#proof" },
+  { label: "Pricing", href: "/home#pricing" },
 ];
 
 const SCROLL_THRESHOLD_PX = 8;
@@ -52,13 +52,13 @@ export function MarketingNav() {
 
         <div className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="rounded-md px-3 py-2 text-sm text-[var(--mkt-text2)] transition-colors duration-150 hover:bg-[var(--mkt-bg2)] hover:text-[var(--mkt-text)]"
             >
               {link.label}
-            </a>
+            </Link>
           ))}
         </div>
 
@@ -73,7 +73,7 @@ export function MarketingNav() {
             Log in
           </Button>
           <Button
-            render={<Link href="/login" />}
+            render={<Link href="/book-demo" />}
             nativeButton={false}
             className="rounded-md border-[color:var(--mkt-accent)] bg-[var(--mkt-accent)] text-[var(--mkt-accent-ink)] hover:bg-[var(--mkt-accent-hover)]"
           >

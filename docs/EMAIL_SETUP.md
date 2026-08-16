@@ -50,11 +50,24 @@ For drip campaigns that qualify as marketing:
 3. Click the unsubscribe link and confirm the contact shows **Unsubscribed from marketing email** on the lead.
 4. Future marketing sequence steps are skipped for opted-out contacts.
 
+## Demo and contact inbox
+
+`/book-demo` and `/contact` send through Resend when `RESEND_API_KEY` is set. Production defaults (also in `.env.production`):
+
+- `RESEND_FROM_EMAIL` = `onboarding@resend.dev` (Resend test sender; no domain verification)
+- `DEMO_INBOX_EMAIL` = `abdorabee1134@gmail.com`
+
+Override either in Vercel if you want a verified domain or a different inbox. `RESEND_API_KEY` must be set in Vercel (Production and Preview). Without a verified domain, Resend only delivers to the email on the Resend account.
+
+If `RESEND_API_KEY` is missing, the form still shows success and logs `{ scope: "marketing-inquiry", delivered: false }`.
+
 ## Environment variables (operators)
 
 | Variable | Purpose |
 |----------|---------|
 | `RESEND_API_KEY` | Resend API access |
+| `RESEND_FROM_EMAIL` | Platform From for demo/contact and auth emails |
+| `DEMO_INBOX_EMAIL` | Inbox for `/book-demo` and `/contact` |
 | `RESEND_WEBHOOK_SECRET` | Verify inbound + delivery webhooks |
 | `INBOUND_EMAIL_DOMAIN` | Subdomain for `replies+token@` capture |
 | `REPLY_TOKEN_TTL_DAYS` | Reply token expiry (default 365) |

@@ -25,7 +25,7 @@ export function FinalCta() {
         </h2>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-2.5">
           <Link
-            href="/login"
+            href="/book-demo"
             className="rounded-md bg-[var(--mkt-accent)] px-5 py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-accent-ink)] transition-[background,transform] duration-150 hover:bg-[var(--mkt-accent-hover)] active:translate-y-px"
           >
             Book a demo

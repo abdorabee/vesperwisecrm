@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { VesperWiseLogo } from "@/components/vesper-wise-logo";
 
 interface FooterLink {
@@ -10,53 +12,53 @@ interface FooterColumn {
   links: FooterLink[];
 }
 
-const FOOTER_COLUMNS: FooterColumn[] = [
+export const FOOTER_COLUMNS: FooterColumn[] = [
   {
     title: "PRODUCT",
     links: [
-      { label: "Lead intake", href: "#top" },
-      { label: "Skip tracing", href: "#top" },
-      { label: "Dialer", href: "#top" },
-      { label: "Pipeline", href: "#top" },
-      { label: "Workflows", href: "#top" },
-      { label: "Reporting", href: "#top" },
+      { label: "Lead intake", href: "/home#ch1" },
+      { label: "Skip tracing", href: "/home#ch1" },
+      { label: "Dialer", href: "/home#ch3" },
+      { label: "Pipeline", href: "/home#ch4" },
+      { label: "Workflows", href: "/home#ch5" },
+      { label: "Reporting", href: "/home#ch6" },
     ],
   },
   {
     title: "SOLUTIONS",
     links: [
-      { label: "Wholesalers", href: "#top" },
-      { label: "Fix and flip", href: "#top" },
-      { label: "Buy and hold", href: "#top" },
-      { label: "Agents", href: "#top" },
-      { label: "Dispositions", href: "#top" },
+      { label: "Wholesalers", href: "/solutions/wholesalers" },
+      { label: "Fix and flip", href: "/solutions/fix-and-flip" },
+      { label: "Buy and hold", href: "/solutions/buy-and-hold" },
+      { label: "Agents", href: "/solutions/agents" },
+      { label: "Dispositions", href: "/solutions/dispositions" },
     ],
   },
   {
     title: "RESOURCES",
     links: [
-      { label: "Docs", href: "#top" },
-      { label: "Onboarding", href: "#top" },
-      { label: "Changelog", href: "#top" },
-      { label: "Integrations", href: "#top" },
-      { label: "Support", href: "#top" },
+      { label: "Docs", href: "/docs" },
+      { label: "Onboarding", href: "/onboarding" },
+      { label: "Changelog", href: "/changelog" },
+      { label: "Integrations", href: "/integrations" },
+      { label: "Support", href: "/support" },
     ],
   },
   {
     title: "COMPANY",
     links: [
-      { label: "About", href: "#top" },
-      { label: "Careers", href: "#top" },
-      { label: "Security", href: "#top" },
-      { label: "Contact", href: "#top" },
+      { label: "About", href: "/about" },
+      { label: "Careers", href: "/careers" },
+      { label: "Security", href: "/security" },
+      { label: "Contact", href: "/contact" },
     ],
   },
 ];
 
-const LEGAL_LINKS: FooterLink[] = [
-  { label: "PRIVACY", href: "#top" },
-  { label: "TERMS", href: "#top" },
-  { label: "STATUS", href: "#top" },
+export const LEGAL_LINKS: FooterLink[] = [
+  { label: "PRIVACY", href: "/privacy" },
+  { label: "TERMS", href: "/terms" },
+  { label: "STATUS", href: "/status" },
 ];
 
 export function MarketingFooter() {
@@ -85,12 +87,12 @@ export function MarketingFooter() {
               <ul className="flex flex-col gap-2.5">
                 {column.links.map((link) => (
                   <li key={`${column.title}-${link.label}`}>
-                    <a
+                    <Link
                       href={link.href}
                       className="text-sm text-[var(--mkt-text2)] transition-colors duration-150 hover:text-[var(--mkt-text)]"
                     >
                       {link.label}
-                    </a>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -104,13 +106,13 @@ export function MarketingFooter() {
           </p>
           <nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Legal">
             {LEGAL_LINKS.map((link) => (
-              <a
+              <Link
                 key={link.label}
                 href={link.href}
                 className="font-mono text-[10px] tracking-[0.09em] text-[var(--mkt-text3)] uppercase transition-colors duration-150 hover:text-[var(--mkt-text)]"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>

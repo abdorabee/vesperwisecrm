@@ -13,6 +13,7 @@ interface MarketingPricingTier {
   blurb: string;
   features: string[];
   cta: string;
+  href: string;
   highlighted?: boolean;
 }
 
@@ -29,6 +30,7 @@ const PRICING_TIERS: MarketingPricingTier[] = [
       "1,000 leads / mo",
     ],
     cta: "Start pilot",
+    href: "/signup",
   },
   {
     name: "Team",
@@ -44,6 +46,7 @@ const PRICING_TIERS: MarketingPricingTier[] = [
       "Unlimited leads",
     ],
     cta: "Book a demo",
+    href: "/book-demo",
     highlighted: true,
   },
   {
@@ -59,6 +62,7 @@ const PRICING_TIERS: MarketingPricingTier[] = [
       "Dedicated onboarding",
     ],
     cta: "Talk to sales",
+    href: "/contact",
   },
 ];
 
@@ -126,7 +130,7 @@ export function PricingPreview() {
               </ul>
 
               <Link
-                href="/login"
+                href={tier.href}
                 className={cn(
                   "mt-8 flex h-11 items-center justify-center rounded-md px-4 font-sans text-sm leading-none font-medium transition-[background,border-color,transform] duration-150 active:translate-y-px",
                   tier.highlighted
