@@ -1,7 +1,7 @@
 /* Scoped marketing surface tokens and utilities.
    Loaded only by src/app/(marketing)/layout.tsx. */
 
-[data-theme-surface="marketing"] {
+:is([data-theme-surface="marketing"], [data-theme-surface="auth"]) {
   --mkt-bg: #F7F7F2;
   --mkt-bg2: #F1F1EA;
   --mkt-surface: #FFFFFF;
@@ -18,7 +18,7 @@
   --mkt-accent-soft: rgba(203, 242, 77, .18);
 }
 
-.dark [data-theme-surface="marketing"] {
+.dark :is([data-theme-surface="marketing"], [data-theme-surface="auth"]) {
   --mkt-bg: #0F100D;
   --mkt-bg2: #141511;
   --mkt-surface: #171813;
