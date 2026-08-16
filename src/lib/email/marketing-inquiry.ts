@@ -12,7 +12,7 @@ function fromAddress(): string | null {
   return from.includes("<") ? from : `VesperWise <${from}>`;
 }
 
-function canSendInquiryEmail(): boolean {
+export function canSendInquiryEmail(): boolean {
   return Boolean(
     process.env.RESEND_API_KEY &&
       process.env.RESEND_FROM_EMAIL &&

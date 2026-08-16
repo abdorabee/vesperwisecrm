@@ -50,11 +50,25 @@ For drip campaigns that qualify as marketing:
 3. Click the unsubscribe link and confirm the contact shows **Unsubscribed from marketing email** on the lead.
 4. Future marketing sequence steps are skipped for opted-out contacts.
 
+## Demo and contact inbox
+
+`/book-demo` and `/contact` email `DEMO_INBOX_EMAIL` through Resend. Set these three together in Vercel (Production and Preview) and in `.env.local`:
+
+| Variable | Purpose |
+|----------|---------|
+| `RESEND_API_KEY` | Resend API key |
+| `RESEND_FROM_EMAIL` | Verified sending address (or `beth.t@example.com` for Resend test mode) |
+| `DEMO_INBOX_EMAIL` | Inbox that receives bookings and contact messages |
+
+If any of the three is missing, the form still shows success and logs `{ scope: "marketing-inquiry", delivered: false }`. Restart `npm run dev` after changing `.env.local`.
+
 ## Environment variables (operators)
 
 | Variable | Purpose |
 |----------|---------|
 | `RESEND_API_KEY` | Resend API access |
+| `RESEND_FROM_EMAIL` | Platform From for demo/contact and auth emails |
+| `DEMO_INBOX_EMAIL` | Inbox for `/book-demo` and `/contact` |
 | `RESEND_WEBHOOK_SECRET` | Verify inbound + delivery webhooks |
 | `INBOUND_EMAIL_DOMAIN` | Subdomain for `replies+token@` capture |
 | `REPLY_TOKEN_TTL_DAYS` | Reply token expiry (default 365) |
