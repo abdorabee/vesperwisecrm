@@ -122,6 +122,13 @@ beforeAll(async () => {
     .single();
   accountId = member!.account_id;
 
+  await admin.from("billing_accounts").update({
+    source: "grandfathered",
+    plan_key: "starter",
+    provider_status: "active",
+    seats: 10,
+  }).eq("account_id", accountId);
+
   await admin.from("invites").insert({
     account_id: accountId,
     email: `onboarding-tour-member-${RUN_ID}@vesperwisecrm.test`,

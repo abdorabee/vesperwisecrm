@@ -88,6 +88,16 @@ beforeAll(async () => {
     .single();
   accountBId = memberB!.account_id;
 
+  // These are disposable workspaces created by the RLS harness. Explicitly
+  // grandfather them so the audit can exercise the CRM policies themselves;
+  // production backfill applies the same state to existing workspaces.
+  await admin.from("billing_accounts").update({
+    source: "grandfathered",
+    plan_key: "starter",
+    provider_status: "active",
+    seats: 10,
+  }).in("account_id", [accountAId, accountBId]);
+
   const { data: client } = await admin
     .from("clients")
     .insert({ account_id: accountAId, name: "RLS Audit Investor" })

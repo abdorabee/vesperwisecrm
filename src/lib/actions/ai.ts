@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { parseCallNotes } from "@/lib/ai/parse-call-notes";
 import type { ExtractedCallNoteFields } from "@/lib/ai/parse-call-notes";
@@ -14,6 +15,7 @@ const AI_CALLS_PER_MINUTE = 20;
 
 async function requireAiBudget(scope: string): Promise<string> {
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "ai");
   const userId = await requireUserId();
 
   const withinBudget = await consumeRateLimit({

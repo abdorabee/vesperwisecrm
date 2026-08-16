@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdminAccountId } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import {
   workflowSchema,
   type WorkflowActionInput,
@@ -38,6 +39,7 @@ export async function saveWorkflow(
 ): Promise<{ workflowId: string }> {
   const data = workflowSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "workflows");
   const supabase = await createClient();
 
   const triggerConfig: Record<string, Json> = {};
@@ -121,12 +123,15 @@ export async function saveWorkflow(
 }
 
 export async function deleteWorkflow(workflowId: string): Promise<void> {
+  const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "workflows");
   const supabase = await createClient();
 
   const { error } = await supabase
     .from("workflows")
     .delete()
-    .eq("id", workflowId);
+    .eq("id", workflowId)
+    .eq("account_id", accountId);
 
   if (error) {
     throw new Error(error.message);
@@ -139,12 +144,15 @@ export async function toggleWorkflowActive(
   workflowId: string,
   isActive: boolean,
 ): Promise<void> {
+  const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "workflows");
   const supabase = await createClient();
 
   const { error } = await supabase
     .from("workflows")
     .update({ is_active: isActive })
-    .eq("id", workflowId);
+    .eq("id", workflowId)
+    .eq("account_id", accountId);
 
   if (error) {
     throw new Error(error.message);

@@ -6,7 +6,7 @@ import { isMarketingPublicPath } from "@/lib/marketing/public-paths";
 // /sw.js and /manifest.webmanifest must stay public: browsers fetch them
 // without auth cookies-context guarantees, and a redirected service-worker
 // script is rejected outright ("behind a redirect, which is disallowed").
-const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/dialer/providers/twilio/voice", "/api/leads/intake", "/api/webhooks/dialer", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe", "/tv/", "/sitemap.xml", "/robots.txt"];
+const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/dialer/providers/twilio/voice", "/api/leads/intake", "/api/webhooks/dialer", "/api/webhooks/polar", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe", "/tv/", "/sitemap.xml", "/robots.txt"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });

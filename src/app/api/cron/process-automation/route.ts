@@ -4,12 +4,28 @@ import { sendDueStep } from "@/lib/sequences/send-step";
 import { runWorkflowAction } from "@/lib/workflows/actions";
 import type { Tables } from "@/lib/supabase/types";
 import { isAuthorizedCronRequest } from "@/lib/cron/authorize";
+import {
+  billingStateFromRow,
+  hasWritableBillingAccess,
+} from "@/lib/billing/access";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+async function getWritableBillingAccounts(
+  supabase: ReturnType<typeof createServiceRoleClient>,
+): Promise<Set<string>> {
+  const { data } = await supabase.from("billing_accounts").select("*");
+  return new Set(
+    (data ?? [])
+      .filter((row) => hasWritableBillingAccess(billingStateFromRow(row)))
+      .map((row) => row.account_id),
+  );
+}
 
 async function processDueSequenceSteps(
   supabase: ReturnType<typeof createServiceRoleClient>,
 ): Promise<{ sent: number; failed: number }> {
+  const writableAccounts = await getWritableBillingAccounts(supabase);
   const { data: dueEnrollments } = await supabase
     .from("lead_sequence_enrollments")
     .select("id, account_id, lead_id")
@@ -21,6 +37,9 @@ async function processDueSequenceSteps(
   let failed = 0;
 
   for (const enrollment of dueEnrollments ?? []) {
+    if (!writableAccounts.has(enrollment.account_id)) {
+      continue;
+    }
     try {
       await sendDueStep(supabase, enrollment.id, null);
       sent += 1;
@@ -51,6 +70,7 @@ const CRON_SAFE_ACTION_TYPES = new Set(["change_stage", "add_tag"]);
 async function processNoActivityWorkflows(
   supabase: ReturnType<typeof createServiceRoleClient>,
 ): Promise<{ triggered: number; failed: number }> {
+  const writableAccounts = await getWritableBillingAccounts(supabase);
   const { data: workflows } = await supabase
     .from("workflows")
     .select("*, workflow_actions(*)")
@@ -64,6 +84,9 @@ async function processNoActivityWorkflows(
     const { workflow_actions: actions, ...workflowRow } = workflow as Tables<"workflows"> & {
       workflow_actions: Tables<"workflow_actions">[];
     };
+    if (!writableAccounts.has(workflowRow.account_id)) {
+      continue;
+    }
 
     const triggerConfig = (workflowRow.trigger_config ?? {}) as Record<
       string,
@@ -150,6 +173,7 @@ async function processNoActivityWorkflows(
 async function processNoNextActionWorkflows(
   supabase: ReturnType<typeof createServiceRoleClient>,
 ): Promise<{ triggered: number; failed: number }> {
+  const writableAccounts = await getWritableBillingAccounts(supabase);
   const { data: workflows } = await supabase
     .from("workflows")
     .select("*, workflow_actions(*)")
@@ -163,6 +187,9 @@ async function processNoNextActionWorkflows(
     const { workflow_actions: actions, ...workflowRow } = workflow as Tables<"workflows"> & {
       workflow_actions: Tables<"workflow_actions">[];
     };
+    if (!writableAccounts.has(workflowRow.account_id)) {
+      continue;
+    }
 
     const triggerConfig = (workflowRow.trigger_config ?? {}) as Record<
       string,

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import twilio from "twilio";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { requireAdminAccountId, requireUserId } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import { encryptDialerSecret, decryptDialerSecret } from "@/lib/dialer/credentials-crypto";
 import { dialerCredentialsSchema } from "@/lib/validations/dialer";
 
@@ -18,6 +19,7 @@ async function verifyTwilioCredentials(accountSid: string, authToken: string): P
 export async function saveDialerCredentials(input: unknown): Promise<void> {
   const data = dialerCredentialsSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const userId = await requireUserId();
 
   await verifyTwilioCredentials(data.accountSid, data.authToken);
@@ -45,6 +47,7 @@ export async function saveDialerCredentials(input: unknown): Promise<void> {
 
 export async function disconnectDialerCredentials(): Promise<void> {
   const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = createServiceRoleClient();
   const { error } = await supabase
     .from("dialer_provider_credentials")
@@ -58,6 +61,7 @@ export async function disconnectDialerCredentials(): Promise<void> {
 
 export async function testDialerCredentials(): Promise<{ ok: boolean; message: string }> {
   const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = createServiceRoleClient();
   const { data: row, error } = await supabase
     .from("dialer_provider_credentials")

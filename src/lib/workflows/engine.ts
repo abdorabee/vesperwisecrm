@@ -1,6 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { runWorkflowAction } from "@/lib/workflows/actions";
 import type { Tables } from "@/lib/supabase/types";
+import {
+  billingStateFromRow,
+  hasWritableBillingAccess,
+} from "@/lib/billing/access";
+import { BILLING_PLAN_CATALOG } from "@/lib/billing/entitlements";
 
 export type SyncWorkflowTrigger = "lead_created" | "stage_changed" | "tag_added";
 
@@ -34,6 +39,22 @@ export async function runTriggeredWorkflows(
   triggerType: SyncWorkflowTrigger,
   context: TriggerContext,
 ): Promise<void> {
+  const { data: billingAccount } = await supabase
+    .from("billing_accounts")
+    .select("*")
+    .eq("account_id", accountId)
+    .maybeSingle();
+  const billingState = billingAccount
+    ? billingStateFromRow(billingAccount)
+    : null;
+  if (
+    !billingState?.plan ||
+    !hasWritableBillingAccess(billingState) ||
+    !BILLING_PLAN_CATALOG[billingState.plan].capabilities.includes("workflows")
+  ) {
+    return;
+  }
+
   const { data: workflows, error } = await supabase
     .from("workflows")
     .select("*, workflow_actions(*)")

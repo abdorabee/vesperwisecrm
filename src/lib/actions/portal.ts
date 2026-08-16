@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { requireUserId } from "@/lib/supabase/account";
+import { requireClientContext, requireUserId } from "@/lib/supabase/account";
+import { requireWritableBilling } from "@/lib/billing/access";
 import {
   clientCommentSchema,
   clientInterestSchema,
@@ -30,6 +31,8 @@ export async function addLeadClientComment(
     throw new Error(leadError?.message ?? "Lead is not assigned to a client");
   }
 
+  await requireWritableBilling(lead.account_id);
+
   const { error } = await supabase.from("lead_client_comments").insert({
     account_id: lead.account_id,
     lead_id: leadId,
@@ -51,6 +54,8 @@ export async function setClientInterest(
   input: ClientInterestInput,
 ): Promise<void> {
   const data = clientInterestSchema.parse(input);
+  const { accountId } = await requireClientContext();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
 
   const { error } = await supabase.rpc("set_client_lead_interest", {

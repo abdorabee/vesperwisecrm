@@ -12,6 +12,8 @@ import { ActiveCallPanel } from "@/components/dialer/active-call-panel";
 import { isDialerEnabled } from "@/lib/dialer/config";
 import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
 import { WorkspaceFormattingProvider } from "@/components/workspace-formatting-context";
+import { getBillingSummary } from "@/lib/billing/access";
+import { getBillingPlanCapabilities } from "@/lib/billing/entitlements";
 
 export default async function DashboardLayout({
   children,
@@ -35,6 +37,12 @@ export default async function DashboardLayout({
 
   const isAdmin = membership ? isAdminRole(membership.role) : false;
   const isPlatformAdmin = isPlatformAdminEmail(user.email);
+  const billingSummary = membership
+    ? await getBillingSummary(membership.accountId)
+    : null;
+  const billingCapabilities = billingSummary?.plan
+    ? getBillingPlanCapabilities(billingSummary.plan)
+    : [];
   const workspace = await getWorkspaceSettings();
   const dialerShell = isDialerEnabled()
     ? await getDialerShellData()
@@ -75,6 +83,7 @@ export default async function DashboardLayout({
             role={membership?.role ?? "member"}
             isAdmin={isAdmin}
             isPlatformAdmin={isPlatformAdmin}
+            billingCapabilities={billingCapabilities}
           />
           <div className="min-w-0 flex-1">
             <MobileNavigation
@@ -83,6 +92,7 @@ export default async function DashboardLayout({
               role={membership?.role ?? "member"}
               isAdmin={isAdmin}
               isPlatformAdmin={isPlatformAdmin}
+              billingCapabilities={billingCapabilities}
             />
             <main id="main-content" tabIndex={-1} className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
           </div>

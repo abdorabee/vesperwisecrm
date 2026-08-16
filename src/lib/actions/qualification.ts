@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
 import { createLeadRecord } from "@/lib/leads/create-lead";
 import { assignLeadToGroup } from "@/lib/actions/groups";
@@ -41,6 +42,7 @@ export async function submitCallerLead(
 ): Promise<{ leadId: string }> {
   const data = callerIntakeSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "pipeline");
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -105,6 +107,7 @@ export async function qualifyLead(
   groupId?: string,
 ): Promise<void> {
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "queue");
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -163,6 +166,7 @@ export async function rejectLead(
 ): Promise<void> {
   const data = rejectLeadSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "queue");
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -199,6 +203,7 @@ export async function requestLeadInfo(
 ): Promise<void> {
   const data = requestLeadInfoSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "queue");
   const userId = await requireUserId();
   const supabase = await createClient();
 

@@ -8,6 +8,7 @@ import {
   requireAdminAccountId,
   requireUserId,
 } from "@/lib/supabase/account";
+import { requireWritableBilling } from "@/lib/billing/access";
 import {
   clientSchema,
   inviteClientUserSchema,
@@ -32,6 +33,7 @@ export async function saveClient(
 ): Promise<{ clientId: string }> {
   const data = clientSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
 
   if (clientId) {
@@ -85,6 +87,7 @@ export async function inviteClientUser(
 ): Promise<void> {
   const data = inviteClientUserSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const invitedBy = await requireUserId();
   const supabase = await createClient();
   const serviceRole = createServiceRoleClient();
@@ -201,6 +204,7 @@ export async function assignLeadToClient(
   clientId: string | null,
 ): Promise<void> {
   const accountId = await requireAccountId();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
 
   const { error } = await supabase

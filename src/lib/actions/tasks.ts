@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { requireWritableBilling } from "@/lib/billing/access";
 import {
   completeTaskSchema,
   createTaskSchema,
@@ -25,6 +26,7 @@ export async function createLeadTask(
 ): Promise<{ taskId: string }> {
   const data = createTaskSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireWritableBilling(accountId);
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -83,6 +85,7 @@ export async function completeLeadTask(
 ): Promise<{ nextTaskId: string }> {
   const data = completeTaskSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireWritableBilling(accountId);
   const userId = await requireUserId();
   const supabase = await createClient();
 

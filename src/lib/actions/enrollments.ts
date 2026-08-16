@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import { sendDueStep } from "@/lib/sequences/send-step";
 
 export async function enrollLeadInSequence(
@@ -10,6 +11,7 @@ export async function enrollLeadInSequence(
   sequenceId: string,
 ): Promise<void> {
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "sequences");
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -59,7 +61,8 @@ export async function enrollLeadInSequence(
 }
 
 export async function sendCurrentStep(enrollmentId: string): Promise<void> {
-  await requireAccountId();
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "sequences");
   const supabase = await createClient();
 
   const {

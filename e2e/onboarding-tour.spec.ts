@@ -34,6 +34,15 @@ test.beforeAll(async () => {
     .eq("user_id", userId)
     .single();
   accountId = member!.account_id;
+  // New test workspaces start without billing access. Mark this disposable
+  // workspace as grandfathered so the onboarding fixture can use its setup
+  // flow under the billing seat trigger.
+  await admin.from("billing_accounts").update({
+    source: "grandfathered",
+    plan_key: "starter",
+    provider_status: "active",
+    seats: 10,
+  }).eq("account_id", accountId);
 });
 
 test.afterAll(async () => {
@@ -47,8 +56,8 @@ test.afterAll(async () => {
 
 async function login(page: Page): Promise<void> {
   await page.goto("/login");
-  await page.fill("#email", EMAIL);
-  await page.fill("#password", PASSWORD);
+  await page.getByLabel("Work email").fill(EMAIL);
+  await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.waitForURL(/\/pipeline$/, { timeout: 10_000 });
 }

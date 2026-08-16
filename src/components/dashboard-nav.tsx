@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { signOutAction } from "@/lib/actions/auth";
 import { getDashboardNavigation, type ProductNavGroup, type ProductNavItem } from "@/lib/product-navigation";
+import type { BillingCapability } from "@/lib/billing/entitlements";
 import { cn } from "@/lib/utils";
 import { useOnboardingTour } from "@/components/onboarding-tour-context";
 import { AppearanceMenuItem } from "@/components/appearance-toggle";
@@ -129,6 +130,7 @@ interface AccountMenuProps {
   role: string;
   isAdmin: boolean;
   isPlatformAdmin: boolean;
+  billingCapabilities?: readonly BillingCapability[];
   collapsed?: boolean;
 }
 

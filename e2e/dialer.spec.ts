@@ -39,6 +39,14 @@ test.beforeAll(async () => {
   const { data: membership } = await admin.from("account_members").select("account_id").eq("user_id", userId).single();
   accountId = membership!.account_id;
   await admin.from("account_members").update({ onboarding_tour_completed_at: new Date().toISOString() }).eq("user_id", userId);
+  // New test workspaces start without billing access. Mark this disposable
+  // workspace as grandfathered so the dialer fixture can write CRM data.
+  await admin.from("billing_accounts").update({
+    source: "grandfathered",
+    plan_key: "starter",
+    provider_status: "active",
+    seats: 10,
+  }).eq("account_id", accountId);
   const { data: stage } = await admin.from("pipeline_stages").select("id").eq("account_id", accountId).order("display_order").limit(1).single();
   const { data: contact } = await admin.from("contacts").insert({ account_id: accountId, first_name: "Browser", last_name: "Caller", phone: "+14155552671" }).select("id").single();
   const { data: lead } = await admin.from("leads").insert({ account_id: accountId, contact_id: contact!.id, pipeline_stage_id: stage!.id, title: "Browser dialer E2E", owner_user_id: userId }).select("id").single();

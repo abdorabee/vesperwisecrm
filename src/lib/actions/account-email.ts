@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdminAccountId } from "@/lib/supabase/account";
+import { requireWritableBilling } from "@/lib/billing/access";
 import {
   assertAccountEmailReady,
   formatFromAddress,
@@ -36,6 +37,7 @@ export async function registerSendingDomain(
 ): Promise<void> {
   const data = registerSendingDomainSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const domain = normalizeDomain(data.domain);
   const existing = await getAccountEmailSettings(accountId);
 
@@ -62,6 +64,7 @@ export async function registerSendingDomain(
 
 export async function refreshDomainVerification(): Promise<void> {
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const settings = await getAccountEmailSettings(accountId);
 
   if (!settings?.resend_domain_id) {
@@ -82,6 +85,7 @@ export async function updateEmailIdentity(
 ): Promise<void> {
   const data = updateEmailIdentitySchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const settings = await getAccountEmailSettings(accountId);
 
   if (!settings?.sending_domain) {
@@ -110,6 +114,7 @@ export async function updateReplyRouting(
 ): Promise<void> {
   const data = updateReplyRoutingSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const settings = await getAccountEmailSettings(accountId);
 
   if (!settings?.sending_domain) {
@@ -126,6 +131,7 @@ export async function updateReplyRouting(
 
 export async function updateCaptureRepliesSetting(enabled: boolean): Promise<void> {
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const settings = await getAccountEmailSettings(accountId);
 
   if (!settings?.sending_domain) {
@@ -141,6 +147,7 @@ export async function updateCaptureRepliesSetting(enabled: boolean): Promise<voi
 
 export async function sendTestEmail(): Promise<void> {
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
   const {
     data: { user },

@@ -8,6 +8,7 @@ import {
   requireAdminAccountId,
   requireUserId,
 } from "@/lib/supabase/account";
+import { requireWritableBilling } from "@/lib/billing/access";
 import { generatePropertyReportDoc } from "@/lib/google/generate-report";
 import { getLeadDetail } from "@/lib/queries/leads";
 
@@ -15,6 +16,7 @@ export async function generateLeadReport(
   leadId: string,
 ): Promise<{ url: string }> {
   const accountId = await requireAccountId();
+  await requireWritableBilling(accountId);
   const userId = await requireUserId();
   const supabase = await createClient();
   const lead = await getLeadDetail(leadId);

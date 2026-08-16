@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { requireAdminAccountId, requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { getBillingSummary, requireWritableBilling } from "@/lib/billing/access";
 import {
   inviteTeamMemberSchema,
   updateMemberRestrictionsSchema,
@@ -27,6 +28,7 @@ export async function updateMemberRestrictions(
 ): Promise<void> {
   const data = updateMemberRestrictionsSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -51,6 +53,7 @@ export async function updateMemberRestrictions(
 
 export async function revokeTeamInvite(inviteId: string): Promise<void> {
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
   const { error } = await supabase
     .from("invites")
@@ -68,6 +71,11 @@ export async function inviteTeamMember(
 ): Promise<void> {
   const data = inviteTeamMemberSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
+  const billing = await getBillingSummary(accountId);
+  if (billing.memberCount + billing.pendingInviteCount + 1 > billing.seats) {
+    throw new Error("This invitation would exceed the workspace's paid seat limit");
+  }
   const invitedBy = await requireUserId();
   const supabase = await createClient();
   const serviceRole = createServiceRoleClient();
