@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
 import { createLeadRecord } from "@/lib/leads/create-lead";
 import {
@@ -70,6 +71,7 @@ export async function createLead(
 ): Promise<{ leadId: string }> {
   const data = newLeadSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "pipeline");
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -179,6 +181,7 @@ export async function importLeadsCsvMapped(
 ): Promise<ImportLeadsCsvResult> {
   const data = importLeadsCsvMappedSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "pipeline");
   const userId = await requireUserId();
   const supabase = await createClient();
   const { rows } = parseCsv(data.csvText);
@@ -251,6 +254,7 @@ export async function saveLeadProperty(
 ): Promise<void> {
   const data = leadPropertySchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "pipeline");
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -339,6 +343,7 @@ export async function updateLeadStage(
   newStageId: string,
 ): Promise<void> {
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "pipeline");
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -400,6 +405,7 @@ export async function addLeadNote(
 ): Promise<void> {
   const data = addLeadNoteSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "pipeline");
   const userId = await requireUserId();
   const supabase = await createClient();
 

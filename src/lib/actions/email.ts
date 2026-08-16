@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId } from "@/lib/supabase/account";
+import { requireWritableBilling } from "@/lib/billing/access";
 import { sendLeadFacingEmail } from "@/lib/email/send-lead-email";
 import { sendEmailSchema, type SendEmailInput } from "@/lib/validations/email";
 
@@ -12,6 +13,7 @@ export async function sendLeadEmail(
 ): Promise<void> {
   const data = sendEmailSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
 
   const {

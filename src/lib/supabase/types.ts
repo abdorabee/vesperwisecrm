@@ -216,6 +216,147 @@ export type Database = {
         }
         Relationships: []
       }
+      billing_accounts: {
+        Row: {
+          account_id: string
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          past_due_since: string | null
+          plan_key: string | null
+          polar_customer_id: string | null
+          polar_product_id: string | null
+          polar_subscription_id: string | null
+          provider_status: string | null
+          source: string
+          seats: number
+          trial_end: string | null
+          trial_start: string | null
+          updated_at: string
+          last_provider_modified_at: string | null
+        }
+        Insert: {
+          account_id: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          past_due_since?: string | null
+          plan_key?: string | null
+          polar_customer_id?: string | null
+          polar_product_id?: string | null
+          polar_subscription_id?: string | null
+          provider_status?: string | null
+          source?: string
+          seats?: number
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+          last_provider_modified_at?: string | null
+        }
+        Update: {
+          account_id?: string
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          past_due_since?: string | null
+          plan_key?: string | null
+          polar_customer_id?: string | null
+          polar_product_id?: string | null
+          polar_subscription_id?: string | null
+          provider_status?: string | null
+          source?: string
+          seats?: number
+          trial_end?: string | null
+          trial_start?: string | null
+          updated_at?: string
+          last_provider_modified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_accounts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing_usage_periods: {
+        Row: {
+          account_id: string
+          leads_created: number
+          period_start: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          leads_created?: number
+          period_start: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          leads_created?: number
+          period_start?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_usage_periods_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      billing_webhook_events: {
+        Row: {
+          account_id: string | null
+          error_message: string | null
+          event_type: string
+          payload: Json
+          processed_at: string | null
+          processing_status: string
+          provider_event_id: string
+          provider_modified_at: string | null
+          received_at: string
+        }
+        Insert: {
+          account_id?: string | null
+          error_message?: string | null
+          event_type: string
+          payload: Json
+          processed_at?: string | null
+          processing_status?: string
+          provider_event_id: string
+          provider_modified_at?: string | null
+          received_at?: string
+        }
+        Update: {
+          account_id?: string | null
+          error_message?: string | null
+          event_type?: string
+          payload?: Json
+          processed_at?: string | null
+          processing_status?: string
+          provider_event_id?: string
+          provider_modified_at?: string | null
+          received_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "billing_webhook_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activities: {
         Row: {
           account_id: string

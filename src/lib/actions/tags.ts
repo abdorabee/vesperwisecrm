@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { requireWritableBilling } from "@/lib/billing/access";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
 import { createTagSchema } from "@/lib/validations/tag";
 import type { Tables } from "@/lib/supabase/types";
@@ -12,6 +13,7 @@ export async function createTag(
 ): Promise<Tables<"tags">> {
   const { name: validatedName } = createTagSchema.parse({ name });
   const accountId = await requireAccountId();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
 
   const { data: existing } = await supabase
@@ -45,6 +47,7 @@ export async function addTagToLead(
   tagName: string,
 ): Promise<void> {
   const accountId = await requireAccountId();
+  await requireWritableBilling(accountId);
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -79,6 +82,7 @@ export async function removeTagFromLead(
   tagName: string,
 ): Promise<void> {
   const accountId = await requireAccountId();
+  await requireWritableBilling(accountId);
   const userId = await requireUserId();
   const supabase = await createClient();
 

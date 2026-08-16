@@ -22,6 +22,13 @@ describe("settings navigation", () => {
     expect(location).toMatchObject({ groupLabel: "Communication", label: "Calling" });
   });
 
+  test("exposes billing to workspace admins", () => {
+    const groups = getSettingsNavigationGroups(true);
+    expect(groups.flatMap((group) => group.items).map((item) => item.href)).toContain(
+      "/settings/billing",
+    );
+  });
+
   test("falls back to Profile for an unmatched settings route", () => {
     const location = getCurrentSettingsLocation(
       "/settings/unknown",

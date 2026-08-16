@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { resolveSafeRedirect } from "@/lib/auth/safe-redirect";
 import {
   buildVerificationLink,
   canSendBrandedAuthEmail,
@@ -16,15 +17,23 @@ const SIGNUPS_PER_HOUR = 10;
 export async function signIn(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const next = String(formData.get("next") ?? "");
+  const requestOrigin =
+    (await headers()).get("origin") ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    "http://localhost:3000";
+  const safeNext = resolveSafeRedirect(next, requestOrigin);
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}`);
+    redirect(
+      `/login?error=${encodeURIComponent(error.message)}&next=${encodeURIComponent(safeNext)}`,
+    );
   }
 
-  redirect("/pipeline");
+  redirect(safeNext);
 }
 
 export async function signUp(formData: FormData): Promise<void> {
@@ -46,13 +55,16 @@ export async function signUp(formData: FormData): Promise<void> {
   const password = String(formData.get("password") ?? "");
   const nicheValue = String(formData.get("niche") ?? "");
   const niche = nicheValue === "agency" ? "agency" : "wholesaler";
+  const planValue = String(formData.get("plan") ?? "");
+  const plan = planValue === "starter" || planValue === "team" ? planValue : null;
+  const next = plan ? `/settings/billing?plan=${plan}` : "/pipeline";
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
     process.env.VERCEL_PROJECT_PRODUCTION_URL ??
     "http://localhost:3000";
   const redirectTo = siteUrl.startsWith("http")
-    ? `${siteUrl}/auth/callback`
-    : `https://${siteUrl}/auth/callback`;
+    ? `${siteUrl}/auth/callback?next=${encodeURIComponent(next)}`
+    : `https://${siteUrl}/auth/callback?next=${encodeURIComponent(next)}`;
 
   if (canSendBrandedAuthEmail()) {
     const serviceRole = createServiceRoleClient();
@@ -73,7 +85,7 @@ export async function signUp(formData: FormData): Promise<void> {
       redirect(
         `/signup?error=${encodeURIComponent(
           error?.message ?? "Failed to create confirmation link",
-        )}`,
+        )}${plan ? `&plan=${plan}` : ""}`,
       );
     }
 
@@ -92,7 +104,7 @@ export async function signUp(formData: FormData): Promise<void> {
           error instanceof Error
             ? error.message
             : "Failed to send confirmation email",
-        )}`,
+        )}${plan ? `&plan=${plan}` : ""}`,
       );
     }
   } else {
@@ -107,12 +119,14 @@ export async function signUp(formData: FormData): Promise<void> {
     });
 
     if (error) {
-      redirect(`/signup?error=${encodeURIComponent(error.message)}`);
+      redirect(
+        `/signup?error=${encodeURIComponent(error.message)}${plan ? `&plan=${plan}` : ""}`,
+      );
     }
   }
 
   redirect(
-    `/login?message=${encodeURIComponent("Check your email to confirm your account.")}`,
+    `/login?message=${encodeURIComponent("Check your email to confirm your account.")}&next=${encodeURIComponent(next)}`,
   );
 }
 

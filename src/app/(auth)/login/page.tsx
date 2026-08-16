@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 };
 
 interface LoginPageProps {
-  searchParams: Promise<{ error?: string; message?: string }>;
+  searchParams: Promise<{ error?: string; message?: string; next?: string }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const { error, message } = await searchParams;
+  const { error, message, next } = await searchParams;
 
   return (
     <AuthPage
@@ -29,6 +29,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       message={message}
     >
       <form action={signIn} className="space-y-5">
+        <input type="hidden" name="next" value={next ?? ""} />
         <div className="space-y-2">
           <label
             htmlFor="login-email"

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import { sequenceSchema, type SequenceInput } from "@/lib/validations/sequence";
 
 export async function saveSequence(
@@ -11,6 +12,7 @@ export async function saveSequence(
 ): Promise<{ sequenceId: string }> {
   const data = sequenceSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "sequences");
   const supabase = await createClient();
 
   let id = sequenceId;

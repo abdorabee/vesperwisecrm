@@ -9,6 +9,7 @@ import { getResendClient } from "@/lib/resend/client";
 import { isAuthorizedCronRequest } from "@/lib/cron/authorize";
 import { getWorkspaceSettingsForAccount } from "@/lib/queries/workspace-settings";
 import { formatWorkspaceCurrency, type WorkspaceSettings } from "@/lib/workspace-settings";
+import { billingStateFromRow, hasWritableBillingAccess } from "@/lib/billing/access";
 
 interface DigestLead {
   id: string;
@@ -45,6 +46,15 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   const supabase = createServiceRoleClient();
 
+  const { data: billingAccounts } = await supabase
+    .from("billing_accounts")
+    .select("*");
+  const writableAccounts = new Set(
+    (billingAccounts ?? [])
+      .filter((row) => hasWritableBillingAccess(billingStateFromRow(row)))
+      .map((row) => row.account_id),
+  );
+
   const { data: clients } = await supabase
     .from("clients")
     .select("id, account_id, name, contact_email");
@@ -55,6 +65,10 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   for (const client of clients ?? []) {
     try {
+      if (!writableAccounts.has(client.account_id)) {
+        skipped += 1;
+        continue;
+      }
       const { data: leads } = await supabase
         .from("leads")
         .select("id, title, property:lead_properties(asking_price, condition)")

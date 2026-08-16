@@ -4,6 +4,7 @@ import { isDialerEnabled } from "@/lib/dialer/config";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { logDialerEvent } from "@/lib/dialer/logger";
 import { isAuthorizedCronRequest } from "@/lib/cron/authorize";
+import { billingStateFromRow, hasWritableBillingAccess } from "@/lib/billing/access";
 
 export const runtime = "nodejs";
 export const maxDuration = 50;
@@ -15,6 +16,12 @@ export async function GET(request: Request): Promise<NextResponse> {
   if (!isDialerEnabled()) return NextResponse.json({ ok: true, disabled: true });
 
   const supabase = createServiceRoleClient();
+  const { data: billingAccounts } = await supabase.from("billing_accounts").select("*");
+  const writableAccounts = new Set(
+    (billingAccounts ?? [])
+      .filter((row) => hasWritableBillingAccess(billingStateFromRow(row)))
+      .map((row) => row.account_id),
+  );
   const cutoff = new Date(Date.now() - 90_000).toISOString();
   const { data: attempts, error } = await supabase
     .from("call_attempts")
@@ -30,6 +37,10 @@ export async function GET(request: Request): Promise<NextResponse> {
   let failed = 0;
   const provider = getDialerProvider();
   for (const attempt of attempts ?? []) {
+    if (!writableAccounts.has(attempt.account_id)) {
+      unchanged += 1;
+      continue;
+    }
     try {
       const providerCallId = attempt.provider_call_id ?? attempt.provider_parent_call_id;
       const sequence = attempt.last_provider_sequence + 1;

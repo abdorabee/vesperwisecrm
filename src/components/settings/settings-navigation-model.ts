@@ -17,6 +17,7 @@ const SETTINGS_GROUPS: SettingsNavigationGroup[] = [
       { href: "/settings/workspace", label: "General" },
       { href: "/settings/members", label: "Members", adminOnly: true },
       { href: "/settings/routing", label: "Lead routing", adminOnly: true },
+      { href: "/settings/billing", label: "Billing", adminOnly: true },
     ],
   },
   {

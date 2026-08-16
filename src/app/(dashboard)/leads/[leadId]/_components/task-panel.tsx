@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +40,7 @@ function priorityVariant(priority: string): "default" | "secondary" | "outline" 
 }
 
 export function TaskPanel({ leadId, tasks, members }: TaskPanelProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -86,6 +88,7 @@ export function TaskPanel({ leadId, tasks, members }: TaskPanelProps) {
         });
         resetCreateForm();
         toast.success("Task created");
+        router.refresh();
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to create task");
       }
@@ -105,6 +108,7 @@ export function TaskPanel({ leadId, tasks, members }: TaskPanelProps) {
         });
         resetCompleteForm();
         toast.success("Task completed and next step scheduled");
+        router.refresh();
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to complete task");
       }

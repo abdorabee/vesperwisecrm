@@ -12,14 +12,15 @@ export const metadata: Metadata = {
 };
 
 interface SignupPageProps {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; plan?: string }>;
 }
 
 const CONTROL_CLASS_NAME =
   "h-12 w-full min-w-0 rounded-md border border-[color:var(--mkt-border)] bg-[var(--mkt-bg)] px-3 text-sm text-[var(--mkt-text)] outline-none transition-colors focus-visible:border-[color:var(--mkt-accent)] focus-visible:ring-3 focus-visible:ring-[color:var(--mkt-accent)]/25 dark:bg-[var(--mkt-bg)]";
 
 export default async function SignupPage({ searchParams }: SignupPageProps) {
-  const { error } = await searchParams;
+  const { error, plan } = await searchParams;
+  const selectedPlan = plan === "starter" || plan === "team" ? plan : "";
 
   return (
     <AuthPage
@@ -31,6 +32,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
       error={error}
     >
       <form action={signUp} className="space-y-5">
+        <input type="hidden" name="plan" value={selectedPlan} />
         <div className="space-y-2">
           <label
             htmlFor="signup-email"

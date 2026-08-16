@@ -11,6 +11,7 @@ import {
   requireAdminAccountId,
   requireUserId,
 } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import {
   cancelCallSchema,
   clearDoNotCallSchema,
@@ -35,6 +36,7 @@ export async function startDialerCall(
   const data = startDialerCallSchema.parse(input);
   const config = requireDialerEnabled();
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const userId = await requireUserId();
   const supabase = await createClient();
 
@@ -103,6 +105,8 @@ export async function startDialerCall(
 export async function cancelDialerCall(input: unknown): Promise<void> {
   const data = cancelCallSchema.parse(input);
   requireDialerEnabled();
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const userId = await requireUserId();
   const supabase = await createClient();
   const { data: attempt, error } = await supabase
@@ -141,6 +145,8 @@ export async function cancelDialerCall(input: unknown): Promise<void> {
 
 export async function reportDialerClientFailure(attemptId: string): Promise<void> {
   const id = cancelCallSchema.shape.attemptId.parse(attemptId);
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
   const { error } = await supabase.rpc("finalize_dialer_attempt", {
     p_attempt_id: id,
@@ -157,6 +163,8 @@ export async function saveDialerNotes(attemptId: string, notes: string): Promise
     attemptId,
     notes,
   });
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
   const { error } = await supabase.rpc("save_dialer_attempt_notes", {
     p_attempt_id: parsed.attemptId,
@@ -168,6 +176,8 @@ export async function saveDialerNotes(attemptId: string, notes: string): Promise
 
 export async function setDialerDisposition(input: unknown): Promise<void> {
   const data = dispositionCallSchema.parse(input);
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
   const { error } = await supabase.rpc("set_dialer_disposition", {
     p_attempt_id: data.attemptId,
@@ -181,6 +191,7 @@ export async function setDialerDisposition(input: unknown): Promise<void> {
 export async function saveDialerQueue(input: unknown): Promise<{ queueId: string }> {
   const data = dialerQueueSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const userId = await requireUserId();
   const supabase = await createClient();
   let ownerUserId = data.ownerUserId;
@@ -220,11 +231,14 @@ export async function setDialerQueueStatus(
   status: "active" | "paused" | "completed",
 ): Promise<void> {
   const data = dialerQueueStatusSchema.parse({ queueId, status });
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
   const { error } = await supabase
     .from("dialer_queues")
     .update({ status: data.status, updated_at: new Date().toISOString() })
-    .eq("id", data.queueId);
+    .eq("id", data.queueId)
+    .eq("account_id", accountId);
   if (error) throw new Error(error.message);
   refreshDialerPaths();
 }
@@ -232,6 +246,7 @@ export async function setDialerQueueStatus(
 export async function addDialerQueueItem(input: unknown): Promise<void> {
   const data = queueItemSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
   const { data: lead, error: leadError } = await supabase
     .from("leads")
@@ -261,6 +276,8 @@ export async function addDialerQueueItem(input: unknown): Promise<void> {
 
 export async function cancelDialerQueueItem(itemId: string): Promise<void> {
   const id = startDialerCallSchema.shape.contactId.parse(itemId);
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const userId = await requireUserId();
   const supabase = await createClient();
   const now = new Date().toISOString();
@@ -273,6 +290,7 @@ export async function cancelDialerQueueItem(itemId: string): Promise<void> {
       updated_at: now,
     })
     .eq("id", id)
+    .eq("account_id", accountId)
     .eq("status", "queued");
   if (error) throw new Error(error.message);
   refreshDialerPaths();
@@ -281,6 +299,7 @@ export async function cancelDialerQueueItem(itemId: string): Promise<void> {
 export async function updateDialerSettings(input: unknown): Promise<void> {
   const data = dialerSettingsSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
   const { error } = await supabase.from("dialer_settings").update({
     max_active_calls: data.maxActiveCalls,
@@ -296,6 +315,7 @@ export async function updateDialerSettings(input: unknown): Promise<void> {
 export async function saveCallDisposition(input: unknown): Promise<{ id: string }> {
   const data = dispositionSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "dialer");
   if (data.marksDoNotCall && data.category !== "do_not_call") {
     throw new Error("A Do Not Call disposition must use the Do Not Call category");
   }
@@ -326,7 +346,8 @@ export async function saveCallDisposition(input: unknown): Promise<{ id: string 
 
 export async function clearContactDoNotCall(input: unknown): Promise<void> {
   const data = clearDoNotCallSchema.parse(input);
-  await requireAdminAccountId();
+  const accountId = await requireAdminAccountId();
+  await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
   const { error } = await supabase.rpc("clear_contact_do_not_call", {
     p_contact_id: data.contactId,

@@ -29,6 +29,16 @@ The outbound dialer is disabled by default and uses a Twilio Voice adapter behin
 
 See [docs/DIALER.md](docs/DIALER.md) for architecture, configuration, migrations, Twilio setup, scheduling, deployment, rollback, and adapter extension instructions.
 
+## Polar billing
+
+Polar billing is disabled until the provider values in `.env.local` are present. Configure the Starter and Team product IDs plus the sandbox or production environment, then register the Standard Webhook endpoint at:
+
+```text
+https://<your-domain>/api/webhooks/polar
+```
+
+Starter and Team checkout are enabled. Scale is stored in the billing model but checkout remains disabled until its additional capabilities are implemented and accepted; its product ID is optional until Scale checkout is enabled. Apply the Supabase migrations before enabling provider values; the webhook secret and access token must remain server-side.
+
 ## Deployment
 
 The web application is designed for Vercel and the data layer for Supabase. Apply migrations before enabling features that use new tables. Keep service-role keys, webhook credentials, provider credentials, and cron secrets server-side.

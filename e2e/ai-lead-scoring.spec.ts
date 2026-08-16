@@ -40,6 +40,18 @@ test.beforeAll(async () => {
     .single();
   accountId = member!.account_id;
 
+  // New test workspaces start without billing access. Mark this disposable
+  // workspace as grandfathered so the existing lead fixture remains valid.
+  await admin
+    .from("billing_accounts")
+    .update({
+      source: "grandfathered",
+      plan_key: "team",
+      provider_status: "active",
+      seats: 10,
+    })
+    .eq("account_id", accountId);
+
   const { data: stage } = await admin
     .from("pipeline_stages")
     .select("id")
@@ -87,8 +99,8 @@ test.afterAll(async () => {
 
 async function login(page: Page): Promise<void> {
   await page.goto("/login");
-  await page.fill("#email", EMAIL);
-  await page.fill("#password", PASSWORD);
+  await page.getByLabel("Work email").fill(EMAIL);
+  await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in", exact: true }).click();
   await page.waitForURL(/\/(pipeline)?$/, { timeout: 10_000 });
 }

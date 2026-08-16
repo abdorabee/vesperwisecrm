@@ -6,6 +6,7 @@ import {
   requireAccountId,
   requireAdminAccountId,
 } from "@/lib/supabase/account";
+import { requireBillingCapability } from "@/lib/billing/access";
 import { groupSchema, type GroupInput } from "@/lib/validations/group";
 
 export async function saveGroup(
@@ -14,6 +15,7 @@ export async function saveGroup(
 ): Promise<{ groupId: string }> {
   const data = groupSchema.parse(input);
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "routing");
   const supabase = await createClient();
 
   let id = groupId;
@@ -73,9 +75,15 @@ export async function saveGroup(
 }
 
 export async function deleteGroup(groupId: string): Promise<void> {
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "routing");
   const supabase = await createClient();
 
-  const { error } = await supabase.from("lead_groups").delete().eq("id", groupId);
+  const { error } = await supabase
+    .from("lead_groups")
+    .delete()
+    .eq("id", groupId)
+    .eq("account_id", accountId);
 
   if (error) {
     throw new Error(error.message);
@@ -89,6 +97,8 @@ export async function assignLeadToGroup(
   leadId: string,
   groupId: string,
 ): Promise<{ assignedUserId: string | null }> {
+  const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "routing");
   const supabase = await createClient();
 
   const { data, error } = await supabase.rpc("assign_lead_round_robin", {
@@ -111,6 +121,7 @@ export async function manualAssignLead(
   userId: string | null,
 ): Promise<void> {
   const accountId = await requireAccountId();
+  await requireBillingCapability(accountId, "routing");
   const supabase = await createClient();
 
   if (userId) {

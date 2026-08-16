@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdminAccountId } from "@/lib/supabase/account";
+import { requireWritableBilling } from "@/lib/billing/access";
 import {
   isWorkspaceSettingsSchemaMissing,
   WORKSPACE_SETTINGS_MIGRATION_REQUIRED_MESSAGE,
@@ -13,6 +14,7 @@ import {
 export async function updateWorkspaceSettings(input: WorkspaceSettingsInput): Promise<void> {
   const settings = workspaceSettingsSchema.parse(input);
   const accountId = await requireAdminAccountId();
+  await requireWritableBilling(accountId);
   const supabase = await createClient();
   const { error } = await supabase
     .from("accounts")
