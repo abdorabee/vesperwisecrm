@@ -50,15 +50,27 @@ describe("demo and contact inquiry email", () => {
     delete process.env.DEMO_INBOX_EMAIL;
   });
 
-  test("does not send until Resend and DEMO_INBOX_EMAIL are all set", async () => {
+  test("does not send without RESEND_API_KEY", async () => {
     expect(canSendInquiryEmail()).toBe(false);
     await sendDemoBookingEmail(booking);
     await sendContactInquiryEmail(contact);
     expect(send).not.toHaveBeenCalled();
+  });
 
+  test("uses production From and inbox defaults when only the API key is set", async () => {
     process.env.RESEND_API_KEY = "re_test";
-    process.env.RESEND_FROM_EMAIL = "hello@vesperwise.test";
-    expect(canSendInquiryEmail()).toBe(false);
+    send.mockResolvedValue({ error: null });
+
+    expect(canSendInquiryEmail()).toBe(true);
+    await sendDemoBookingEmail(booking);
+
+    expect(send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        from: "VesperWise <onboarding@resend.dev>",
+        to: "abdorabee1134@gmail.com",
+        replyTo: "jordan@example.com",
+      }),
+    );
   });
 
   test("sends a demo request to DEMO_INBOX_EMAIL", async () => {

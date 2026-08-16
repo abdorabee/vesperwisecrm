@@ -6,18 +6,20 @@ import type {
   DemoBookingInput,
 } from "@/lib/validations/marketing-inquiry";
 
-function fromAddress(): string | null {
-  const from = process.env.RESEND_FROM_EMAIL;
-  if (!from) return null;
+const DEFAULT_INQUIRY_FROM = "onboarding@resend.dev";
+const DEFAULT_INQUIRY_INBOX = "abdorabee1134@gmail.com";
+
+function inquiryFromAddress(): string {
+  const from = process.env.RESEND_FROM_EMAIL || DEFAULT_INQUIRY_FROM;
   return from.includes("<") ? from : `VesperWise <${from}>`;
 }
 
+function inquiryInbox(): string {
+  return process.env.DEMO_INBOX_EMAIL || DEFAULT_INQUIRY_INBOX;
+}
+
 export function canSendInquiryEmail(): boolean {
-  return Boolean(
-    process.env.RESEND_API_KEY &&
-      process.env.RESEND_FROM_EMAIL &&
-      process.env.DEMO_INBOX_EMAIL,
-  );
+  return Boolean(process.env.RESEND_API_KEY);
 }
 
 function demoEmailText(data: DemoBookingInput): string {
@@ -72,8 +74,8 @@ export async function sendDemoBookingEmail(data: DemoBookingInput): Promise<void
 
   const resend = getResendClient();
   const { error } = await resend.emails.send({
-    from: fromAddress()!,
-    to: process.env.DEMO_INBOX_EMAIL!,
+    from: inquiryFromAddress(),
+    to: inquiryInbox(),
     replyTo: data.email,
     subject: sanitizeEmailHeader(`Demo request — ${data.company}`),
     text: demoEmailText(data),
@@ -102,8 +104,8 @@ export async function sendContactInquiryEmail(
 
   const resend = getResendClient();
   const { error } = await resend.emails.send({
-    from: fromAddress()!,
-    to: process.env.DEMO_INBOX_EMAIL!,
+    from: inquiryFromAddress(),
+    to: inquiryInbox(),
     replyTo: data.email,
     subject: sanitizeEmailHeader(`Contact — ${data.company}`),
     text: contactEmailText(data),

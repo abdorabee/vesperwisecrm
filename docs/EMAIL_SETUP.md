@@ -52,15 +52,14 @@ For drip campaigns that qualify as marketing:
 
 ## Demo and contact inbox
 
-`/book-demo` and `/contact` email `DEMO_INBOX_EMAIL` through Resend. Set these three together in Vercel (Production and Preview) and in `.env.local`:
+`/book-demo` and `/contact` send through Resend when `RESEND_API_KEY` is set. Production defaults (also in `.env.production`):
 
-| Variable | Purpose |
-|----------|---------|
-| `RESEND_API_KEY` | Resend API key |
-| `RESEND_FROM_EMAIL` | Verified sending address (or `beth.t@example.com` for Resend test mode) |
-| `DEMO_INBOX_EMAIL` | Inbox that receives bookings and contact messages |
+- `RESEND_FROM_EMAIL` = `onboarding@resend.dev` (Resend test sender; no domain verification)
+- `DEMO_INBOX_EMAIL` = `abdorabee1134@gmail.com`
 
-If any of the three is missing, the form still shows success and logs `{ scope: "marketing-inquiry", delivered: false }`. Restart `npm run dev` after changing `.env.local`.
+Override either in Vercel if you want a verified domain or a different inbox. `RESEND_API_KEY` must be set in Vercel (Production and Preview). Without a verified domain, Resend only delivers to the email on the Resend account.
+
+If `RESEND_API_KEY` is missing, the form still shows success and logs `{ scope: "marketing-inquiry", delivered: false }`.
 
 ## Environment variables (operators)
 
