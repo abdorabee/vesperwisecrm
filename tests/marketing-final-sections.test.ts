@@ -103,6 +103,12 @@ describe("final marketing landing sections", () => {
     expect(sectionText).toContain(
       "For multi-market operations with dispositions and in-house closing.",
     );
+    expect(section).toContain("Start pilot");
+    expect(section).toContain('href: "/signup"');
+    expect(section).toContain("Book a demo");
+    expect(section).toContain('href: "/book-demo"');
+    expect(section).toContain("Talk to sales");
+    expect(section).toContain('href: "/contact"');
     expect(section).toContain("Skip tracing and telephony billed at cost.");
     expect(sectionText).toContain(
       "Figures shown are placeholders pending final pricing sign-off.",
@@ -119,7 +125,7 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("GET STARTED");
     expect(section).toContain("Work every lead like it");
     expect(section).toContain("Book a demo");
-    expect(section).toContain('href="/login"');
+    expect(section).toContain('href="/book-demo"');
     expect(section).toContain("See pricing");
     expect(section).toContain('href="#pricing"');
     expect(section).toContain("14-DAY PILOT");

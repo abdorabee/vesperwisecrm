@@ -13,6 +13,7 @@ const OPTIONAL_FEATURE_VARS: { key: string; feature: string }[] = [
   { key: "CRON_SECRET", feature: "scheduled sequence/workflow automation" },
   { key: "RESEND_API_KEY", feature: "outbound email" },
   { key: "RESEND_FROM_EMAIL", feature: "outbound email" },
+  { key: "DEMO_INBOX_EMAIL", feature: "demo and contact form delivery" },
   { key: "ANTHROPIC_API_KEY", feature: "AI paste-to-parse" },
   { key: "TWILIO_ACCOUNT_SID", feature: "outbound SMS" },
   { key: "TWILIO_AUTH_TOKEN", feature: "outbound SMS + inbound SMS webhook" },

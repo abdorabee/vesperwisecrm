@@ -1,11 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
+import { isMarketingPublicPath } from "@/lib/marketing/public-paths";
 
 // /sw.js and /manifest.webmanifest must stay public: browsers fetch them
 // without auth cookies-context guarantees, and a redirected service-worker
 // script is rejected outright ("behind a redirect, which is disallowed").
-const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/dialer/providers/twilio/voice", "/api/leads/intake", "/api/webhooks/dialer", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe", "/tv/", "/home", "/sitemap.xml", "/robots.txt"];
+const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/dialer/providers/twilio/voice", "/api/leads/intake", "/api/webhooks/dialer", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe", "/tv/", "/sitemap.xml", "/robots.txt"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -35,9 +36,10 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isPublicPath = PUBLIC_PATHS.some((path) =>
-    request.nextUrl.pathname.startsWith(path),
-  );
+  const pathname = request.nextUrl.pathname;
+  const isPublicPath =
+    isMarketingPublicPath(pathname) ||
+    PUBLIC_PATHS.some((path) => pathname.startsWith(path));
 
   if (!user && !isPublicPath) {
     // Logged-out visitors hitting the root land on the marketing page;

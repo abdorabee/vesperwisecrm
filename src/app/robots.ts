@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+import { MARKETING_PUBLIC_PATHS } from "@/lib/marketing/public-paths";
+
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://vesperwisecrm.vercel.app";
 
@@ -8,7 +10,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/home", "/login"],
+        allow: [...MARKETING_PUBLIC_PATHS, "/login", "/signup"],
         disallow: [
           "/api/",
           "/pipeline",
