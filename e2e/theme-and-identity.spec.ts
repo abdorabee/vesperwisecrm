@@ -38,13 +38,22 @@ test("keeps login usable at 200 percent text scaling", async ({ page }) => {
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
 });
 
-test("keeps the marketing experience and browser chrome dark", async ({ page }) => {
+test("lets marketing follow and persist the selected appearance", async ({ page }) => {
   await page.goto("/home");
 
   const marketingShell = page.locator("[data-theme-surface='marketing']");
-  await expect(marketingShell).toHaveClass(/dark/);
+  await expect(page.locator("html")).not.toHaveClass(/dark/);
+  await expect(marketingShell).toHaveCSS("background-color", "rgb(247, 247, 242)");
+  await expect(page.locator("meta[name='theme-color']")).toHaveAttribute("content", "#f7f7f2");
+
+  await page.getByRole("button", { name: "Switch to dark mode" }).click();
+
+  await expect(page.locator("html")).toHaveClass(/dark/);
   await expect(marketingShell).toHaveCSS("background-color", "rgb(9, 10, 8)");
   await expect(page.locator("meta[name='theme-color']")).toHaveAttribute("content", "#090a08");
+
+  await page.reload();
+  await expect(page.locator("html")).toHaveClass(/dark/);
 });
 
 test("serves the VesperWise favicon and PWA manifest", async ({ page, request }) => {

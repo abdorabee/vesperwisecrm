@@ -1,89 +1,81 @@
-import { signIn, signUp } from "@/lib/actions/auth";
-import { VesperWiseLogo } from "@/components/vesper-wise-logo";
-import { Button } from "@/components/ui/button";
+import type { Metadata } from "next";
+import Link from "next/link";
+
+import { AuthPage } from "@/components/auth/auth-page";
+import { AuthSubmitButton } from "@/components/auth/auth-submit-button";
 import { Input } from "@/components/ui/input";
-import { AppearanceToggleButton } from "@/components/appearance-toggle";
-import {
-  Field,
-  FieldGroup,
-  FieldLabel,
-  FieldDescription,
-} from "@/components/ui/field";
+import { signIn } from "@/lib/actions/auth";
+
+export const metadata: Metadata = {
+  title: "Sign in",
+  description: "Sign in to your VesperWise CRM workspace.",
+};
 
 interface LoginPageProps {
   searchParams: Promise<{ error?: string; message?: string }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const params = await searchParams;
+  const { error, message } = await searchParams;
 
   return (
-    <div className="relative flex flex-1 items-center justify-center p-6">
-      <AppearanceToggleButton className="absolute top-4 right-4 size-11" />
-      <div className="w-full max-w-sm">
-        <div className="mb-4 flex justify-center">
-          <VesperWiseLogo size="md" />
+    <AuthPage
+      eyebrow="Workspace access / 01"
+      narrativeTitle="Pick up where the lead left off."
+      narrativeDescription="Open your qualification queue, conversations, pipeline, and next actions in one place."
+      formTitle="Welcome back"
+      formDescription="Sign in to open your workspace."
+      error={error}
+      message={message}
+    >
+      <form action={signIn} className="space-y-5">
+        <div className="space-y-2">
+          <label
+            htmlFor="login-email"
+            className="font-mono text-[10.5px] font-medium tracking-[0.08em] text-[var(--mkt-text2)] uppercase"
+          >
+            Work email
+          </label>
+          <Input
+            id="login-email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            className="h-12 rounded-md border-[color:var(--mkt-border)] bg-[var(--mkt-bg)] px-3 text-[var(--mkt-text)] placeholder:text-[var(--mkt-text3)] focus-visible:border-[color:var(--mkt-accent)] focus-visible:ring-[color:var(--mkt-accent)]/25 dark:bg-[var(--mkt-bg)]"
+          />
         </div>
-        <p className="mb-6 text-center text-sm text-muted-foreground">
-          Sign in to your account, or sign up if this is your first visit.
-        </p>
 
-        <form className="space-y-4">
-          <FieldGroup>
-            <Field>
-              <FieldLabel htmlFor="email">Email</FieldLabel>
-              <Input id="email" name="email" type="email" required autoComplete="email" />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="password">Password</FieldLabel>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                required
-                minLength={6}
-                autoComplete="current-password"
-              />
-              <FieldDescription>At least 6 characters.</FieldDescription>
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="niche">
-                What best describes your business? (only used for sign up)
-              </FieldLabel>
-              <select
-                id="niche"
-                name="niche"
-                defaultValue="wholesaler"
-                className="h-8 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 md:text-sm dark:bg-input/30"
-              >
-                <option value="wholesaler">Wholesaler / flipper</option>
-                <option value="agency">Cold-calling agency (source for clients)</option>
-              </select>
-            </Field>
-          </FieldGroup>
+        <div className="space-y-2">
+          <label
+            htmlFor="login-password"
+            className="font-mono text-[10.5px] font-medium tracking-[0.08em] text-[var(--mkt-text2)] uppercase"
+          >
+            Password
+          </label>
+          <Input
+            id="login-password"
+            name="password"
+            type="password"
+            required
+            minLength={6}
+            autoComplete="current-password"
+            className="h-12 rounded-md border-[color:var(--mkt-border)] bg-[var(--mkt-bg)] px-3 text-[var(--mkt-text)] placeholder:text-[var(--mkt-text3)] focus-visible:border-[color:var(--mkt-accent)] focus-visible:ring-[color:var(--mkt-accent)]/25 dark:bg-[var(--mkt-bg)]"
+          />
+        </div>
 
-          {params.error && (
-            <p className="text-sm text-destructive">{params.error}</p>
-          )}
-          {params.message && (
-            <p className="text-sm text-muted-foreground">{params.message}</p>
-          )}
+        <AuthSubmitButton idleLabel="Sign in" pendingLabel="Signing in…" />
+      </form>
 
-          <div className="flex gap-2">
-            <Button formAction={signIn} type="submit" className="flex-1">
-              Sign in
-            </Button>
-            <Button
-              formAction={signUp}
-              type="submit"
-              variant="outline"
-              className="flex-1"
-            >
-              Sign up
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+      <p className="mt-5 text-center text-sm text-[var(--mkt-text2)]">
+        New to VesperWise?{" "}
+        <Link
+          href="/signup"
+          className="font-medium text-[var(--mkt-text)] underline decoration-[var(--mkt-border-strong)] underline-offset-4 transition-colors hover:decoration-[var(--mkt-accent)]"
+        >
+          Create an account
+        </Link>
+      </p>
+    </AuthPage>
   );
 }

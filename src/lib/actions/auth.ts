@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
+  buildVerificationLink,
   canSendBrandedAuthEmail,
   sendSignupConfirmationEmail,
 } from "@/lib/email/auth-emails";
@@ -37,7 +38,7 @@ export async function signUp(formData: FormData): Promise<void> {
   });
   if (!withinBudget) {
     redirect(
-      `/login?error=${encodeURIComponent("Too many signup attempts. Try again later.")}`,
+      `/signup?error=${encodeURIComponent("Too many signup attempts. Try again later.")}`,
     );
   }
 
@@ -68,9 +69,9 @@ export async function signUp(formData: FormData): Promise<void> {
       },
     });
 
-    if (error || !data?.properties?.action_link) {
+    if (error || !data?.properties?.hashed_token) {
       redirect(
-        `/login?error=${encodeURIComponent(
+        `/signup?error=${encodeURIComponent(
           error?.message ?? "Failed to create confirmation link",
         )}`,
       );
@@ -79,11 +80,15 @@ export async function signUp(formData: FormData): Promise<void> {
     try {
       await sendSignupConfirmationEmail({
         to: email,
-        actionLink: data.properties.action_link,
+        actionLink: buildVerificationLink(
+          redirectTo,
+          data.properties.hashed_token,
+          "signup",
+        ),
       });
     } catch (error) {
       redirect(
-        `/login?error=${encodeURIComponent(
+        `/signup?error=${encodeURIComponent(
           error instanceof Error
             ? error.message
             : "Failed to send confirmation email",
@@ -102,7 +107,7 @@ export async function signUp(formData: FormData): Promise<void> {
     });
 
     if (error) {
-      redirect(`/login?error=${encodeURIComponent(error.message)}`);
+      redirect(`/signup?error=${encodeURIComponent(error.message)}`);
     }
   }
 

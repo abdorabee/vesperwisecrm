@@ -1,0 +1,476 @@
+# Theme and Design Tokens
+
+## Compact token summary
+
+- CSS system: Tailwind CSS v4 via `@import "tailwindcss"`, shadcn Base Nova, CSS custom properties.
+- Public marketing surface: forced `.dark` command-center palette.
+- Fonts: Geist/Inter for sans UI; Geist Mono/JetBrains Mono for mono/code. Current heading token aliases to sans.
+- Dark core: background `#090a08`, foreground `#f7f8f2`, card `#10110e`, muted text `#a9aca2`.
+- Brand accent: acid lime `#dfff00`; primary text on accent is black.
+- Supporting semantic accents: green `#4ade80`, amber `#f5b544`, cold gray `#8a8f98`.
+- Light core: warm off-white `#f7f7f2`, ink `#171914`, white cards, acid-lime primary.
+- Borders: 10% white in dark; `#d8dacd` in light. Focus ring uses acid lime in dark.
+- Radius scale: 2, 4, 12, 16, 20, 24, and 28px; base radius 12px.
+- Shadows: reserved glow tokens in lime, amber, and emerald; avoid stacked glow effects.
+- Marketing motion: slow marquee, subtle vertical float, animated connector dashes, reveal/stagger/parallax using Motion; all disabled by reduced-motion media query.
+- Marketing layout width: predominantly `max-w-6xl`; horizontal padding 16px mobile and 24px from small breakpoint.
+- Breakpoints: Tailwind defaults; significant layout changes at `sm` and `md`.
+
+## Raw source: `src/app/globals.css`
+
+```css
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans), var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), var(--font-jetbrains-mono), ui-monospace, monospace;
+  --font-code: var(--font-jetbrains-mono), var(--font-geist-mono), ui-monospace, monospace;
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-hot: var(--hot);
+  --color-warm: var(--warm);
+  --color-cold: var(--cold);
+  --color-brand-strong: var(--brand-strong);
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+  --radius-4xl: 28px;
+}
+
+/* VesperWise warm light appearance. Dark preserves the original command-center palette. */
+:root {
+  color-scheme: light;
+  --background: #f7f7f2;
+  --foreground: #171914;
+  --card: #ffffff;
+  --card-foreground: #171914;
+  --popover: rgba(255, 255, 255, 0.98);
+  --popover-foreground: #171914;
+  --primary: #dfff00;
+  --primary-foreground: #090a08;
+  --secondary: #eceee6;
+  --secondary-foreground: #252821;
+  --muted: #f0f1e9;
+  --muted-foreground: #62675b;
+  --accent: #e8edcf;
+  --accent-foreground: #3e4a00;
+  --destructive: #b4233a;
+  --border: #d8dacd;
+  --input: #c8ccbc;
+  --ring: #5f7000;
+  --chart-1: #6f8200;
+  --chart-2: #207748;
+  --chart-3: #9a5a00;
+  --chart-4: #4b5966;
+  --chart-5: #7c648c;
+  --radius: 12px;
+  --sidebar: #eeefe7;
+  --sidebar-foreground: #171914;
+  --sidebar-primary: #dfff00;
+  --sidebar-primary-foreground: #090a08;
+  --sidebar-accent: #e2e6d5;
+  --sidebar-accent-foreground: #171914;
+  --sidebar-border: #d3d6c8;
+  --sidebar-ring: #5f7000;
+  --brand-strong: #536000;
+
+  /* Pipeline-state semantic colors (won / at-risk / lost) */
+  --hot: #16723c;
+  --hot-bg: rgba(22, 114, 60, 0.08);
+  --hot-border: rgba(22, 114, 60, 0.24);
+  --warm: #8a5200;
+  --warm-bg: rgba(138, 82, 0, 0.09);
+  --warm-border: rgba(138, 82, 0, 0.24);
+  --cold: #5d6770;
+  --cold-bg: rgba(93, 103, 112, 0.08);
+  --cold-border: rgba(93, 103, 112, 0.22);
+
+  /* Reserved for exactly one emphasis moment per view (e.g. active sequence step,
+     "deal won" confirmation) — never for hover states, never stacked with ring+blur. */
+  --glow-cyan: 0 0 40px rgba(223, 255, 0, 0.22), 0 0 80px rgba(223, 255, 0, 0.1);
+  --glow-amber: 0 0 40px rgba(245, 181, 68, 0.2), 0 0 80px rgba(245, 181, 68, 0.1);
+  --glow-emerald: 0 0 40px rgba(74, 222, 128, 0.2), 0 0 80px rgba(74, 222, 128, 0.1);
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #090a08;
+  --foreground: #f7f8f2;
+  --card: #10110e;
+  --card-foreground: #ffffff;
+  --popover: rgba(18, 19, 15, 0.96);
+  --popover-foreground: #ffffff;
+  --primary: #dfff00;
+  --primary-foreground: #000000;
+  --secondary: rgba(255, 255, 255, 0.08);
+  --secondary-foreground: #ffffff;
+  --muted: rgba(255, 255, 255, 0.04);
+  --muted-foreground: #a9aca2;
+  --accent: rgba(223, 255, 0, 0.1);
+  --accent-foreground: #dfff00;
+  --destructive: #fb7185;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #dfff00;
+  --chart-1: #dfff00;
+  --chart-2: #4ade80;
+  --chart-3: #f5b544;
+  --chart-4: #ffffff;
+  --chart-5: #606060;
+  --sidebar: #0d0e0b;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #dfff00;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #dfff00;
+  --brand-strong: #dfff00;
+  --hot: #4ade80;
+  --hot-bg: rgba(74, 222, 128, 0.1);
+  --hot-border: rgba(74, 222, 128, 0.25);
+  --warm: #f5b544;
+  --warm-bg: rgba(245, 181, 68, 0.12);
+  --warm-border: rgba(245, 181, 68, 0.28);
+  --cold: #8a8f98;
+  --cold-bg: rgba(138, 143, 152, 0.08);
+  --cold-border: rgba(138, 143, 152, 0.22);
+  --glow-cyan: 0 0 40px rgba(223, 255, 0, 0.22), 0 0 80px rgba(223, 255, 0, 0.1);
+  --glow-amber: 0 0 40px rgba(245, 181, 68, 0.2), 0 0 80px rgba(245, 181, 68, 0.1);
+  --glow-emerald: 0 0 40px rgba(74, 222, 128, 0.2), 0 0 80px rgba(74, 222, 128, 0.1);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    text-rendering: optimizeLegibility;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  select {
+    color-scheme: light;
+  }
+
+  .dark select {
+    color-scheme: dark;
+  }
+
+  /* Glass surface treatment, applied via data-slot rather than per-component edits —
+     reserved for true floating overlays. Cards are flat, static surfaces (elevation
+     comes from bg-card + ring-foreground/10, not blur) since they sit in the page flow
+     rather than floating over other content. */
+  [data-slot="popover-content"],
+  [data-slot="dialog-content"],
+  [data-slot="sheet-content"],
+  [data-slot="dropdown-menu-content"],
+  [data-slot="dropdown-menu-sub-content"] {
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  /* Hide native number-input spinners — the browser renders them as unstyleable
+     OS chrome that ignores the dark theme, so they read as stray white arrows. */
+  input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    appearance: none;
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .text-hot {
+    color: var(--hot);
+  }
+
+  .text-warm {
+    color: var(--warm);
+  }
+
+  .text-cold {
+    color: var(--cold);
+  }
+
+  .bg-hot-subtle {
+    background: var(--hot-bg);
+    border-color: var(--hot-border);
+  }
+
+  .bg-warm-subtle {
+    background: var(--warm-bg);
+    border-color: var(--warm-border);
+  }
+
+  .bg-cold-subtle {
+    background: var(--cold-bg);
+    border-color: var(--cold-border);
+  }
+
+  .email-body-content {
+    font-size: 0.875rem;
+    line-height: 1.625;
+  }
+
+  .email-body-content a {
+    color: var(--primary);
+    text-decoration: underline;
+  }
+
+  .email-body-content p {
+    margin-bottom: 0.5rem;
+  }
+
+  .email-body-content p:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@layer utilities {
+  /* Consolidated surface/opacity scale — prefer these over ad hoc bg-foreground/NN
+     fractions so elevation reads as a small, intentional set of steps rather than
+     scattered one-off opacities. bg-card (.72) and bg-popover (.88) remain the two
+     "real" elevated surfaces. */
+  .surface-quiet {
+    background-color: color-mix(in oklch, var(--foreground) 4%, transparent);
+  }
+
+  .surface-subtle {
+    background-color: color-mix(in oklch, var(--foreground) 8%, transparent);
+  }
+
+  .divider-quiet {
+    border-color: color-mix(in oklch, var(--foreground) 10%, transparent);
+  }
+}
+```
+
+## Raw source: `src/components/marketing/marketing.css`
+
+```css
+/* Marketing-page-only keyframes and utilities.
+   Loaded by src/app/(marketing)/layout.tsx — never imported by the app shell. */
+
+@keyframes marketing-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marketing-dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+@keyframes marketing-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.marketing-marquee {
+  animation: marketing-marquee 36s linear infinite;
+}
+
+.marketing-dash {
+  animation: marketing-dash 1.6s linear infinite;
+}
+
+.marketing-float {
+  animation: marketing-float 6s ease-in-out infinite;
+}
+
+.marketing-float-delayed {
+  animation: marketing-float 7s ease-in-out 1.2s infinite;
+}
+
+/* Faint 3%-white blueprint grid used behind the hero. */
+.marketing-grid-bg {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marketing-marquee,
+  .marketing-dash,
+  .marketing-float,
+  .marketing-float-delayed {
+    animation: none;
+  }
+}
+```
+
+## Raw source: font setup in `src/app/layout.tsx`
+
+```tsx
+import type { Metadata, Viewport } from "next";
+import { Geist, Geist_Mono, Inter, JetBrains_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
+import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
+import { AppearanceProvider } from "@/components/appearance-provider";
+import { LIGHT_THEME_COLOR } from "@/lib/appearance";
+import "./globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin"],
+});
+
+export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  title: { default: "VesperWise CRM", template: "%s · VesperWise CRM" },
+  description: "An acquisition CRM for intake, qualification, outreach, routing, and team performance.",
+  icons: {
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Vesperwise",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: LIGHT_THEME_COLOR,
+  width: "device-width",
+  initialScale: 1,
+};
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} ${jetbrainsMono.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col">
+        <AppearanceProvider>
+          {children}
+          <Toaster />
+          <ServiceWorkerRegistration />
+        </AppearanceProvider>
+      </body>
+    </html>
+  );
+}
+```
+
+## Raw source: `components.json`
+
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "base-nova",
+  "rsc": true,
+  "tsx": true,
+  "tailwind": {
+    "config": "",
+    "css": "src/app/globals.css",
+    "baseColor": "neutral",
+    "cssVariables": true,
+    "prefix": ""
+  },
+  "iconLibrary": "lucide",
+  "rtl": false,
+  "aliases": {
+    "components": "@/components",
+    "utils": "@/lib/utils",
+    "ui": "@/components/ui",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "menuColor": "default",
+  "menuAccent": "subtle",
+  "registries": {}
+}
+```

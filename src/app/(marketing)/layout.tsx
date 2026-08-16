@@ -3,15 +3,16 @@ import type { ReactNode } from "react";
 import { MarketingFooter } from "@/components/marketing/marketing-footer";
 import { MarketingNav } from "@/components/marketing/marketing-nav";
 import "@/components/marketing/marketing.css";
+import "@/components/marketing/marketing-theme.css";
 
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
     <div
-      className="dark flex min-h-screen flex-col bg-background text-foreground"
+      className="flex min-h-screen min-w-0 flex-col bg-background text-foreground"
       data-theme-surface="marketing"
     >
       <MarketingNav />
-      <main className="flex-1">{children}</main>
+      <main className="min-w-0 flex-1">{children}</main>
       <MarketingFooter />
     </div>
   );

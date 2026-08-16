@@ -15,25 +15,15 @@ import {
   type InviteClientUserInput,
 } from "@/lib/validations/client";
 import {
+  buildVerificationLink,
   canSendBrandedAuthEmail,
+  getGeneratedTokenHash,
   sendClientPortalInvitationEmail,
 } from "@/lib/email/auth-emails";
 
 function optionalText(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
   return trimmed ? trimmed : null;
-}
-
-function getGeneratedActionLink(value: unknown): string | null {
-  if (!value || typeof value !== "object" || !("properties" in value)) {
-    return null;
-  }
-
-  const properties = (value as { properties?: { action_link?: unknown } })
-    .properties;
-  return typeof properties?.action_link === "string"
-    ? properties.action_link
-    : null;
 }
 
 export async function saveClient(
@@ -171,8 +161,8 @@ export async function inviteClientUser(
     throw new Error("Invite did not return a user");
   }
 
-  const brandedInviteLink = canSendBrandedAuthEmail()
-    ? getGeneratedActionLink(invited)
+  const brandedTokenHash = canSendBrandedAuthEmail()
+    ? getGeneratedTokenHash(invited)
     : null;
 
   const { error: memberError } = await serviceRole
@@ -192,13 +182,13 @@ export async function inviteClientUser(
   }
 
   if (canSendBrandedAuthEmail()) {
-    if (!brandedInviteLink) {
-      throw new Error("Invite did not return an action link");
+    if (!brandedTokenHash) {
+      throw new Error("Invite did not return a token hash");
     }
 
     await sendClientPortalInvitationEmail({
       to: data.email,
-      actionLink: brandedInviteLink,
+      actionLink: buildVerificationLink(redirectTo, brandedTokenHash, "invite"),
       accountName: account.name,
     });
   }

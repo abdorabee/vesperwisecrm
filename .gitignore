@@ -47,3 +47,6 @@ next-env.d.ts
 
 # Local browser-automation debug logs (gstack skill)
 .gstack/
+
+# Superdesign temporary component templates
+.superdesign/tmp/

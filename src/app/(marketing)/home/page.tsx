@@ -1,23 +1,26 @@
 import type { Metadata } from "next";
 
-import { AiSection } from "@/components/marketing/sections/ai-section";
-import { DashboardGallery } from "@/components/marketing/sections/dashboard-gallery";
+import { Automate } from "@/components/marketing/sections/automate";
+import { Comparison } from "@/components/marketing/sections/comparison";
+import { Engage } from "@/components/marketing/sections/engage";
 import { FinalCta } from "@/components/marketing/sections/final-cta";
 import { Hero } from "@/components/marketing/sections/hero";
-import { MetricsStrip } from "@/components/marketing/sections/metrics-strip";
+import { Intake } from "@/components/marketing/sections/intake";
+import { Pipeline } from "@/components/marketing/sections/pipeline";
+import { Premise } from "@/components/marketing/sections/premise";
 import { PricingPreview } from "@/components/marketing/sections/pricing-preview";
-import { ProductShowcase } from "@/components/marketing/sections/product-showcase";
+import { ProofStrip } from "@/components/marketing/sections/proof-strip";
+import { Qualify } from "@/components/marketing/sections/qualify";
 import { Testimonials } from "@/components/marketing/sections/testimonials";
-import { WhyVesperwise } from "@/components/marketing/sections/why-vesperwise";
-import { WorkflowViz } from "@/components/marketing/sections/workflow-viz";
+import { Understand } from "@/components/marketing/sections/understand";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://vesperwisecrm.vercel.app";
 
 const PAGE_TITLE =
-  "VesperWise CRM — Acquisition-Pipeline CRM for Wholesalers & Cold-Calling Teams";
+  "VesperWise CRM — Every Lead Worked. Nothing Goes Cold.";
 const PAGE_DESCRIPTION =
-  "Lead intake, AI qualification, and automated email & SMS follow-up in one place. VesperWise is the acquisition-pipeline CRM that never lets a lead go cold.";
+  "Built for real estate acquisition teams: intake, skip tracing, AI qualification, dialer, and pipeline in one CRM so every seller conversation moves forward.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -56,12 +59,15 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
       />
       <Hero />
-      <MetricsStrip />
-      <ProductShowcase />
-      <AiSection />
-      <WorkflowViz />
-      <DashboardGallery />
-      <WhyVesperwise />
+      <ProofStrip />
+      <Premise />
+      <Intake />
+      <Qualify />
+      <Engage />
+      <Pipeline />
+      <Automate />
+      <Understand />
+      <Comparison />
       <Testimonials />
       <PricingPreview />
       <FinalCta />

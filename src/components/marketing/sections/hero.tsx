@@ -1,89 +1,92 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
 import { MockBrowserFrame } from "@/components/marketing/mock/mock-browser-frame";
-import { MockDashboard } from "@/components/marketing/mock/mock-dashboard";
-import { MouseParallax } from "@/components/marketing/motion/parallax";
+import { MARKETING_HERO_COPY } from "@/components/marketing/mock/mock-data";
+import { MockLeadIntelPanel } from "@/components/marketing/mock/mock-lead-intel-panel";
+import { MockLeadTable } from "@/components/marketing/mock/mock-lead-table";
 import { Reveal } from "@/components/marketing/motion/reveal";
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pt-32 pb-24 sm:pt-40 sm:pb-32">
-      <div
-        className="marketing-grid-bg pointer-events-none absolute inset-0"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-[32rem] bg-[radial-gradient(ellipse_at_top,rgba(223,255,0,0.06),transparent_60%)]"
-        aria-hidden
-      />
+    <section
+      id="top"
+      className="mkt-divider relative overflow-hidden bg-[var(--mkt-bg)] text-[var(--mkt-text)]"
+    >
+      <div className="mkt-grid-bg pointer-events-none absolute inset-0" aria-hidden />
 
-      <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-8 px-4 sm:px-6">
-        <Reveal className="flex flex-col items-center gap-6 text-center">
-          <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-balance sm:text-6xl">
-            The acquisition pipeline that never lets a lead go cold.
+      <div className="relative mx-auto max-w-[1240px] px-4 pt-28 sm:px-7 lg:pt-[104px]">
+        <Reveal className="max-w-4xl">
+          <div className="flex items-center gap-2.5">
+            <span className="size-[5px] rounded-full bg-[var(--mkt-accent)]" />
+            <span className="font-mono text-[10.5px] leading-none font-medium tracking-[0.1em] text-[var(--mkt-text3)] uppercase">
+              {MARKETING_HERO_COPY.eyebrow}
+            </span>
+          </div>
+
+          <h1 className="mt-6 max-w-[15ch] font-sans text-5xl leading-[0.99] font-normal tracking-[-0.038em] text-balance text-[var(--mkt-text)] sm:text-7xl">
+            {MARKETING_HERO_COPY.title}
           </h1>
-          <p className="max-w-2xl text-lg text-muted-foreground text-balance">
-            VesperWise is the CRM for wholesalers, flippers, and cold-calling
-            teams — lead intake, AI qualification, and automated email &amp; SMS
-            follow-up in one place.
+
+          <p className="mt-6 max-w-[46ch] font-sans text-lg leading-[1.55] font-light text-[var(--mkt-text2)] sm:text-[18.5px]">
+            {MARKETING_HERO_COPY.subhead}
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            <Button
-              size="lg"
-              render={<Link href="/login" />}
-              nativeButton={false}
+
+          <div className="mt-9 flex flex-wrap items-center gap-2.5">
+            <Link
+              href="/login"
+              className="rounded-md bg-[var(--mkt-accent)] px-5 py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-accent-ink)] transition-[background,transform] duration-150 hover:bg-[var(--mkt-accent-hover)] active:translate-y-px"
             >
-              Get started free
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              render={<a href="#product" />}
-              nativeButton={false}
+              {MARKETING_HERO_COPY.primaryCta}
+            </Link>
+            <a
+              href="#ch1"
+              className="rounded-md border border-[color:var(--mkt-border)] px-[18px] py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-text)] transition-colors duration-150 hover:border-[color:var(--mkt-border-strong)] hover:bg-[var(--mkt-bg2)]"
             >
-              See how it works
-            </Button>
+              {MARKETING_HERO_COPY.secondaryCta}
+            </a>
+            <span className="font-mono text-[12.5px] leading-none text-[var(--mkt-text3)] sm:ml-1.5">
+              {MARKETING_HERO_COPY.note}
+            </span>
           </div>
         </Reveal>
 
-        <Reveal delay={0.15} className="relative mt-6 w-full max-w-4xl">
+        <div className="mt-16 flex items-end justify-between gap-5 pb-2.5">
+          <span className="font-mono text-[10.5px] leading-none font-medium tracking-[0.1em] text-[var(--mkt-text3)]">
+            FIG 0.1 — LEAD LIFECYCLE, ONE SURFACE
+          </span>
+          <span className="hidden font-mono text-[10.5px] leading-none tracking-[0.06em] text-[var(--mkt-text3)] md:block">
+            app.vesperwisecrm.com / queue
+          </span>
+        </div>
+      </div>
+
+      <div className="relative mx-auto max-w-[1240px] px-4 sm:px-7">
+        <Reveal delay={0.15}>
           <MockBrowserFrame
-            className="[transform:perspective(1200px)_rotateX(4deg)]"
-            style={{ boxShadow: "var(--glow-cyan)" }}
+            title={MARKETING_HERO_COPY.browserTitle}
+            className="rounded-b-none rounded-t-[14px] border-b-0"
+            style={{
+              boxShadow:
+                "0 32px 90px color-mix(in oklch, var(--mkt-text) 14%, transparent)",
+            }}
+            actions={
+              <>
+                <span className="rounded-[5px] border border-[color:var(--mkt-border-subtle)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-text3)]">
+                  Motivation ≥ 70
+                </span>
+                <span className="rounded-[5px] bg-[var(--mkt-accent)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-accent-ink)]">
+                  Unworked · 12
+                </span>
+              </>
+            }
           >
-            <MockDashboard />
+            <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_320px]">
+              <div className="min-w-0 border-b border-[color:var(--mkt-border-subtle)] lg:border-r lg:border-b-0">
+                <MockLeadTable />
+              </div>
+              <MockLeadIntelPanel />
+            </div>
           </MockBrowserFrame>
-
-          <MouseParallax
-            strength={10}
-            className="absolute -left-10 top-16 hidden md:block"
-          >
-            <div className="marketing-float flex items-center gap-2.5 rounded-xl bg-card px-3.5 py-2.5 ring-1 ring-foreground/10">
-              <span className="size-2 rounded-full bg-hot" />
-              <div>
-                <p className="text-xs font-medium">AI score 92</p>
-                <p className="text-[10px] text-muted-foreground">
-                  Hot — call first
-                </p>
-              </div>
-            </div>
-          </MouseParallax>
-
-          <MouseParallax
-            strength={14}
-            className="absolute -right-8 bottom-12 hidden md:block"
-          >
-            <div className="marketing-float-delayed flex items-center gap-2.5 rounded-xl bg-card px-3.5 py-2.5 ring-1 ring-foreground/10">
-              <span className="size-2 rounded-full bg-warm" />
-              <div>
-                <p className="text-xs font-medium">Sequence step 3/7</p>
-                <p className="text-[10px] text-muted-foreground">
-                  SMS sent · reply detected
-                </p>
-              </div>
-            </div>
-          </MouseParallax>
         </Reveal>
       </div>
     </section>
