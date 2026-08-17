@@ -17,7 +17,9 @@ import {
   changeBillingSeats,
   createBillingCheckout,
   createCustomerPortalSession,
+  type BillingActionResult,
 } from "@/lib/actions/billing";
+import { clientBillingErrorMessage } from "@/lib/billing/polar-errors";
 
 const PLAN_LABELS: Record<BillingPlan, string> = {
   starter: "Starter",
@@ -63,25 +65,41 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
   const [seats, setSeats] = useState(String(summary.seats));
   const committedSeats = summary.memberCount + summary.pendingInviteCount;
 
-  function run(action: () => Promise<void>, successMessage: string) {
+  function run(
+    action: () => Promise<BillingActionResult>,
+    successMessage: string,
+    fallbackError: string,
+  ) {
     startTransition(async () => {
       try {
-        await action();
+        const result = await action();
+        if (!result.ok) {
+          toast.error(result.error);
+          return;
+        }
         toast.success(successMessage);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Billing action failed");
+        toast.error(clientBillingErrorMessage(error, fallbackError));
       }
     });
   }
 
   function checkout(plan: BillingPlan) {
     const quantity = Number(seats);
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      toast.error("Enter a valid seat count before checkout");
+      return;
+    }
     startTransition(async () => {
       try {
         const result = await createBillingCheckout(plan, quantity);
+        if (!result.ok) {
+          toast.error(result.error);
+          return;
+        }
         window.location.assign(result.checkoutUrl);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Could not create checkout");
+        toast.error(clientBillingErrorMessage(error, "Could not create checkout"));
       }
     });
   }
@@ -90,9 +108,13 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
     startTransition(async () => {
       try {
         const result = await createCustomerPortalSession();
+        if (!result.ok) {
+          toast.error(result.error);
+          return;
+        }
         window.location.assign(result.url);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Could not open the billing portal");
+        toast.error(clientBillingErrorMessage(error, "Could not open the billing portal"));
       }
     });
   }
@@ -146,14 +168,20 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
               value={seats}
               onChange={(event) => setSeats(event.target.value)}
               className="h-9 w-28 rounded-lg border border-border bg-background px-3 text-sm"
-              disabled={pending || !subscriptionLive}
+              disabled={pending}
             />
           </label>
           <Button
             type="button"
             variant="outline"
             disabled={pending || !subscriptionLive || Number(seats) === summary.seats}
-            onClick={() => run(() => changeBillingSeats(Number(seats)), "Seat quantity update requested")}
+            onClick={() =>
+              run(
+                () => changeBillingSeats(Number(seats)),
+                "Seat quantity update requested",
+                "Could not update seats",
+              )
+            }
           >
             Update seats
           </Button>
@@ -199,7 +227,15 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
                   className="mt-4 w-full"
                   variant={current ? "secondary" : "outline"}
                   disabled={pending || current || !enabled}
-                  onClick={() => canCheckout ? checkout(plan) : run(() => changeBillingPlan(plan), `Plan change to ${PLAN_LABELS[plan]} requested`)}
+                  onClick={() =>
+                    canCheckout
+                      ? checkout(plan)
+                      : run(
+                          () => changeBillingPlan(plan),
+                          `Plan change to ${PLAN_LABELS[plan]} requested`,
+                          "Could not change plan",
+                        )
+                  }
                 >
                   {current ? "Current plan" : !enabled ? "Coming soon" : canCheckout ? `Checkout ${PLAN_LABELS[plan]}` : `Change to ${PLAN_LABELS[plan]}`}
                 </Button>
@@ -211,7 +247,7 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
 
       <SettingsSection title="Billing portal" description="Use Polar for payment methods, invoices, receipts, and customer-managed billing details.">
         <div className="flex flex-wrap gap-3">
-          <Button type="button" variant="outline" disabled={pending || (!summary.polarCustomerId && !summary.polarSubscriptionId)} onClick={openPortal}>
+          <Button type="button" variant="outline" disabled={pending} onClick={openPortal}>
             <ExternalLink className="size-4" aria-hidden="true" />
             Open Polar portal
           </Button>
@@ -219,11 +255,22 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
             type="button"
             variant="destructive"
             disabled={pending || !subscriptionLive || summary.cancelAtPeriodEnd}
-            onClick={() => run(cancelBillingAtPeriodEnd, "Cancellation scheduled at period end")}
+            onClick={() =>
+              run(
+                cancelBillingAtPeriodEnd,
+                "Cancellation scheduled at period end",
+                "Could not schedule cancellation",
+              )
+            }
           >
             {summary.cancelAtPeriodEnd ? "Cancellation scheduled" : "Cancel at period end"}
           </Button>
         </div>
+        {!summary.polarCustomerId && !summary.polarSubscriptionId && (
+          <p className="mt-3 text-sm text-muted-foreground">
+            Opens Polar using this workspace email. Complete checkout to attach invoices and payment methods.
+          </p>
+        )}
       </SettingsSection>
     </div>
   );
