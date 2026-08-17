@@ -7,6 +7,15 @@ import {
   getBillingConfig,
   getBillingProductId,
 } from "@/lib/billing/config";
+import {
+  buildPolarCheckoutCreate,
+  productHasSeatBasedPrice,
+} from "@/lib/billing/polar-checkout";
+import {
+  isPolarNotFound,
+  isSeatPricingError,
+  mapPolarRequestError,
+} from "@/lib/billing/polar-errors";
 
 export interface PolarCheckoutInput {
   accountId: string;
@@ -21,10 +30,12 @@ export interface PolarCheckoutInput {
 export interface PolarCheckoutResult {
   id: string;
   url: string;
+  polarCustomerId: string | null;
 }
 
 export interface PolarCustomerPortalResult {
   url: string;
+  polarCustomerId: string | null;
 }
 
 function requireEnabledBilling() {
@@ -46,6 +57,18 @@ export function getPolarClient(): Polar {
   });
 }
 
+async function productUsesSeatPricing(productId: string): Promise<boolean> {
+  try {
+    const product = await getPolarClient().products.get({ id: productId });
+    return productHasSeatBasedPrice(product);
+  } catch (error) {
+    if (isPolarNotFound(error)) {
+      throw mapPolarRequestError(error, "Polar product was not found", "product");
+    }
+    return true;
+  }
+}
+
 export async function createPolarCheckout(
   input: PolarCheckoutInput,
 ): Promise<PolarCheckoutResult> {
@@ -56,37 +79,120 @@ export async function createPolarCheckout(
     throw new Error("Checkout is not enabled for this plan");
   }
 
-  const checkout = await getPolarClient().checkouts.create({
-    products: [getBillingProductId(config, input.plan)],
-    seats: input.seats,
-    externalCustomerId: input.accountId,
-    customerEmail: input.customerEmail ?? undefined,
-    customerName: input.customerName ?? undefined,
-    metadata: {
-      account_id: input.accountId,
-      plan: input.plan,
-    },
-    successUrl: input.successUrl,
-    returnUrl: input.returnUrl,
-  });
+  const productId = getBillingProductId(config, input.plan);
+  let includeSeats = await productUsesSeatPricing(productId);
 
-  return { id: checkout.id, url: checkout.url };
+  const create = (withSeats: boolean) =>
+    getPolarClient().checkouts.create(
+      buildPolarCheckoutCreate({
+        productId,
+        accountId: input.accountId,
+        plan: input.plan,
+        seats: input.seats,
+        includeSeats: withSeats,
+        customerEmail: input.customerEmail,
+        customerName: input.customerName,
+        successUrl: input.successUrl,
+        returnUrl: input.returnUrl,
+      }),
+    );
+
+  try {
+    const checkout = await create(includeSeats);
+    return {
+      id: checkout.id,
+      url: checkout.url,
+      polarCustomerId: checkout.customerId,
+    };
+  } catch (error) {
+    if (isSeatPricingError(error)) {
+      includeSeats = !includeSeats;
+      try {
+        const checkout = await create(includeSeats);
+        return {
+          id: checkout.id,
+          url: checkout.url,
+          polarCustomerId: checkout.customerId,
+        };
+      } catch (retryError) {
+        throw mapPolarRequestError(retryError, "Could not create Polar checkout", "product");
+      }
+    }
+    throw mapPolarRequestError(error, "Could not create Polar checkout", "product");
+  }
+}
+
+async function resolvePolarCustomerId(input: {
+  accountId: string;
+  polarCustomerId?: string | null;
+  customerEmail?: string | null;
+  customerName?: string | null;
+}): Promise<string> {
+  const client = getPolarClient();
+
+  if (input.polarCustomerId) {
+    try {
+      const existing = await client.customers.get({ id: input.polarCustomerId });
+      return existing.id;
+    } catch (error) {
+      if (!isPolarNotFound(error)) {
+        throw mapPolarRequestError(error, "Could not load the Polar customer");
+      }
+    }
+  }
+
+  try {
+    const existing = await client.customers.getExternal({
+      externalId: input.accountId,
+    });
+    return existing.id;
+  } catch (error) {
+    if (!isPolarNotFound(error)) {
+      throw mapPolarRequestError(error, "Could not load the Polar customer");
+    }
+  }
+
+  if (!input.customerEmail) {
+    throw new Error(
+      "No Polar customer is connected yet. Checkout a plan first so Polar can create a billing customer.",
+    );
+  }
+
+  try {
+    const created = await client.customers.create({
+      email: input.customerEmail,
+      name: input.customerName ?? undefined,
+      externalId: input.accountId,
+      metadata: { account_id: input.accountId },
+    });
+    return created.id;
+  } catch (error) {
+    throw mapPolarRequestError(
+      error,
+      "Could not create a Polar customer for this workspace",
+    );
+  }
 }
 
 export async function createPolarCustomerPortalSession(input: {
   accountId: string;
   polarCustomerId?: string | null;
+  customerEmail?: string | null;
+  customerName?: string | null;
   returnUrl: string;
 }): Promise<PolarCustomerPortalResult> {
   requireEnabledBilling();
+  const polarCustomerId = await resolvePolarCustomerId(input);
 
-  const session = await getPolarClient().customerSessions.create(
-    input.polarCustomerId
-      ? { customerId: input.polarCustomerId, returnUrl: input.returnUrl }
-      : { externalCustomerId: input.accountId, returnUrl: input.returnUrl },
-  );
-
-  return { url: session.customerPortalUrl };
+  try {
+    const session = await getPolarClient().customerSessions.create({
+      customerId: polarCustomerId,
+      returnUrl: input.returnUrl,
+    });
+    return { url: session.customerPortalUrl, polarCustomerId };
+  } catch (error) {
+    throw mapPolarRequestError(error, "Could not open the Polar customer portal");
+  }
 }
 
 export async function updatePolarSubscriptionPlan(input: {
@@ -99,13 +205,17 @@ export async function updatePolarSubscriptionPlan(input: {
     throw new Error("Scale plan changes are not enabled yet");
   }
 
-  await getPolarClient().subscriptions.update({
-    id: input.subscriptionId,
-    subscriptionUpdate: {
-      productId: getBillingProductId(config, input.plan),
-      prorationBehavior: "prorate",
-    },
-  });
+  try {
+    await getPolarClient().subscriptions.update({
+      id: input.subscriptionId,
+      subscriptionUpdate: {
+        productId: getBillingProductId(config, input.plan),
+        prorationBehavior: "prorate",
+      },
+    });
+  } catch (error) {
+    throw mapPolarRequestError(error, "Could not update the Polar plan");
+  }
 }
 
 export async function updatePolarSubscriptionSeats(input: {
@@ -113,13 +223,17 @@ export async function updatePolarSubscriptionSeats(input: {
   seats: number;
 }): Promise<void> {
   requireEnabledBilling();
-  await getPolarClient().subscriptions.update({
-    id: input.subscriptionId,
-    subscriptionUpdate: {
-      seats: input.seats,
-      prorationBehavior: "prorate",
-    },
-  });
+  try {
+    await getPolarClient().subscriptions.update({
+      id: input.subscriptionId,
+      subscriptionUpdate: {
+        seats: input.seats,
+        prorationBehavior: "prorate",
+      },
+    });
+  } catch (error) {
+    throw mapPolarRequestError(error, "Could not update Polar seats");
+  }
 }
 
 export async function updatePolarSubscriptionCancellation(input: {
@@ -127,10 +241,14 @@ export async function updatePolarSubscriptionCancellation(input: {
   cancelAtPeriodEnd: boolean;
 }): Promise<void> {
   requireEnabledBilling();
-  await getPolarClient().subscriptions.update({
-    id: input.subscriptionId,
-    subscriptionUpdate: {
-      cancelAtPeriodEnd: input.cancelAtPeriodEnd,
-    },
-  });
+  try {
+    await getPolarClient().subscriptions.update({
+      id: input.subscriptionId,
+      subscriptionUpdate: {
+        cancelAtPeriodEnd: input.cancelAtPeriodEnd,
+      },
+    });
+  } catch (error) {
+    throw mapPolarRequestError(error, "Could not update Polar cancellation");
+  }
 }
