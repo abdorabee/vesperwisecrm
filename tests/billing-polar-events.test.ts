@@ -98,8 +98,8 @@ describe("normalizePolarEvent", () => {
     });
   });
 
-  it("rejects missing account metadata and unknown products", () => {
-    expect(() =>
+  it("ignores missing account metadata and unknown products instead of failing delivery", () => {
+    expect(
       normalizePolarEvent(
         {
           type: "subscription.created",
@@ -109,9 +109,9 @@ describe("normalizePolarEvent", () => {
         "evt_missing_account",
         config,
       ),
-    ).toThrow("account metadata");
+    ).toMatchObject({ kind: "ignored", eventType: "subscription.created" });
 
-    expect(() =>
+    expect(
       normalizePolarEvent(
         {
           type: "subscription.created",
@@ -121,7 +121,42 @@ describe("normalizePolarEvent", () => {
         "evt_unknown_product",
         config,
       ),
-    ).toThrow("unknown Polar product");
+    ).toMatchObject({ kind: "ignored", accountId: "account_123" });
+  });
+
+  it("accepts Polar snake_case payloads and newer subscription event types", () => {
+    expect(
+      normalizePolarEvent(
+        {
+          type: "subscription.cycled",
+          timestamp: "2026-08-16T10:00:01.000Z",
+          data: {
+            id: "sub_123",
+            modified_at: "2026-08-16T10:00:00.000Z",
+            status: "active",
+            current_period_start: "2026-08-16T10:00:00.000Z",
+            current_period_end: "2026-09-16T10:00:00.000Z",
+            cancel_at_period_end: false,
+            customer_id: "cust_123",
+            product_id: "prod_team",
+            seats: 4,
+            metadata: { account_id: "account_123" },
+            customer: { external_id: "account_123" },
+          },
+        },
+        "evt_cycled",
+        config,
+      ),
+    ).toMatchObject({
+      kind: "subscription",
+      accountId: "account_123",
+      subscription: {
+        plan: "team",
+        providerStatus: "active",
+        polarProductId: "prod_team",
+        seats: 4,
+      },
+    });
   });
 
   it("normalizes paid orders without changing the subscription status itself", () => {

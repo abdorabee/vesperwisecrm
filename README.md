@@ -31,11 +31,13 @@ See [docs/DIALER.md](docs/DIALER.md) for architecture, configuration, migrations
 
 ## Polar billing
 
-Polar billing is disabled until the provider values in `.env.local` are present. Configure the Starter and Team product IDs plus the sandbox or production environment, then register the Standard Webhook endpoint at:
+Polar billing is disabled until the provider values in `.env.local` are present. Configure the Starter and Team product IDs plus the sandbox or production environment, then register the Standard Webhook endpoint at the **final HTTPS host** (Polar does not follow redirects):
 
 ```text
-https://<your-domain>/api/webhooks/polar
+https://www.vesperwisecrm.com/api/webhooks/polar
 ```
+
+The apex host `https://vesperwisecrm.com/...` currently 308-redirects to `www`. Polar treats any 3xx as a delivery failure and disables the endpoint after consecutive failures. After deploying a working handler, re-enable the webhook from the Polar dashboard if it was disabled.
 
 Starter and Team checkout are enabled. Scale is stored in the billing model but checkout remains disabled until its additional capabilities are implemented and accepted; its product ID is optional until Scale checkout is enabled. Apply the Supabase migrations before enabling provider values; the webhook secret and access token must remain server-side.
 
