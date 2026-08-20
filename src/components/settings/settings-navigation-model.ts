@@ -27,13 +27,18 @@ const SETTINGS_GROUPS: SettingsNavigationGroup[] = [
       { href: "/settings/calling", label: "Calling", adminOnly: true },
     ],
   },
-  {
-    label: "Integrations",
-    items: [
-      { href: "/settings/integrations", label: "Overview", adminOnly: true },
-      { href: "/settings/google", label: "Google", adminOnly: true },
-    ],
-  },
+    {
+      label: "Integrations",
+      items: [
+        { href: "/settings/integrations", label: "Overview", adminOnly: true },
+        { href: "/settings/google", label: "Google", adminOnly: true },
+        {
+          href: "/settings/data-migration",
+          label: "Data migration",
+          adminOnly: true,
+        },
+      ],
+    },
 ];
 
 export function isSettingsPathActive(pathname: string, href: string): boolean {

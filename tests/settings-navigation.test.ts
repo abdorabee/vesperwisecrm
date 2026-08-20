@@ -29,6 +29,29 @@ describe("settings navigation", () => {
     );
   });
 
+  test("exposes data migration to workspace admins only", () => {
+    const adminHrefs = getSettingsNavigationGroups(true)
+      .flatMap((group) => group.items)
+      .map((item) => item.href);
+    const memberHrefs = getSettingsNavigationGroups(false)
+      .flatMap((group) => group.items)
+      .map((item) => item.href);
+
+    expect(adminHrefs).toContain("/settings/data-migration");
+    expect(memberHrefs).not.toContain("/settings/data-migration");
+  });
+
+  test("describes the data migration page under Integrations", () => {
+    const location = getCurrentSettingsLocation(
+      "/settings/data-migration",
+      getSettingsNavigationGroups(true),
+    );
+    expect(location).toMatchObject({
+      groupLabel: "Integrations",
+      label: "Data migration",
+    });
+  });
+
   test("falls back to Profile for an unmatched settings route", () => {
     const location = getCurrentSettingsLocation(
       "/settings/unknown",
