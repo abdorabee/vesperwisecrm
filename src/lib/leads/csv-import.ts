@@ -3,6 +3,14 @@
 // import is mapping-driven rather than assuming a fixed header format --
 // guessMapping() just pre-fills the mapping UI with best-effort matches.
 
+import { genericAdapter } from "@/lib/migration/adapters/generic";
+import {
+  guessMappingFromAliases,
+  normalizeHeader as normalizeCsvHeader,
+} from "@/lib/migration/mapping";
+
+export { normalizeCsvHeader as normalizeHeader };
+
 export type CsvRow = Record<string, string>;
 
 export function parseCsvLine(line: string): string[] {
@@ -147,72 +155,8 @@ export const CRM_FIELD_KEYS: string[] = CRM_FIELD_GROUPS.flatMap((group) =>
   group.fields.map((field) => field.key),
 );
 
-const FIELD_ALIASES: Record<string, string[]> = {
-  fullName: ["name", "full_name", "contact_name", "seller_name", "owner_name"],
-  firstName: ["first_name", "firstname", "first"],
-  lastName: ["last_name", "lastname", "last"],
-  email: ["email", "email_address"],
-  phone: ["phone", "phone_number", "mobile", "cell", "primary_phone"],
-  company: ["company", "organization"],
-  source: ["source", "lead_source"],
-  title: ["title", "lead_title", "opportunity"],
-  value: ["value", "deal_value", "amount"],
-  addressLine1: ["property_address", "address", "address_line1", "street_address"],
-  addressLine2: ["address_line2", "unit", "suite"],
-  city: ["property_city", "city"],
-  state: ["property_state", "state"],
-  postalCode: ["property_zip", "property_postal_code", "postal_code", "zip"],
-  propertyType: ["property_type", "type"],
-  bedrooms: ["bedrooms", "beds"],
-  bathrooms: ["bathrooms", "baths"],
-  squareFeet: ["square_feet", "sqft", "area", "square_footage"],
-  askingPrice: ["asking_price", "list_price"],
-  estimatedValue: ["estimated_value", "property_value", "arv"],
-  contractStatus: ["contract_status"],
-  contractAmount: ["contract_amount", "contract_price"],
-  contractCloseDate: ["contract_close_date", "close_date"],
-  condition: ["condition", "property_condition", "overall_condition"],
-  updatesDone: ["updates_done", "recent_updates"],
-  updatesNeeded: ["updates_needed", "repairs_needed"],
-  occupancyStatus: ["occupancy", "occupancy_status"],
-  tenantDurationRent: ["tenant_duration_rent", "rent", "lease_terms"],
-  motivation: ["motivation", "seller_motivation", "reason_for_selling"],
-  timeline: ["timeline", "desired_timeline"],
-  workNeeded: ["work_needed", "repairs"],
-  roofCondition: ["roof", "roof_condition"],
-  flooringCondition: ["flooring", "flooring_condition"],
-  kitchenBathCondition: ["kitchen_bath", "kitchen_bath_condition"],
-  mortgage: ["mortgage", "mortgage_balance", "loan_balance"],
-  frameSidingCondition: ["frame_siding", "siding", "frame_siding_condition"],
-  windowsCondition: ["windows", "windows_condition"],
-  basementType: ["basement", "basement_type"],
-  wallsCondition: ["walls", "walls_condition"],
-  electricalPlumbingCondition: ["electrical_plumbing", "electrical", "plumbing"],
-  furnaceCondition: ["furnace", "furnace_condition", "hvac"],
-  waterHeaterCondition: ["water_heater", "water_heater_condition"],
-  acCondition: ["ac", "air_conditioning", "ac_condition"],
-  followUpContact: ["follow_up_contact", "follow_up", "next_contact"],
-  notes: ["notes", "property_notes", "property_note", "general_notes"],
-};
-
-function normalizeHeader(header: string): string {
-  return header.trim().toLowerCase().replace(/[\s-]+/g, "_");
-}
-
 export function guessMapping(headers: string[]): Record<string, string> {
-  const mapping: Record<string, string> = {};
-
-  for (const header of headers) {
-    const normalized = normalizeHeader(header);
-    const match = Object.entries(FIELD_ALIASES).find(([, aliases]) =>
-      aliases.includes(normalized),
-    );
-    if (match) {
-      mapping[header] = match[0];
-    }
-  }
-
-  return mapping;
+  return guessMappingFromAliases(headers, genericAdapter.headerAliases);
 }
 
 export interface MappedContact {

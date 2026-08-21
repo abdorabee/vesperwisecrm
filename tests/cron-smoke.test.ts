@@ -44,4 +44,24 @@ describe.skipIf(!CRON_SECRET)("cron endpoints", () => {
     expect(body).toHaveProperty("skipped");
     expect(body).toHaveProperty("failed");
   });
+
+  test("process-import-jobs rejects requests without a valid secret", async () => {
+    const res = await fetch(`${APP_BASE_URL}/api/cron/process-import-jobs`, {
+      headers: { Authorization: "Bearer wrong-secret" },
+    });
+    expect(res.status).toBe(401);
+  });
+
+  test("process-import-jobs runs cleanly with the real secret", async () => {
+    const res = await fetch(`${APP_BASE_URL}/api/cron/process-import-jobs`, {
+      headers: { Authorization: `Bearer ${CRON_SECRET}` },
+    });
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+    expect(body).toHaveProperty("importJobs");
+    expect(body.importJobs).toHaveProperty("jobs");
+    expect(body.importJobs).toHaveProperty("imported");
+    expect(body.importJobs).toHaveProperty("failed");
+  });
 });

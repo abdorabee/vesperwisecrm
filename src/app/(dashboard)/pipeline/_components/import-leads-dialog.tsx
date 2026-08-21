@@ -1,6 +1,7 @@
 "use client";
 
 import { ChangeEvent, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -152,6 +153,11 @@ export function ImportLeadsDialog({ stages }: ImportLeadsDialogProps) {
               <FieldDescription>
                 Works with exports from Podio, REsimpli, InvestorFuse, Google
                 Sheets, or any other CRM — you&apos;ll map columns to fields next.
+                For a guided Carrot, HubSpot, or other CRM import, use{" "}
+                <Link href="/settings/data-migration" className="underline">
+                  Migrate data
+                </Link>
+                .
               </FieldDescription>
             </Field>
 

@@ -10,6 +10,7 @@ describe("product foundations", () => {
     "src/app/(dashboard)/settings/routing/page.tsx",
     "src/app/(dashboard)/settings/calling/page.tsx",
     "src/app/(dashboard)/settings/integrations/page.tsx",
+    "src/app/(dashboard)/settings/data-migration/page.tsx",
   ])("provides the canonical settings route %s", (path) => {
     expect(existsSync(path)).toBe(true);
   });

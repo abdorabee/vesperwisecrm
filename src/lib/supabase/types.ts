@@ -1082,6 +1082,107 @@ export type Database = {
           },
         ]
       }
+      import_job_rows: {
+        Row: {
+          account_id: string
+          created_at: string
+          error_text: string | null
+          id: string
+          job_id: string
+          payload: Json
+          row_number: number
+          status: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          error_text?: string | null
+          id?: string
+          job_id: string
+          payload?: Json
+          row_number: number
+          status?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          error_text?: string | null
+          id?: string
+          job_id?: string
+          payload?: Json
+          row_number?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_job_rows_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "import_job_rows_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "import_jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      import_jobs: {
+        Row: {
+          account_id: string
+          created_at: string
+          created_by_user_id: string | null
+          error_summary: string | null
+          failed_count: number
+          id: string
+          imported_count: number
+          mapping: Json
+          source_crm: string
+          stage_map: Json
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_id: string
+          created_at?: string
+          created_by_user_id?: string | null
+          error_summary?: string | null
+          failed_count?: number
+          id?: string
+          imported_count?: number
+          mapping?: Json
+          source_crm: string
+          stage_map?: Json
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string
+          created_at?: string
+          created_by_user_id?: string | null
+          error_summary?: string | null
+          failed_count?: number
+          id?: string
+          imported_count?: number
+          mapping?: Json
+          source_crm?: string
+          stage_map?: Json
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_jobs_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invites: {
         Row: {
           account_id: string
