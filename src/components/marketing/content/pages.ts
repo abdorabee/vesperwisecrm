@@ -29,7 +29,7 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Wholesalers",
     title: "Keep every contract on a next step.",
     description:
-      "Intake, skip tracing, qualification, and the dialer sit on one record so assignments do not die in a spreadsheet between acquisition and disposition.",
+      "Pipeline, email sequences, and the lead queue sit on one record so assignments do not die in a spreadsheet between acquisition and disposition.",
     sections: [
       {
         heading: "One queue for paid and cold traffic",
@@ -83,7 +83,7 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Agents",
     title: "Treat listing and buyer leads like acquisition work.",
     description:
-      "VesperWise is built for teams that live in conversations: intake, skip tracing, a dialer on the record, and a pipeline that does not go quiet after the first touch.",
+      "VesperWise is built for teams that live in conversations: pipeline, email sequences, and the lead queue keep follow-up moving after the first touch.",
     sections: [
       {
         heading: "Every conversation on the record",
@@ -125,12 +125,12 @@ export const MARKETING_PAGES = {
       "A short map of the product surfaces on the marketing site. In-app docs live with your workspace after you sign in.",
     sections: [
       {
-        heading: "Intake and skip tracing",
-        body: "Leads arrive from forms, imports, and channels, then get owner and property context before a rep sees the record.",
+        heading: "Intake and lead capture",
+        body: "Leads arrive from forms, imports, and channels. Contact and property context are tracked on the record.",
       },
       {
-        heading: "Qualify, dial, pipeline",
-        body: "The queue ranks who to call. The dialer logs from the record. The pipeline is the shared view of what happens next.",
+        heading: "Qualify and pipeline",
+        body: "The queue shows who to follow up with. The pipeline is the shared view of what happens next.",
       },
       {
         heading: "Workflows and reporting",
@@ -148,11 +148,11 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Week one: get leads in",
-        body: "Connect a source, import a list, and put skip tracing on record creation. The queue should have work on day one.",
+        body: "Connect a source or import a list. The queue should have work on day one.",
       },
       {
-        heading: "Week two: talk and follow up",
-        body: "Dial from the record, turn on a sequence, and assign ownership. An in-app tour walks signed-in members through the same path.",
+        heading: "Week two: follow up and pipeline",
+        body: "Turn on email sequences, assign ownership, and move leads through pipeline stages. An in-app tour walks signed-in members through the same path.",
       },
     ],
     cta: { label: "Start a pilot", href: "/signup" },
@@ -166,7 +166,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Current",
-        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. The CRM itself — intake, skip tracing, dialer, pipeline, sequences, and workflows — is available after sign-in.",
+        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. The CRM itself — pipeline, email sequences, and the lead queue — is available in early access after sign-in.",
       },
       {
         heading: "Next",
@@ -192,7 +192,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Twilio",
-        body: "SMS and the power dialer use a connected Twilio account. Skip tracing and telephony are billed at cost on published pricing.",
+        body: "SMS sequences (coming soon) will use a connected Twilio account. Email sequences are available now.",
       },
     ],
     cta: { label: "Talk to sales", href: "/contact" },
@@ -224,11 +224,11 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Built for the follow-up",
-        body: "Most acquisition stacks split skip tracing, dialing, and CRM. Handoffs are where seller conversations die. This product keeps the next step on the record.",
+        body: "Most acquisition stacks split across multiple tools. Handoffs are where seller conversations die. This product keeps the next step on the record.",
       },
       {
         heading: "Not a generic CRM with a real-estate coat",
-        body: "The queue, dialer, sequences, and property fields are the product. Interface examples on the marketing site are illustrative, not customer proof.",
+        body: "The queue, pipeline, email sequences, and property fields are the product. Interface examples on the marketing site are illustrative, not customer proof.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -317,7 +317,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Pilots",
-        body: "Published offers (no card, 14-day pilot, data migration included) apply until replaced by an order form. Skip tracing and telephony are billed at cost.",
+        body: "Published offers (no card, 14-day pilot, data migration included) apply until replaced by an order form. Early access pricing shown.",
       },
     ],
     cta: { label: "See pricing", href: "/home#pricing" },
@@ -335,7 +335,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Dependencies",
-        body: "Email, SMS, and dialing depend on providers you connect. An outage there can affect sending even when the CRM is up.",
+        body: "Email sequences depend on providers you connect. An outage there can affect sending even when the CRM is up.",
       },
     ],
     cta: { label: "Contact", href: "/contact" },

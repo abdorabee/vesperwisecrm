@@ -16,16 +16,8 @@ export function ProofStrip() {
         </span>
 
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-3">
-          {MARKETING_PROOF_LOGOS.map((logo) => (
-            <span
-              key={logo}
-              className="font-sans text-sm leading-none font-medium tracking-[-0.01em] text-[var(--mkt-text3)] transition-colors duration-200 hover:text-[var(--mkt-text)]"
-            >
-              {logo}
-            </span>
-          ))}
-          <span className="rounded border border-dashed border-[color:var(--mkt-border)] px-2 py-1.5 font-mono text-[10px] leading-none text-[var(--mkt-text3)]">
-            {MARKETING_PROOF_PLACEHOLDER_TAG}
+          <span className="font-sans text-sm leading-[1.4] font-light text-[var(--mkt-text2)]">
+            Pipeline, email sequences, and lead queue are live. Book a demo to see the platform and join the pilot program.
           </span>
         </div>
       </div>

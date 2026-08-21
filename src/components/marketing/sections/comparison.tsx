@@ -9,19 +9,19 @@ interface ComparisonRow {
 const COMPARISON_ROWS: ComparisonRow[] = [
   {
     before: "Leads in a shared spreadsheet",
-    after: "One queue, scored and assigned",
+    after: "One queue with clear stages and assignments",
   },
   {
-    before: "Skip tracing in a separate vendor portal",
-    after: "Enrichment on record creation",
+    before: "Contact info scattered across tools",
+    after: "All contact history on one record",
   },
   {
-    before: "Dialer disconnected from the CRM",
-    after: "Dial from the record, logged automatically",
+    before: "Manual email follow-up tracking",
+    after: "Automated email sequences with tracking",
   },
   {
-    before: "Call notes typed from memory",
-    after: "Transcribed, summarised, scored",
+    before: "Pipeline buried in spreadsheet tabs",
+    after: "Visual pipeline with drag-and-drop stages",
   },
   {
     before: "Follow-up depends on who remembers",
@@ -42,9 +42,9 @@ export function Comparison() {
               One system instead of six tabs.
             </h2>
             <p className="mt-5 font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
-              Teams arrive at VesperWiseCRM from a spreadsheet, a generic CRM,
-              a separate dialer and a skip tracing vendor. The handoffs between
-              them are where leads die.
+              Teams arrive at VesperWiseCRM from spreadsheets and generic CRMs
+              where follow-up dies in the gaps. Pipeline, email sequences, and
+              the lead queue live on one platform.
             </p>
           </div>
 

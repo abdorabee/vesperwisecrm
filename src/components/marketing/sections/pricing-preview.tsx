@@ -25,8 +25,8 @@ const PRICING_TIERS: MarketingPricingTier[] = [
     blurb: "For solo investors and two-person teams getting off spreadsheets.",
     features: [
       "Lead queue + pipeline",
-      "Skip tracing at cost",
-      "Email + SMS sequences",
+      "Email sequences",
+      "Contact management",
       "1,000 leads / mo",
     ],
     cta: "Start pilot",
@@ -40,9 +40,9 @@ const PRICING_TIERS: MarketingPricingTier[] = [
     blurb:
       "For acquisition teams running paid channels and cold lists side by side.",
     features: [
-      "Power dialer + local presence",
-      "AI call summaries and scoring",
       "Workflows and routing",
+      "Team roles & permissions",
+      "Advanced pipeline views",
       "Unlimited leads",
     ],
     cta: "Book a demo",
@@ -145,8 +145,7 @@ export function PricingPreview() {
         </Stagger>
 
         <p className="mt-6 max-w-[78ch] font-mono text-[10.5px] leading-[1.6] tracking-[0.04em] text-[var(--mkt-text3)]">
-          Skip tracing and telephony billed at cost. Annual billing available.
-          Figures shown are placeholders pending final pricing sign-off.
+          Annual billing available. Early access pricing shown — subject to change before general availability.
         </p>
       </div>
     </section>

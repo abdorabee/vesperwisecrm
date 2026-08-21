@@ -19,11 +19,11 @@ interface WorkflowStep {
 
 const WORKFLOW_STEPS: WorkflowStep[] = [
   { icon: Inbox, label: "Capture", description: "Forms, API, imports" },
-  { icon: ScanSearch, label: "Qualify", description: "AI scores every lead" },
+  { icon: ScanSearch, label: "Qualify", description: "Track contact stages" },
   { icon: Kanban, label: "Manage", description: "One shared pipeline" },
-  { icon: Send, label: "Automate", description: "Email & SMS sequences" },
+  { icon: Send, label: "Automate", description: "Email sequences" },
   { icon: Handshake, label: "Close", description: "Deals under contract" },
-  { icon: BarChart3, label: "Analyze", description: "Scorecards & KPI wall" },
+  { icon: BarChart3, label: "Analyze", description: "Activity reports" },
 ];
 
 export function WorkflowViz() {
