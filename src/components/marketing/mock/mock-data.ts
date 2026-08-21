@@ -16,7 +16,7 @@ export const MARKETING_HERO_COPY: MarketingHeroCopy = {
   eyebrow: "ACQUISITION CRM / REAL ESTATE",
   title: "Every lead worked. Nothing goes cold.",
   subhead:
-    "VesperWiseCRM is the acquisition system for real estate teams — intake, skip tracing, AI qualification, dialer, and pipeline in one place, so every seller conversation moves forward on its own.",
+    "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences, and lead queue in one place. Early access available now.",
   primaryCta: "Book a demo",
   secondaryCta: "See the workflow",
   note: "No card. 14-day pilot.",
@@ -135,18 +135,11 @@ export const MARKETING_LEAD_INTEL_STATS: MarketingLeadIntelStat[] = [
 ];
 
 export const MARKETING_PROOF_LABEL =
-  "BUILT WITH ACQUISITION TEAMS RUNNING 2K+ LEADS / MO";
+  "EARLY ACCESS PROGRAM";
 
-export const MARKETING_PROOF_LOGOS: string[] = [
-  "Keystone Property Group",
-  "Redbrick Home Buyers",
-  "Harbor & Vale",
-  "Northlight Equity",
-  "Cardinal Offer Co.",
-];
+export const MARKETING_PROOF_LOGOS: string[] = [];
 
-export const MARKETING_PROOF_PLACEHOLDER_TAG =
-  "PLACEHOLDER — SWAP FOR REAL CUSTOMER MARKS";
+export const MARKETING_PROOF_PLACEHOLDER_TAG = "";
 
 export interface MarketingPremiseCopy {
   eyebrow: string;
@@ -158,7 +151,7 @@ export const MARKETING_PREMISE_COPY: MarketingPremiseCopy = {
   eyebrow: "0.0 — PREMISE",
   title: "A CRM that does the follow-up, not just the record-keeping.",
   body:
-    "Most acquisition teams lose deals in the gaps — a list never skip traced, a callback never made, a dead lead never revived. VesperWiseCRM closes those gaps by treating the lead lifecycle as one continuous system.",
+    "Most acquisition teams lose deals in the gaps — a callback never made, a dead lead never revived. VesperWiseCRM closes those gaps by treating the lead lifecycle as one continuous system.",
 };
 
 export interface MarketingPremiseStep {
@@ -174,21 +167,21 @@ export const MARKETING_PREMISE_STEPS: MarketingPremiseStep[] = [
     number: "01",
     label: "Capture",
     caption:
-      "Every source — PPC, cold lists, referrals, probate — lands in one queue with skip tracing already attached.",
+      "Every source — PPC, cold lists, referrals, probate — lands in one queue. No CSV shuffling.",
   },
   {
     figureLabel: "FIG 0.3",
     number: "02",
     label: "Qualify",
     caption:
-      "Calls are transcribed and scored, so motivation and condition are known before a human reads the record.",
+      "Track contact attempts, notes, and stage changes on one record. Know where every conversation stands.",
   },
   {
     figureLabel: "FIG 0.4",
     number: "03",
     label: "Close",
     caption:
-      "Dialer, sequences, tasks and pipeline sit on the same record. The next action is never a guess.",
+      "Email sequences, tasks and pipeline sit on the same record. The next action is never a guess.",
   },
 ];
 
@@ -205,8 +198,7 @@ export const MARKETING_INTAKE_SOURCES: MarketingIntakeSource[] = [
     label: "Cold lists, direct mail and probate records",
     meta: "CSV / API",
   },
-  { n: "03", label: "Skip tracing on every new record", meta: "AUTO" },
-  { n: "04", label: "Duplicate and DNC scrubbing", meta: "AUTO" },
+  { n: "03", label: "Duplicate detection on import", meta: "AUTO" },
 ];
 
 export interface MarketingIntakeFilter {
@@ -278,9 +270,9 @@ export interface MarketingEngageStat {
 }
 
 export const MARKETING_ENGAGE_STATS: MarketingEngageStat[] = [
-  { label: "Dial attempts per hour, per rep", value: "3.4×" },
-  { label: "Median time from lead to first call", value: "4 min" },
-  { label: "Callbacks auto-scheduled", value: "100%" },
+  { label: "Email sequences", value: "Live" },
+  { label: "Contact timeline", value: "Live" },
+  { label: "Pipeline stages", value: "Live" },
 ];
 
 export interface MarketingWaveformBar {

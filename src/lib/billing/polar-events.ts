@@ -9,6 +9,9 @@ const SUBSCRIPTION_EVENT_TYPES = new Set([
   "subscription.uncanceled",
   "subscription.past_due",
   "subscription.revoked",
+  "subscription.cycled",
+  "subscription.paused",
+  "subscription.resumed",
 ]);
 
 const SUPPORTED_EVENT_TYPES = new Set([...SUBSCRIPTION_EVENT_TYPES, "order.paid"]);
@@ -81,6 +84,15 @@ function record(value: unknown): Record<string, unknown> {
     : {};
 }
 
+function pick(value: Record<string, unknown>, ...keys: string[]): unknown {
+  for (const key of keys) {
+    if (value[key] !== undefined) {
+      return value[key];
+    }
+  }
+  return undefined;
+}
+
 function stringValue(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? value : null;
 }
@@ -96,31 +108,41 @@ function dateValue(value: unknown): string | null {
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
-function accountIdFromData(data: Record<string, unknown>): string {
+function boolValue(value: Record<string, unknown>, ...keys: string[]): boolean {
+  return pick(value, ...keys) === true;
+}
+
+function accountIdFromData(data: Record<string, unknown>): string | null {
   const metadata = record(data.metadata);
   const customer = record(data.customer);
   const accountId =
-    stringValue(metadata.account_id) ?? stringValue(customer.externalId);
+    stringValue(pick(metadata, "account_id", "accountId")) ??
+    stringValue(pick(customer, "externalId", "external_id"));
 
-  if (!accountId) {
-    throw new Error("Polar event is missing account metadata");
-  }
   return accountId;
 }
 
-function planForProduct(config: BillingConfig, productId: string): BillingPlan {
+function productIdFromData(data: Record<string, unknown>): string | null {
+  const product = record(data.product);
+  return (
+    stringValue(pick(data, "productId", "product_id")) ??
+    stringValue(pick(product, "id"))
+  );
+}
+
+function planForProduct(config: BillingConfig, productId: string): BillingPlan | null {
   for (const plan of ["starter", "team", "scale"] as const) {
     if (config.productIds[plan] === productId) {
       return plan;
     }
   }
-  throw new Error(`Received unknown Polar product: ${productId}`);
+  return null;
 }
 
 function statusForEvent(
   eventType: string,
   payloadStatus: unknown,
-): BillingProviderStatus {
+): BillingProviderStatus | null {
   if (eventType === "subscription.revoked") {
     return "revoked";
   }
@@ -140,7 +162,22 @@ function statusForEvent(
   ) {
     return status;
   }
-  throw new Error("Polar subscription event has an unsupported status");
+  return null;
+}
+
+function ignoredEvent(
+  providerEventId: string,
+  eventType: string,
+  accountId: string | null,
+  providerModifiedAt: string | null,
+): NormalizedIgnoredPolarEvent {
+  return {
+    kind: "ignored",
+    providerEventId,
+    eventType,
+    accountId,
+    providerModifiedAt,
+  };
 }
 
 export function normalizePolarEvent(
@@ -153,33 +190,38 @@ export function normalizePolarEvent(
   const eventTimestamp = dateValue(eventRecord.timestamp);
 
   if (!SUPPORTED_EVENT_TYPES.has(eventType)) {
-    return {
-      providerEventId,
-      eventType,
-      accountId: null,
-      providerModifiedAt: eventTimestamp,
-      kind: "ignored",
-    };
+    return ignoredEvent(providerEventId, eventType, null, eventTimestamp);
   }
 
   const data = record(eventRecord.data);
   const accountId = accountIdFromData(data);
-  const providerModifiedAt = dateValue(data.modifiedAt) ?? eventTimestamp;
+  const providerModifiedAt =
+    dateValue(pick(data, "modifiedAt", "modified_at")) ?? eventTimestamp;
+
+  if (!accountId) {
+    return ignoredEvent(providerEventId, eventType, null, providerModifiedAt);
+  }
 
   if (SUBSCRIPTION_EVENT_TYPES.has(eventType)) {
-    const productId = stringValue(data.productId);
+    const productId = productIdFromData(data);
     const subscriptionId = stringValue(data.id);
-    if (!productId || !subscriptionId) {
-      throw new Error("Polar subscription event is missing its product or ID");
-    }
-
-    const rawSeats = data.seats;
-    const seats = rawSeats == null ? 1 : Number(rawSeats);
-    if (!Number.isInteger(seats) || seats < 1 || seats > 1000) {
-      throw new Error("Polar subscription has an invalid seat quantity");
-    }
-
+    const plan = productId ? planForProduct(config, productId) : null;
     const providerStatus = statusForEvent(eventType, data.status);
+    const rawSeats = pick(data, "seats");
+    const seats = rawSeats == null ? 1 : Number(rawSeats);
+
+    if (
+      !productId ||
+      !subscriptionId ||
+      !plan ||
+      !providerStatus ||
+      !Number.isInteger(seats) ||
+      seats < 1 ||
+      seats > 1000
+    ) {
+      return ignoredEvent(providerEventId, eventType, accountId, providerModifiedAt);
+    }
+
     return {
       providerEventId,
       eventType,
@@ -188,31 +230,39 @@ export function normalizePolarEvent(
       kind: "subscription",
       subscription: {
         id: subscriptionId,
-        plan: planForProduct(config, productId),
+        plan,
         providerStatus,
-        polarCustomerId: stringValue(data.customerId),
+        polarCustomerId: stringValue(pick(data, "customerId", "customer_id")),
         polarProductId: productId,
         seats,
-        currentPeriodStart: dateValue(data.currentPeriodStart),
-        currentPeriodEnd: dateValue(data.currentPeriodEnd),
-        trialStart: dateValue(data.trialStart),
-        trialEnd: dateValue(data.trialEnd),
-        cancelAtPeriodEnd: data.cancelAtPeriodEnd === true,
+        currentPeriodStart: dateValue(
+          pick(data, "currentPeriodStart", "current_period_start"),
+        ),
+        currentPeriodEnd: dateValue(
+          pick(data, "currentPeriodEnd", "current_period_end"),
+        ),
+        trialStart: dateValue(pick(data, "trialStart", "trial_start")),
+        trialEnd: dateValue(pick(data, "trialEnd", "trial_end")),
+        cancelAtPeriodEnd: boolValue(
+          data,
+          "cancelAtPeriodEnd",
+          "cancel_at_period_end",
+        ),
         pastDueSince:
           providerStatus === "past_due"
-            ? dateValue(data.pastDueAt) ?? providerModifiedAt
+            ? dateValue(pick(data, "pastDueAt", "past_due_at")) ??
+              providerModifiedAt
             : null,
       },
     };
   }
 
-  const productId = stringValue(data.productId);
+  const productId = productIdFromData(data);
   const orderId = stringValue(data.id);
-  if (!productId || !orderId) {
-    throw new Error("Polar paid order is missing its product or ID");
+  if (!productId || !orderId || !planForProduct(config, productId)) {
+    return ignoredEvent(providerEventId, eventType, accountId, providerModifiedAt);
   }
 
-  planForProduct(config, productId);
   return {
     providerEventId,
     eventType,
@@ -222,7 +272,7 @@ export function normalizePolarEvent(
     order: {
       id: orderId,
       productId,
-      subscriptionId: stringValue(data.subscriptionId),
+      subscriptionId: stringValue(pick(data, "subscriptionId", "subscription_id")),
     },
   };
 }

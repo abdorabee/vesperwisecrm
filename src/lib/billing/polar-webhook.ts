@@ -27,8 +27,14 @@ async function processSubscriptionEvent(
     .eq("account_id", normalized.accountId)
     .single();
 
-  if (existingError || !existing) {
-    throw new Error(existingError?.message ?? "Billing account not found");
+  if (existingError) {
+    if (existingError.code === "PGRST116") {
+      return;
+    }
+    throw new Error(existingError.message);
+  }
+  if (!existing) {
+    return;
   }
 
   if (
@@ -80,8 +86,14 @@ async function processPaidOrderEvent(
     .eq("account_id", normalized.accountId)
     .single();
 
-  if (existingError || !existing) {
-    throw new Error(existingError?.message ?? "Billing account not found");
+  if (existingError) {
+    if (existingError.code === "PGRST116") {
+      return;
+    }
+    throw new Error(existingError.message);
+  }
+  if (!existing) {
+    return;
   }
 
   if (!normalized.order.subscriptionId || existing.polar_subscription_id !== normalized.order.subscriptionId) {
@@ -113,23 +125,46 @@ async function processPaidOrderEvent(
   }
 }
 
-async function claimWebhookEvent(
+async function insertWebhookEvent(
   normalized: NormalizedPolarEvent,
   payload: Json,
+  accountId: string | null,
   supabase: ReturnType<typeof createServiceRoleClient>,
-): Promise<boolean> {
-  const { data: inserted, error: insertError } = await supabase
+) {
+  return supabase
     .from("billing_webhook_events")
     .insert({
       provider_event_id: normalized.providerEventId,
       event_type: normalized.eventType,
-      account_id: normalized.accountId,
+      account_id: accountId,
       provider_modified_at: normalized.providerModifiedAt,
       payload,
       processing_status: "processing",
     })
     .select("provider_event_id")
     .maybeSingle();
+}
+
+async function claimWebhookEvent(
+  normalized: NormalizedPolarEvent,
+  payload: Json,
+  supabase: ReturnType<typeof createServiceRoleClient>,
+): Promise<boolean> {
+  let { data: inserted, error: insertError } = await insertWebhookEvent(
+    normalized,
+    payload,
+    normalized.accountId,
+    supabase,
+  );
+
+  if (insertError?.code === "23503" || insertError?.code === "22P02") {
+    ({ data: inserted, error: insertError } = await insertWebhookEvent(
+      normalized,
+      payload,
+      null,
+      supabase,
+    ));
+  }
 
   if (!insertError && inserted) {
     return true;

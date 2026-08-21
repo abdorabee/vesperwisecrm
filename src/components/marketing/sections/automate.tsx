@@ -25,29 +25,29 @@ export const MARKETING_WORKFLOW_STEPS: MarketingWorkflowStep[] = [
   },
   {
     kind: "ACTION",
-    title: "Skip trace + enrich",
-    detail: "Phones, email, property data",
-  },
-  {
-    kind: "ACTION",
-    title: "Score motivation",
-    detail: "AI, from form + call data",
-    accent: true,
+    title: "Assign to pipeline stage",
+    detail: "Based on source and type",
   },
   {
     kind: "BRANCH",
-    title: "Score ≥ 70?",
-    detail: "Yes → assign · No → nurture",
+    title: "Has contact info?",
+    detail: "Yes → assign · No → research",
   },
   {
     kind: "ACTION",
-    title: "Route to rep",
+    title: "Route to team member",
     detail: "Round robin by market",
+    accent: true,
   },
   {
     kind: "ACTION",
-    title: "Queue power dial",
-    detail: "First touch within 5 min",
+    title: "Create follow-up task",
+    detail: "Schedule first touch",
+  },
+  {
+    kind: "ACTION",
+    title: "Start email sequence",
+    detail: "Intro and qualification",
     accent: true,
   },
 ];
@@ -81,9 +81,9 @@ export function Automate() {
             </h2>
           </div>
           <p className="mt-5 text-[17px] font-light leading-[1.6] text-[var(--mkt-text2)]">
-            Rules watch the record and act. A new lead is enriched, routed and
-            dialled; a stalled deal is reassigned; a dead lead re-enters
-            nurture ninety days later. No one has to remember.
+            Rules watch the record and act. A new lead is routed and sequenced;
+            a stalled deal is reassigned; a dead lead re-enters nurture ninety
+            days later. No one has to remember.
           </p>
         </Reveal>
 

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
-import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks";
 import { getBillingConfig } from "@/lib/billing/config";
 import { processPolarWebhook } from "@/lib/billing/polar-webhook";
+import {
+  verifyPolarWebhookEvent,
+  webhookHeadersFromRequest,
+} from "@/lib/billing/polar-webhook-parse";
 
 export async function POST(request: Request): Promise<NextResponse> {
   let config;
@@ -21,23 +24,18 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json({ error: "Missing webhook ID" }, { status: 400 });
   }
 
-  let event: unknown;
-  try {
-    event = validateEvent(
-      rawBody,
-      Object.fromEntries(request.headers.entries()),
-      config.webhookSecret,
-    );
-  } catch (error) {
-    if (error instanceof WebhookVerificationError || error instanceof Error) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const verified = verifyPolarWebhookEvent(
+    rawBody,
+    webhookHeadersFromRequest(request.headers),
+    config.webhookSecret,
+  );
+  if (!verified.ok) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const result = await processPolarWebhook(event, providerEventId);
-    return NextResponse.json({ ok: true, ...result });
+    const result = await processPolarWebhook(verified.event, providerEventId);
+    return NextResponse.json({ ok: true, ...result }, { status: 202 });
   } catch {
     return NextResponse.json({ error: "Webhook processing failed" }, { status: 500 });
   }

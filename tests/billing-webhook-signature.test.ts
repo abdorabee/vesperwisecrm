@@ -1,6 +1,7 @@
 import { createHmac } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import { validateEvent } from "@polar-sh/sdk/webhooks";
+import { verifyPolarWebhookEvent } from "@/lib/billing/polar-webhook-parse";
 
 const secret = "polar-webhook-test-secret";
 
@@ -39,6 +40,17 @@ const customerDeleted = JSON.stringify({
   },
 });
 
+const subscriptionCycled = JSON.stringify({
+  type: "subscription.cycled",
+  timestamp: "2026-08-16T10:00:00.000Z",
+  data: {
+    id: "sub_123",
+    status: "active",
+    product_id: "prod_team",
+    customer_id: "cust_123",
+  },
+});
+
 describe("Polar webhook signature verification", () => {
   it("accepts a valid Standard Webhook signature over the raw body", () => {
     const signed = signedFixture(customerDeleted);
@@ -55,5 +67,33 @@ describe("Polar webhook signature verification", () => {
         secret,
       ),
     ).toThrow();
+  });
+
+  it("acks signed Polar events the SDK cannot parse instead of rejecting them", () => {
+    const signed = signedFixture(subscriptionCycled);
+    expect(() =>
+      validateEvent(subscriptionCycled, signed.headers, secret),
+    ).toThrow();
+
+    const verified = verifyPolarWebhookEvent(
+      subscriptionCycled,
+      signed.headers,
+      secret,
+    );
+    expect(verified).toEqual({
+      ok: true,
+      event: JSON.parse(subscriptionCycled),
+    });
+  });
+
+  it("still rejects invalid signatures", () => {
+    const signed = signedFixture(customerDeleted);
+    expect(
+      verifyPolarWebhookEvent(
+        customerDeleted.replace("Billing Example", "Attacker"),
+        signed.headers,
+        secret,
+      ),
+    ).toEqual({ ok: false, reason: "invalid_signature" });
   });
 });
