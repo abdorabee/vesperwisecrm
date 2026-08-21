@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId } from "@/lib/supabase/account";
 import { getAccountMemberProfiles } from "@/lib/queries/members";
+import { resolvePipelineStageId } from "@/lib/pipeline-stage-filter";
 import type { Tables } from "@/lib/supabase/types";
 
 export interface LeadWithContact extends Tables<"leads"> {
@@ -111,6 +112,8 @@ export async function getPipelineData(filters: {
     throw new Error(tagsError.message);
   }
 
+  const resolvedStageId = resolvePipelineStageId(stages ?? [], filters.stageId);
+
   let smartResults: SmartLeadSearchResult[] = [];
   let smartResultByLeadId = new Map<string, SmartLeadSearchResult>();
   let smartRankByLeadId = new Map<string, number>();
@@ -120,7 +123,7 @@ export async function getPipelineData(filters: {
       await supabase.rpc("smart_search_leads", {
         p_account_id: accountId,
         p_query: smartQuery,
-        p_stage_id: filters.stageId ?? undefined,
+        p_stage_id: resolvedStageId ?? undefined,
         p_tag_id: filters.tagId ?? undefined,
         p_owner_id:
           filters.ownerId && filters.ownerId !== "unassigned"
@@ -164,8 +167,8 @@ export async function getPipelineData(filters: {
     }
 
     leadsQuery = leadsQuery.in("id", leadIds);
-  } else if (filters.stageId) {
-    leadsQuery = leadsQuery.eq("pipeline_stage_id", filters.stageId);
+  } else if (resolvedStageId) {
+    leadsQuery = leadsQuery.eq("pipeline_stage_id", resolvedStageId);
   }
 
   if (!smartQuery && filters.ownerId) {

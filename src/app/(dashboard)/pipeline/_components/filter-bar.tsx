@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/input-group";
 import type { Tables } from "@/lib/supabase/types";
 import type { MemberProfile } from "@/lib/queries/members";
+import { resolvePipelineStageId } from "@/lib/pipeline-stage-filter";
 
 interface FilterBarProps {
   stages: Tables<"pipeline_stages">[];
@@ -35,7 +36,7 @@ export function FilterBar({ stages, tags, members }: FilterBarProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const currentStage = searchParams.get("stage") ?? ALL;
+  const currentStage = resolvePipelineStageId(stages, searchParams.get("stage")) ?? ALL;
   const currentTag = searchParams.get("tag") ?? ALL;
   const currentOwner = searchParams.get("owner") ?? ALL;
   const currentQuery = searchParams.get("q") ?? "";
