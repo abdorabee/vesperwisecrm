@@ -50,8 +50,8 @@ async function providerEvent(input: {
     p_provider_sequence: input.sequence,
     p_event_type: `test.${input.status}`,
     p_status: input.status,
-    p_failure_code: null,
-    p_failure_reason: null,
+    p_failure_code: "",
+    p_failure_reason: "",
     p_payload: { test: true },
     p_occurred_at: new Date().toISOString(),
   });
