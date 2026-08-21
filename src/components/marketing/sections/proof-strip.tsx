@@ -1,8 +1,4 @@
-import {
-  MARKETING_PROOF_LABEL,
-  MARKETING_PROOF_LOGOS,
-  MARKETING_PROOF_PLACEHOLDER_TAG,
-} from "@/components/marketing/mock/mock-data";
+import { MARKETING_PROOF_LABEL } from "@/components/marketing/mock/mock-data";
 
 export function ProofStrip() {
   return (

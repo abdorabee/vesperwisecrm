@@ -1,4 +1,3 @@
-import { Stagger, StaggerItem } from "@/components/marketing/motion/stagger";
 import { Reveal } from "@/components/marketing/motion/reveal";
 
 export function Testimonials() {
