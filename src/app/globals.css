@@ -51,6 +51,13 @@
   --radius-2xl: 20px;
   --radius-3xl: 24px;
   --radius-4xl: 28px;
+  /* Motion. Built-in CSS easings are too weak to read as intentional; these are
+     the strong variants. Durations stay under 300ms for anything interactive. */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  --duration-press: 160ms;
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
 }
 
 /* VesperWise warm light appearance. Dark preserves the original command-center palette. */
@@ -106,6 +113,23 @@
   --glow-cyan: 0 0 40px rgba(223, 255, 0, 0.22), 0 0 80px rgba(223, 255, 0, 0.1);
   --glow-amber: 0 0 40px rgba(245, 181, 68, 0.2), 0 0 80px rgba(245, 181, 68, 0.1);
   --glow-emerald: 0 0 40px rgba(74, 222, 128, 0.2), 0 0 80px rgba(74, 222, 128, 0.1);
+
+  /* Elevation. Transparent shadows adapt to whatever sits behind them; a solid
+     ring does not. Dividers and state rings stay borders/rings — this is depth only. */
+  --shadow-border:
+    0px 0px 0px 1px oklch(0 0 0 / 0.06),
+    0px 1px 2px -1px oklch(0 0 0 / 0.06),
+    0px 2px 4px 0px oklch(0 0 0 / 0.04);
+  --shadow-border-hover:
+    0px 0px 0px 1px oklch(0 0 0 / 0.08),
+    0px 1px 2px -1px oklch(0 0 0 / 0.08),
+    0px 2px 4px 0px oklch(0 0 0 / 0.06);
+
+  /* Data fills read against --card, not against --background. --primary (#dfff00)
+     measures 1.14:1 on #ffffff, so it cannot carry a bar or meter in light mode —
+     and --primary means "interactive" everywhere else, which a static bar is not. */
+  --data-fill: var(--chart-1);
+  --data-track: color-mix(in oklch, var(--foreground) 8%, transparent);
 }
 
 .dark {
@@ -154,6 +178,10 @@
   --glow-cyan: 0 0 40px rgba(223, 255, 0, 0.22), 0 0 80px rgba(223, 255, 0, 0.1);
   --glow-amber: 0 0 40px rgba(245, 181, 68, 0.2), 0 0 80px rgba(245, 181, 68, 0.1);
   --glow-emerald: 0 0 40px rgba(74, 222, 128, 0.2), 0 0 80px rgba(74, 222, 128, 0.1);
+  --shadow-border: 0 0 0 1px oklch(1 0 0 / 0.08);
+  --shadow-border-hover: 0 0 0 1px oklch(1 0 0 / 0.13);
+  --data-fill: var(--chart-1);
+  --data-track: color-mix(in oklch, var(--foreground) 10%, transparent);
 }
 
 @layer base {
@@ -262,6 +290,11 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    /* Delays must collapse too. A staggered entrance whose duration is zeroed but
+       whose delay is not leaves each element parked in its `from` state for the
+       length of the stagger — reduced motion would show empty bars, then a pop. */
+    animation-delay: 0ms !important;
+    transition-delay: 0ms !important;
   }
 }
 
@@ -280,5 +313,47 @@
 
   .divider-quiet {
     border-color: color-mix(in oklch, var(--foreground) 10%, transparent);
+  }
+
+  /* Any value that changes needs fixed-width digits, or the row reflows as it
+     updates. Geist ships real tabular and slashed-zero faces, so use the CSS
+     properties rather than raw `font-feature-settings` tags. */
+  .numeric {
+    font-variant-numeric: tabular-nums slashed-zero;
+  }
+
+  /* Depth via transparent shadow rather than a solid ring, so a card keeps its
+     edge over any surface. Cards remain flat: this is a 1px ring plus a hairline
+     of lift, not a floating panel. */
+  .elevated {
+    box-shadow: var(--shadow-border);
+  }
+
+  /* Bar entrance. The bar's length is a static inline width, so only `transform`
+     animates — no layout, no paint, straight to the compositor. Growing from
+     scaleX(0) is literal here in a way it never is for a popover: zero is the
+     value the bar is counting up from. */
+  .bar-fill {
+    transform-origin: left center;
+    animation: bar-grow 320ms var(--ease-out-strong) backwards;
+  }
+
+  /* Same idea rotated: a column grows from its baseline, so the origin is the
+     bottom edge and the axis it scales on is Y. */
+  .column-fill {
+    transform-origin: bottom center;
+    animation: column-grow 320ms var(--ease-out-strong) backwards;
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes column-grow {
+  from {
+    transform: scaleY(0);
   }
 }

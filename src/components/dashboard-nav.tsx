@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -23,7 +23,14 @@ import { cn } from "@/lib/utils";
 import { useOnboardingTour } from "@/components/onboarding-tour-context";
 import { AppearanceMenuItem } from "@/components/appearance-toggle";
 import { VesperWiseLogo } from "@/components/vesper-wise-logo";
+import { writeSidebarCollapsedCookie } from "@/lib/sidebar";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,33 +48,24 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-const COLLAPSE_STORAGE_KEY = "sidebar-collapsed";
-const COLLAPSE_EVENT = "vesperwise:sidebar-collapse";
-
 function isActive(pathname: string, href: string, exact?: boolean): boolean {
   if (exact || href === "/") return pathname === href;
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-function subscribeToSidebar(callback: () => void): () => void {
-  window.addEventListener("storage", callback);
-  window.addEventListener(COLLAPSE_EVENT, callback);
-  return () => {
-    window.removeEventListener("storage", callback);
-    window.removeEventListener(COLLAPSE_EVENT, callback);
-  };
-}
-
-function getSidebarSnapshot(): boolean {
-  return window.localStorage.getItem(COLLAPSE_STORAGE_KEY) === "1";
-}
-
-function useSidebarCollapsed() {
-  const collapsed = useSyncExternalStore(subscribeToSidebar, getSidebarSnapshot, () => false);
-  function toggle() {
-    window.localStorage.setItem(COLLAPSE_STORAGE_KEY, collapsed ? "0" : "1");
-    window.dispatchEvent(new Event(COLLAPSE_EVENT));
-  }
+/**
+ * Seeded from the cookie the server already read, so the first client render
+ * matches the server's and the shell never flashes expanded before collapsing.
+ */
+function useSidebarCollapsed(defaultCollapsed: boolean) {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const toggle = useCallback(() => {
+    setCollapsed((previous) => {
+      const next = !previous;
+      writeSidebarCollapsedCookie(next);
+      return next;
+    });
+  }, []);
   return { collapsed, toggle };
 }
 
@@ -80,15 +78,15 @@ function NavItem({ item, collapsed, onNavigate }: {
   const active = isActive(pathname, item.href, item.exact);
   const Icon = item.icon;
 
-  return (
+  const link = (
     <Link
       href={item.href}
       onClick={onNavigate}
-      title={collapsed ? item.label : undefined}
-      aria-label={collapsed ? item.label : undefined}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "flex min-h-11 items-center gap-2.5 rounded-md px-2.5 text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:min-h-9",
+        // rounded-lg matches Button, which sits directly above and below these
+        // items in the rail; rounded-md read as a different component.
+        "flex min-h-11 items-center gap-2.5 rounded-lg px-2.5 text-sm font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring md:min-h-9",
         collapsed && "justify-center px-0",
         active
           ? "bg-sidebar-accent text-sidebar-foreground"
@@ -96,8 +94,22 @@ function NavItem({ item, collapsed, onNavigate }: {
       )}
     >
       <Icon className="size-4 shrink-0" strokeWidth={1.8} />
-      {!collapsed && <span className="truncate">{item.label}</span>}
+      {/* The label stays in the DOM when collapsed rather than becoming an
+          aria-label, so the accessible name is identical in both states and the
+          tooltip is purely a visual affordance. */}
+      <span className={collapsed ? "sr-only" : "truncate"}>{item.label}</span>
     </Link>
+  );
+
+  if (!collapsed) {
+    return link;
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger render={link} />
+      <TooltipContent side="right">{item.label}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -111,7 +123,7 @@ function GroupedNavigation({ groups, collapsed, onNavigate }: {
       {groups.map((group) => (
         <div key={group.label} className="space-y-0.5">
           {!collapsed && (
-            <p className="px-2.5 pb-1 text-[11px] font-semibold tracking-[0.08em] text-muted-foreground/75 uppercase">
+            <p className="px-2.5 pb-1 text-[11px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
               {group.label}
             </p>
           )}
@@ -193,15 +205,24 @@ export function AccountMenu({
   );
 }
 
-type DashboardNavigationProps = AccountMenuProps;
+type DashboardNavigationProps = AccountMenuProps & {
+  /** Read from the sidebar cookie by the server layout. */
+  defaultCollapsed?: boolean;
+};
 
-export function DashboardSidebar(props: DashboardNavigationProps) {
-  const { collapsed, toggle } = useSidebarCollapsed();
+export function DashboardSidebar({
+  defaultCollapsed = false,
+  ...props
+}: DashboardNavigationProps) {
+  const { collapsed, toggle } = useSidebarCollapsed(defaultCollapsed);
   const groups = getDashboardNavigation(props);
 
   return (
     <aside className={cn(
-      "sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-sidebar-border bg-sidebar px-3 py-4 transition-[width] duration-200 md:flex",
+      // The rail's width is a layout property, but this is a single element
+      // toggled deliberately, and the flex-1 content beside it tracks the change
+      // frame by frame. ease-in-out-strong because it is on-screen movement.
+      "sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-sidebar-border bg-sidebar px-3 py-4 transition-[width] duration-200 ease-in-out-strong md:flex",
       collapsed ? "w-16 px-2" : "w-64",
     )}>
       <div className={cn("flex items-center gap-2 pb-6", collapsed && "flex-col") }>
@@ -218,10 +239,12 @@ export function DashboardSidebar(props: DashboardNavigationProps) {
           {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
         </Button>
       </div>
-      <GroupedNavigation groups={groups} collapsed={collapsed} />
-      <div className="mt-3 border-t border-sidebar-border pt-3">
-        <NavItem item={{ href: "/settings", label: "Settings", icon: Settings }} collapsed={collapsed} />
-      </div>
+      <TooltipProvider>
+        <GroupedNavigation groups={groups} collapsed={collapsed} />
+        <div className="mt-3 border-t border-sidebar-border pt-3">
+          <NavItem item={{ href: "/settings", label: "Settings", icon: Settings }} collapsed={collapsed} />
+        </div>
+      </TooltipProvider>
       <div className="mt-3 border-t border-sidebar-border pt-3">
         <AccountMenu {...props} collapsed={collapsed} />
       </div>
@@ -263,14 +286,15 @@ export function MobileNavigation(props: DashboardNavigationProps) {
   );
 }
 
-function SimpleSidebar({ logoHref, label, links, footer, collapsedFooter }: {
+function SimpleSidebar({ logoHref, label, links, footer, collapsedFooter, defaultCollapsed = false }: {
   logoHref: string;
   label: string;
   links: ProductNavItem[];
   footer?: ReactNode;
   collapsedFooter?: ReactNode;
+  defaultCollapsed?: boolean;
 }) {
-  const { collapsed, toggle } = useSidebarCollapsed();
+  const { collapsed, toggle } = useSidebarCollapsed(defaultCollapsed);
   return (
     <aside className={cn("sticky top-0 hidden h-dvh shrink-0 flex-col border-r border-sidebar-border bg-sidebar px-3 py-4 md:flex", collapsed ? "w-16 px-2" : "w-60")}>
       <div className={cn("flex items-center gap-2 pb-6", collapsed && "flex-col")}>
@@ -280,7 +304,9 @@ function SimpleSidebar({ logoHref, label, links, footer, collapsedFooter }: {
           {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
         </Button>
       </div>
-      <GroupedNavigation groups={[{ label, items: links }]} collapsed={collapsed} />
+      <TooltipProvider>
+        <GroupedNavigation groups={[{ label, items: links }]} collapsed={collapsed} />
+      </TooltipProvider>
       <div className="mt-3 border-t border-sidebar-border pt-3">{collapsed ? collapsedFooter : footer}</div>
     </aside>
   );
@@ -310,12 +336,12 @@ function SimpleMobileNavigation({ logoHref, label, links, footer }: {
   );
 }
 
-export function PlatformSidebar({ footer, collapsedFooter }: { footer?: ReactNode; collapsedFooter?: ReactNode }) {
+export function PlatformSidebar({ footer, collapsedFooter, defaultCollapsed }: { footer?: ReactNode; collapsedFooter?: ReactNode; defaultCollapsed?: boolean }) {
   const links = [{ href: "/platform/email", label: "Email", icon: Mail }];
-  return <><SimpleSidebar logoHref="/pipeline" label="Platform" links={links} footer={footer} collapsedFooter={collapsedFooter} /><SimpleMobileNavigation logoHref="/pipeline" label="Platform" links={links} footer={footer} /></>;
+  return <><SimpleSidebar logoHref="/pipeline" label="Platform" links={links} footer={footer} collapsedFooter={collapsedFooter} defaultCollapsed={defaultCollapsed} /><SimpleMobileNavigation logoHref="/pipeline" label="Platform" links={links} footer={footer} /></>;
 }
 
-export function PortalSidebar({ footer, collapsedFooter }: { footer?: ReactNode; collapsedFooter?: ReactNode }) {
+export function PortalSidebar({ footer, collapsedFooter, defaultCollapsed }: { footer?: ReactNode; collapsedFooter?: ReactNode; defaultCollapsed?: boolean }) {
   const links = [{ href: "/portal", label: "Properties", icon: Building2, exact: true }];
-  return <><SimpleSidebar logoHref="/portal" label="Client portal" links={links} footer={footer} collapsedFooter={collapsedFooter} /><SimpleMobileNavigation logoHref="/portal" label="Client portal" links={links} footer={footer} /></>;
+  return <><SimpleSidebar logoHref="/portal" label="Client portal" links={links} footer={footer} collapsedFooter={collapsedFooter} defaultCollapsed={defaultCollapsed} /><SimpleMobileNavigation logoHref="/portal" label="Client portal" links={links} footer={footer} /></>;
 }

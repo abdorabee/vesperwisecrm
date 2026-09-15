@@ -39,7 +39,7 @@ export function getDashboardNavigation({
     billingCapabilities === undefined || billingCapabilities.includes(capability);
 
   return [
-    { label: "Workspace", items: [{ href: "/", label: "Home", icon: House, exact: true }] },
+    { label: "Workspace", items: [{ href: "/", label: "Dashboard", icon: House, exact: true }] },
     {
       label: "Sales",
       items: [
