@@ -83,7 +83,7 @@ function QueueCard({ queue, data }: { queue: DialerQueue; data: DialerPageData }
       </CardHeader>
       <CardContent className="space-y-4">
         {ready && queue.status === "active" && (
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-lime-400/30 bg-lime-400/5 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-accent-foreground/30 bg-accent p-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Call next</p>
               <p className="font-medium">{contactName(ready.contact)}</p>

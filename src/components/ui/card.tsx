@@ -15,6 +15,7 @@ const cardVariants = cva(
         // top of the elevation shadow rather than replacing it.
         default: "",
         destructive: "ring-1 ring-destructive/30",
+        accent: "ring-1 ring-accent-foreground/30",
       },
     },
     defaultVariants: {

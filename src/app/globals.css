@@ -56,8 +56,6 @@
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
   --duration-press: 160ms;
-  --duration-fast: 150ms;
-  --duration-base: 200ms;
 }
 
 /* VesperWise warm light appearance. Dark preserves the original command-center palette. */
