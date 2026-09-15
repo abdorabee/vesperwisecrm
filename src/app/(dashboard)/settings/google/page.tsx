@@ -23,7 +23,7 @@ export default async function GoogleSettingsPage({
       <SettingsPageHeader eyebrow="Integrations" title="Google" description="Connect Google Docs and Drive to generate property reports from lead intake details." />
 
       {!isGoogleConfigured() && (
-        <Card className="border-amber-500/30">
+        <Card tone="warning">
           <CardHeader>
             <CardTitle className="text-base">Not configured yet</CardTitle>
             <CardDescription>

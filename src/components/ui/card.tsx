@@ -16,6 +16,7 @@ const cardVariants = cva(
         default: "",
         destructive: "ring-1 ring-destructive/30",
         accent: "ring-1 ring-accent-foreground/30",
+        warning: "ring-1 ring-warm/30",
       },
     },
     defaultVariants: {

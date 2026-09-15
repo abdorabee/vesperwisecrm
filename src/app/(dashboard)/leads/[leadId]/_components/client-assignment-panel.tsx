@@ -28,7 +28,7 @@ interface ClientAssignmentPanelProps {
 
 function interestBadge(status: string | null) {
   if (status === "interested") {
-    return <Badge className="bg-emerald-500/20 text-emerald-400">Interested</Badge>;
+    return <Badge variant="success">Interested</Badge>;
   }
   if (status === "declined") {
     return <Badge variant="secondary">Passed</Badge>;

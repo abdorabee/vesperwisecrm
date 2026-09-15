@@ -234,18 +234,10 @@
     margin: 0;
   }
 
-  .text-hot {
-    color: var(--hot);
-  }
-
-  .text-warm {
-    color: var(--warm);
-  }
-
-  .text-cold {
-    color: var(--cold);
-  }
-
+  /* .text-hot / .text-warm / .text-cold are not defined here: `@theme inline`
+     maps --color-hot|warm|cold, so Tailwind generates those utilities itself and
+     they win on layer order anyway. The .bg-*-subtle rules below stay, because
+     they set two properties and Tailwind cannot generate them from a color token. */
   .bg-hot-subtle {
     background: var(--hot-bg);
     border-color: var(--hot-border);

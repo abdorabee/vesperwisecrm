@@ -18,13 +18,13 @@ function KpiTile({
   accent?: boolean;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-8">
+    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border divider-quiet surface-quiet p-8">
       <span
-        className={`text-7xl font-bold tabular-nums ${accent ? "text-lime-300" : "text-white"}`}
+        className={`text-7xl font-bold tabular-nums ${accent ? "text-primary" : "text-foreground"}`}
       >
         {value}
       </span>
-      <span className="text-xl font-medium uppercase tracking-widest text-white/60">
+      <span className="text-xl font-medium uppercase tracking-widest text-foreground/60">
         {label}
       </span>
     </div>
@@ -42,11 +42,11 @@ export default async function TvWallPage({ params }: TvWallPageProps) {
   const kpis = await getTvKpis(resolved.accountId);
 
   return (
-    <div className="dark flex min-h-screen flex-col gap-10 bg-zinc-950 p-10 text-white">
+    <div className="dark flex min-h-screen flex-col gap-10 bg-background p-10 text-foreground">
       <TvAutoRefresh intervalSeconds={60} />
       <header className="flex items-baseline justify-between">
         <h1 className="text-4xl font-bold">{kpis.accountName}</h1>
-        <p className="text-xl text-white/50">
+        <p className="text-xl text-foreground/50">
           {resolved.displayName} · updates every 60s
         </p>
       </header>
@@ -63,19 +63,19 @@ export default async function TvWallPage({ params }: TvWallPageProps) {
         <KpiTile label="Leads at risk" value={String(kpis.atRiskCount)} />
       </main>
 
-      <section className="rounded-2xl border border-white/10 bg-white/5 p-8">
-        <h2 className="mb-4 text-xl font-medium uppercase tracking-widest text-white/60">
+      <section className="rounded-2xl border divider-quiet surface-quiet p-8">
+        <h2 className="mb-4 text-xl font-medium uppercase tracking-widest text-foreground/60">
           Top submitters · 7 days
         </h2>
         {kpis.topCallers.length === 0 ? (
-          <p className="text-2xl text-white/40">No submissions this week yet.</p>
+          <p className="text-2xl text-foreground/40">No submissions this week yet.</p>
         ) : (
           <ol className="flex flex-wrap gap-x-12 gap-y-3">
             {kpis.topCallers.map((caller, index) => (
               <li key={caller.name} className="flex items-baseline gap-3">
-                <span className="text-2xl text-white/40">#{index + 1}</span>
+                <span className="text-2xl text-foreground/40">#{index + 1}</span>
                 <span className="text-3xl font-semibold">{caller.name}</span>
-                <span className="text-3xl tabular-nums text-lime-300">
+                <span className="text-3xl tabular-nums text-primary">
                   {caller.count}
                 </span>
               </li>
