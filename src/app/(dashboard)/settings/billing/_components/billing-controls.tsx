@@ -192,7 +192,7 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
         <div className="grid gap-2 sm:grid-cols-2">
           {activeCapabilities.map((capability) => (
             <div key={capability} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm">
-              <Check className="size-4 text-emerald-600" aria-hidden="true" />
+              <Check className="size-4 text-hot" aria-hidden="true" />
               {CAPABILITY_LABELS[capability] ?? capability}
             </div>
           ))}
@@ -201,7 +201,7 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
           )}
         </div>
         {summary.accessMode === "read_only" && (
-          <p className="mt-4 flex items-start gap-2 rounded-lg border border-amber-300/50 bg-amber-50/50 p-3 text-sm text-amber-900 dark:bg-amber-950/20 dark:text-amber-200">
+          <p className="mt-4 flex items-start gap-2 rounded-lg border bg-warm-subtle p-3 text-sm text-warm">
             <LockKeyhole className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
             Billing controls remain available while CRM writes are paused. Restore payment or contact support to return to full access.
           </p>

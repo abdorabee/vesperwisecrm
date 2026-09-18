@@ -23,7 +23,14 @@ describe("product foundations", () => {
     expect(layout).toContain("min-h-dvh");
     expect(nav).toContain("MobileNavigation");
     expect(nav).toContain('aria-current={active ? "page" : undefined}');
-    expect(nav).toContain("useSyncExternalStore");
+    // Collapse state persists in a cookie the server reads while rendering, so
+    // the rail arrives at its final width instead of flashing open on hydration.
+    expect(nav).toContain("writeSidebarCollapsedCookie");
+    expect(layout).toContain("SIDEBAR_COLLAPSED_COOKIE");
+    expect(layout).toContain("defaultCollapsed={sidebarCollapsed}");
+    // A collapsed item keeps its label in the DOM rather than swapping to an
+    // aria-label, so its accessible name is the same in both states.
+    expect(nav).toContain('collapsed ? "sr-only" : "truncate"');
   });
 
   test("the tour remains replayable but never forces itself open", () => {

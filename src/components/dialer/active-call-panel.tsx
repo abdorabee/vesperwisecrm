@@ -65,12 +65,12 @@ export function ActiveCallPanel({ dispositions }: { dispositions: Tables<"call_d
 
   return (
     <div className="fixed right-5 bottom-5 z-50 w-[min(26rem,calc(100vw-2.5rem))]">
-      <Card className="border-lime-400/40 bg-card shadow-2xl">
+      <Card tone="accent" className="shadow-2xl">
         <CardHeader className="flex-row items-start justify-between gap-3 pb-2">
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Badge variant={terminal ? "secondary" : "default"}>{dialer.active.status.replace("_", " ")}</Badge>
-              {!dialer.realtimeConnected && <span className="text-xs text-amber-500">Polling</span>}
+              {!dialer.realtimeConnected && <span className="text-xs text-warm">Polling</span>}
             </div>
             <CardTitle className="text-base">{dialer.active.contactName}</CardTitle>
             {dialer.active.leadTitle && <p className="mt-1 text-xs text-muted-foreground">{dialer.active.leadTitle}</p>}

@@ -46,23 +46,13 @@ function scoreTone(score: number): {
   className: string;
 } {
   if (score >= HOT_THRESHOLD) {
-    return {
-      label: "Hot",
-      className:
-        "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-emerald-500/30",
-    };
+    return { label: "Hot", className: "bg-hot-subtle text-hot" };
   }
   if (score >= WARM_THRESHOLD) {
-    return {
-      label: "Warm",
-      className:
-        "bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-amber-500/30",
-    };
+    return { label: "Warm", className: "bg-warm-subtle text-warm" };
   }
-  return {
-    label: "Cold",
-    className: "bg-red-500/15 text-red-600 dark:text-red-400 ring-red-500/30",
-  };
+  // Cold reads gray rather than red: these are lead temperatures, not pass/fail.
+  return { label: "Cold", className: "bg-cold-subtle text-cold" };
 }
 
 export function AiScorePanel({
@@ -112,7 +102,7 @@ export function AiScorePanel({
         {currentScore != null && tone && (
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-sm font-medium ring-1 tabular-nums",
+              "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-sm font-medium tabular-nums",
               tone.className,
             )}
           >
@@ -144,13 +134,13 @@ export function AiScorePanel({
         <ul className="flex flex-col gap-0.5 text-xs text-muted-foreground">
           {currentFactors.positives.map((factor) => (
             <li key={`plus-${factor}`}>
-              <span className="text-emerald-600 dark:text-emerald-400">+</span>{" "}
+              <span className="text-hot">+</span>{" "}
               {factor}
             </li>
           ))}
           {currentFactors.risks.map((factor) => (
             <li key={`risk-${factor}`}>
-              <span className="text-red-600 dark:text-red-400">−</span> {factor}
+              <span className="text-warm">−</span> {factor}
             </li>
           ))}
         </ul>

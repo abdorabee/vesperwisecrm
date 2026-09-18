@@ -1,5 +1,7 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { SIDEBAR_COLLAPSED_COOKIE } from "@/lib/sidebar";
 import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
 import { isPlatformAdminEmail } from "@/lib/supabase/platform-admin";
 import { DashboardSidebar, MobileNavigation } from "@/components/dashboard-nav";
@@ -44,6 +46,10 @@ export default async function DashboardLayout({
     ? getBillingPlanCapabilities(billingSummary.plan)
     : [];
   const workspace = await getWorkspaceSettings();
+  // Read here so the rail renders at its final width on the server; reading it
+  // on the client instead is what made a collapsed sidebar flash open on load.
+  const sidebarCollapsed =
+    (await cookies()).get(SIDEBAR_COLLAPSED_COOKIE)?.value === "1";
   const dialerShell = isDialerEnabled()
     ? await getDialerShellData()
     : { active: null, dispositions: [] };
@@ -84,6 +90,7 @@ export default async function DashboardLayout({
             isAdmin={isAdmin}
             isPlatformAdmin={isPlatformAdmin}
             billingCapabilities={billingCapabilities}
+            defaultCollapsed={sidebarCollapsed}
           />
           <div className="min-w-0 flex-1">
             <MobileNavigation
