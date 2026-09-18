@@ -1,6 +1,7 @@
 import "server-only";
 
 import { Polar } from "@polar-sh/sdk";
+import { HTTPClient } from "@polar-sh/sdk/lib/http";
 import type { BillingPlan } from "@/lib/billing/entitlements";
 import { BILLING_PLAN_CATALOG } from "@/lib/billing/entitlements";
 import {
@@ -51,9 +52,16 @@ export function getPolarClient(): Polar {
   if (!config.accessToken) {
     throw new Error("Polar access token is not configured");
   }
+  const httpClient = new HTTPClient();
+  httpClient.addHook("beforeRequest", (request) => {
+    const nextRequest = new Request(request);
+    nextRequest.headers.set("Polar-Version", "2026-04");
+    return nextRequest;
+  });
   return new Polar({
     accessToken: config.accessToken,
     server: config.mode,
+    httpClient,
   });
 }
 
