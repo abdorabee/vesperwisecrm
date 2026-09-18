@@ -7,10 +7,30 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
@@ -165,24 +185,6 @@ export type Database = {
           },
         ]
       }
-      rate_limits: {
-        Row: {
-          bucket_key: string
-          request_count: number
-          window_started_at: string
-        }
-        Insert: {
-          bucket_key: string
-          request_count?: number
-          window_started_at: string
-        }
-        Update: {
-          bucket_key?: string
-          request_count?: number
-          window_started_at?: string
-        }
-        Relationships: []
-      }
       accounts: {
         Row: {
           created_at: string
@@ -216,6 +218,51 @@ export type Database = {
         }
         Relationships: []
       }
+      activities: {
+        Row: {
+          account_id: string
+          actor_user_id: string | null
+          created_at: string
+          id: string
+          lead_id: string
+          payload: Json
+          type: string
+        }
+        Insert: {
+          account_id: string
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          lead_id: string
+          payload?: Json
+          type: string
+        }
+        Update: {
+          account_id?: string
+          actor_user_id?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string
+          payload?: Json
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activities_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       billing_accounts: {
         Row: {
           account_id: string
@@ -223,18 +270,18 @@ export type Database = {
           created_at: string
           current_period_end: string | null
           current_period_start: string | null
+          last_provider_modified_at: string | null
           past_due_since: string | null
           plan_key: string | null
           polar_customer_id: string | null
           polar_product_id: string | null
           polar_subscription_id: string | null
           provider_status: string | null
-          source: string
           seats: number
+          source: string
           trial_end: string | null
           trial_start: string | null
           updated_at: string
-          last_provider_modified_at: string | null
         }
         Insert: {
           account_id: string
@@ -242,18 +289,18 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          last_provider_modified_at?: string | null
           past_due_since?: string | null
           plan_key?: string | null
           polar_customer_id?: string | null
           polar_product_id?: string | null
           polar_subscription_id?: string | null
           provider_status?: string | null
-          source?: string
           seats?: number
+          source?: string
           trial_end?: string | null
           trial_start?: string | null
           updated_at?: string
-          last_provider_modified_at?: string | null
         }
         Update: {
           account_id?: string
@@ -261,18 +308,18 @@ export type Database = {
           created_at?: string
           current_period_end?: string | null
           current_period_start?: string | null
+          last_provider_modified_at?: string | null
           past_due_since?: string | null
           plan_key?: string | null
           polar_customer_id?: string | null
           polar_product_id?: string | null
           polar_subscription_id?: string | null
           provider_status?: string | null
-          source?: string
           seats?: number
+          source?: string
           trial_end?: string | null
           trial_start?: string | null
           updated_at?: string
-          last_provider_modified_at?: string | null
         }
         Relationships: [
           {
@@ -357,51 +404,6 @@ export type Database = {
           },
         ]
       }
-      activities: {
-        Row: {
-          account_id: string
-          actor_user_id: string | null
-          created_at: string
-          id: string
-          lead_id: string
-          payload: Json
-          type: string
-        }
-        Insert: {
-          account_id: string
-          actor_user_id?: string | null
-          created_at?: string
-          id?: string
-          lead_id: string
-          payload?: Json
-          type: string
-        }
-        Update: {
-          account_id?: string
-          actor_user_id?: string | null
-          created_at?: string
-          id?: string
-          lead_id?: string
-          payload?: Json
-          type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "activities_account_id_fkey"
-            columns: ["account_id"]
-            isOneToOne: false
-            referencedRelation: "accounts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "activities_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       call_attempts: {
         Row: {
           account_id: string
@@ -473,9 +475,27 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          { foreignKeyName: "call_attempts_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
-          { foreignKeyName: "call_attempts_call_id_fkey"; columns: ["call_id"]; isOneToOne: false; referencedRelation: "calls"; referencedColumns: ["id"] },
-          { foreignKeyName: "call_attempts_disposition_id_fkey"; columns: ["disposition_id"]; isOneToOne: false; referencedRelation: "call_dispositions"; referencedColumns: ["id"] },
+          {
+            foreignKeyName: "call_attempts_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_attempts_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_attempts_disposition_id_fkey"
+            columns: ["disposition_id"]
+            isOneToOne: false
+            referencedRelation: "call_dispositions"
+            referencedColumns: ["id"]
+          },
         ]
       }
       call_dispositions: {
@@ -519,7 +539,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: "call_dispositions_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
+          {
+            foreignKeyName: "call_dispositions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       call_events: {
@@ -572,9 +598,27 @@ export type Database = {
           source?: string
         }
         Relationships: [
-          { foreignKeyName: "call_events_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
-          { foreignKeyName: "call_events_attempt_id_fkey"; columns: ["attempt_id"]; isOneToOne: false; referencedRelation: "call_attempts"; referencedColumns: ["id"] },
-          { foreignKeyName: "call_events_call_id_fkey"; columns: ["call_id"]; isOneToOne: false; referencedRelation: "calls"; referencedColumns: ["id"] },
+          {
+            foreignKeyName: "call_events_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_events_attempt_id_fkey"
+            columns: ["attempt_id"]
+            isOneToOne: false
+            referencedRelation: "call_attempts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_events_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
         ]
       }
       calls: {
@@ -633,11 +677,41 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: "calls_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
-          { foreignKeyName: "calls_contact_id_fkey"; columns: ["contact_id"]; isOneToOne: false; referencedRelation: "contacts"; referencedColumns: ["id"] },
-          { foreignKeyName: "calls_latest_disposition_id_fkey"; columns: ["latest_disposition_id"]; isOneToOne: false; referencedRelation: "call_dispositions"; referencedColumns: ["id"] },
-          { foreignKeyName: "calls_lead_id_fkey"; columns: ["lead_id"]; isOneToOne: false; referencedRelation: "leads"; referencedColumns: ["id"] },
-          { foreignKeyName: "calls_queue_item_id_fkey"; columns: ["queue_item_id"]; isOneToOne: false; referencedRelation: "dialer_queue_items"; referencedColumns: ["id"] },
+          {
+            foreignKeyName: "calls_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calls_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calls_latest_disposition_id_fkey"
+            columns: ["latest_disposition_id"]
+            isOneToOne: false
+            referencedRelation: "call_dispositions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calls_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calls_queue_item_id_fkey"
+            columns: ["queue_item_id"]
+            isOneToOne: false
+            referencedRelation: "dialer_queue_items"
+            referencedColumns: ["id"]
+          },
         ]
       }
       clients: {
@@ -799,7 +873,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: "dialer_provider_credentials_account_id_fkey"; columns: ["account_id"]; isOneToOne: true; referencedRelation: "accounts"; referencedColumns: ["id"] },
+          {
+            foreignKeyName: "dialer_provider_credentials_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       dialer_queue_items: {
@@ -852,10 +932,34 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: "dialer_queue_items_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
-          { foreignKeyName: "dialer_queue_items_contact_id_fkey"; columns: ["contact_id"]; isOneToOne: false; referencedRelation: "contacts"; referencedColumns: ["id"] },
-          { foreignKeyName: "dialer_queue_items_lead_id_fkey"; columns: ["lead_id"]; isOneToOne: false; referencedRelation: "leads"; referencedColumns: ["id"] },
-          { foreignKeyName: "dialer_queue_items_queue_id_fkey"; columns: ["queue_id"]; isOneToOne: false; referencedRelation: "dialer_queues"; referencedColumns: ["id"] },
+          {
+            foreignKeyName: "dialer_queue_items_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dialer_queue_items_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dialer_queue_items_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dialer_queue_items_queue_id_fkey"
+            columns: ["queue_id"]
+            isOneToOne: false
+            referencedRelation: "dialer_queues"
+            referencedColumns: ["id"]
+          },
         ]
       }
       dialer_queues: {
@@ -902,8 +1006,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: "dialer_queues_account_id_fkey"; columns: ["account_id"]; isOneToOne: false; referencedRelation: "accounts"; referencedColumns: ["id"] },
-          { foreignKeyName: "dialer_queues_lead_group_id_fkey"; columns: ["lead_group_id"]; isOneToOne: false; referencedRelation: "lead_groups"; referencedColumns: ["id"] },
+          {
+            foreignKeyName: "dialer_queues_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dialer_queues_lead_group_id_fkey"
+            columns: ["lead_group_id"]
+            isOneToOne: false
+            referencedRelation: "lead_groups"
+            referencedColumns: ["id"]
+          },
         ]
       }
       dialer_settings: {
@@ -935,7 +1051,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          { foreignKeyName: "dialer_settings_account_id_fkey"; columns: ["account_id"]; isOneToOne: true; referencedRelation: "accounts"; referencedColumns: ["id"] },
+          {
+            foreignKeyName: "dialer_settings_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: true
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
         ]
       }
       email_delivery_events: {
@@ -1877,6 +1999,24 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          bucket_key: string
+          request_count: number
+          window_started_at: string
+        }
+        Insert: {
+          bucket_key: string
+          request_count?: number
+          window_started_at: string
+        }
+        Update: {
+          bucket_key?: string
+          request_count?: number
+          window_started_at?: string
+        }
+        Relationships: []
+      }
       sequence_step_sends: {
         Row: {
           account_id: string
@@ -2186,6 +2326,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_lead_round_robin: {
+        Args: { p_group_id: string; p_lead_id: string }
+        Returns: string
+      }
       attach_dialer_provider_call: {
         Args: {
           p_attempt_id: string
@@ -2195,29 +2339,44 @@ export type Database = {
         }
         Returns: boolean
       }
-      assign_lead_round_robin: {
-        Args: { p_group_id: string; p_lead_id: string }
-        Returns: string
-      }
-      can_access_lead: {
-        Args: { p_lead_id: string }
+      can_access_dialer_lead: {
+        Args: { p_account_id: string; p_lead_id: string }
         Returns: boolean
+      }
+      can_access_lead: { Args: { p_lead_id: string }; Returns: boolean }
+      claim_import_job_rows: {
+        Args: { p_job_id: string; p_limit?: number }
+        Returns: {
+          account_id: string
+          created_at: string
+          error_text: string
+          id: string
+          job_id: string
+          payload: Json
+          row_number: number
+          status: string
+        }[]
+      }
+      clear_contact_do_not_call: {
+        Args: { p_contact_id: string; p_reason: string }
+        Returns: undefined
       }
       consume_rate_limit: {
-        Args: { p_bucket_key: string; p_limit: number; p_window_seconds: number }
+        Args: {
+          p_bucket_key: string
+          p_limit: number
+          p_window_seconds: number
+        }
         Returns: boolean
       }
-      has_assigned_only_visibility: {
-        Args: { p_account_id: string }
-        Returns: boolean
-      }
-      prune_rate_limits: {
-        Args: { p_older_than?: unknown }
-        Returns: number
-      }
-      sanitize_account_name: {
-        Args: { p_name: string }
-        Returns: string
+      finalize_dialer_attempt: {
+        Args: {
+          p_attempt_id: string
+          p_failure_code: string
+          p_failure_reason: string
+          p_status: string
+        }
+        Returns: undefined
       }
       get_account_member_profiles: {
         Args: { p_account_id: string }
@@ -2251,22 +2410,9 @@ export type Database = {
           relevance: number
         }[]
       }
-      can_access_dialer_lead: {
-        Args: { p_account_id: string; p_lead_id: string }
+      has_assigned_only_visibility: {
+        Args: { p_account_id: string }
         Returns: boolean
-      }
-      clear_contact_do_not_call: {
-        Args: { p_contact_id: string; p_reason: string }
-        Returns: undefined
-      }
-      finalize_dialer_attempt: {
-        Args: {
-          p_attempt_id: string
-          p_failure_code: string
-          p_failure_reason: string
-          p_status: string
-        }
-        Returns: undefined
       }
       is_account_admin: { Args: { check_account_id: string }; Returns: boolean }
       is_account_client: {
@@ -2285,11 +2431,11 @@ export type Database = {
         Args: {
           p_contact_id: string
           p_idempotency_key: string
-          p_lead_id: string | null
+          p_lead_id: string
+          p_max_calls_per_second: number
           p_phone_e164: string
           p_provider: string
-          p_queue_item_id: string | null
-          p_max_calls_per_second: number
+          p_queue_item_id: string
         }
         Returns: {
           attempt_id: string
@@ -2301,8 +2447,8 @@ export type Database = {
         Args: {
           p_attempt_id: string
           p_event_type: string
-          p_failure_code: string | null
-          p_failure_reason: string | null
+          p_failure_code: string
+          p_failure_reason: string
           p_occurred_at: string
           p_payload: Json
           p_provider_call_id: string
@@ -2312,8 +2458,14 @@ export type Database = {
         }
         Returns: string
       }
+      prune_rate_limits: { Args: { p_older_than?: string }; Returns: number }
+      sanitize_account_name: { Args: { p_name: string }; Returns: string }
       save_dialer_attempt_notes: {
         Args: { p_attempt_id: string; p_notes: string }
+        Returns: undefined
+      }
+      set_client_lead_interest: {
+        Args: { p_lead_id: string; p_status: string }
         Returns: undefined
       }
       set_dialer_disposition: {
@@ -2322,10 +2474,6 @@ export type Database = {
           p_disposition_id: string
           p_notes: string
         }
-        Returns: undefined
-      }
-      set_client_lead_interest: {
-        Args: { p_lead_id: string; p_status: string }
         Returns: undefined
       }
       smart_search_digits: { Args: { p_value: string }; Returns: string }
@@ -2474,7 +2622,11 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },
 } as const
+

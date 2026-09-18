@@ -59,8 +59,8 @@ export async function startDialerCall(
     "prepare_dialer_call",
     {
       p_contact_id: contact.id,
-      p_lead_id: data.leadId ?? null,
-      p_queue_item_id: data.queueItemId ?? null,
+      p_lead_id: (data.leadId ?? null) as any,
+      p_queue_item_id: (data.queueItemId ?? null) as any,
       p_phone_e164: toPhoneE164,
       p_idempotency_key: data.idempotencyKey,
       p_provider: provider.id,
