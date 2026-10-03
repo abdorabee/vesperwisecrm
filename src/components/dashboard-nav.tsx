@@ -17,7 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { signOutAction } from "@/lib/actions/auth";
-import { getDashboardNavigation, type ProductNavGroup, type ProductNavItem } from "@/lib/product-navigation";
+import { getDashboardNavigation, getSettingsNavItem, type ProductNavGroup, type ProductNavItem } from "@/lib/product-navigation";
 import type { BillingCapability } from "@/lib/billing/entitlements";
 import { cn } from "@/lib/utils";
 import { useOnboardingTour } from "@/components/onboarding-tour-context";
@@ -141,6 +141,7 @@ interface AccountMenuProps {
   email: string;
   role: string;
   isAdmin: boolean;
+  isDemo?: boolean;
   isPlatformAdmin: boolean;
   billingCapabilities?: readonly BillingCapability[];
   collapsed?: boolean;
@@ -151,6 +152,7 @@ export function AccountMenu({
   email,
   role,
   isAdmin,
+  isDemo = false,
   isPlatformAdmin,
   collapsed = false,
 }: AccountMenuProps) {
@@ -188,11 +190,17 @@ export function AccountMenu({
             <span className="block truncate text-sm font-medium text-foreground">{workspaceName}</span>
             <span className="mt-0.5 block truncate font-normal">{email} · {role}</span>
           </DropdownMenuLabel>
-          <DropdownMenuItem render={<Link href="/settings/profile" />}><UserRound />Your profile</DropdownMenuItem>
-          <DropdownMenuItem render={<Link href="/settings/workspace" />}><Building2 />Workspace settings</DropdownMenuItem>
-          {isAdmin && <DropdownMenuItem render={<Link href="/settings/members" />}><Users />Team members</DropdownMenuItem>}
-          {isPlatformAdmin && <DropdownMenuItem render={<Link href="/platform/email" />}><Settings />Platform administration</DropdownMenuItem>}
-          <DropdownMenuItem onClick={openTour}><CircleHelp />Product tour</DropdownMenuItem>
+          {isDemo ? (
+            <DropdownMenuItem render={<Link href="/signup" />}>Create a workspace</DropdownMenuItem>
+          ) : (
+            <>
+              <DropdownMenuItem render={<Link href="/settings/profile" />}><UserRound />Your profile</DropdownMenuItem>
+              <DropdownMenuItem render={<Link href="/settings/workspace" />}><Building2 />Workspace settings</DropdownMenuItem>
+              {isAdmin && <DropdownMenuItem render={<Link href="/settings/members" />}><Users />Team members</DropdownMenuItem>}
+              {isPlatformAdmin && <DropdownMenuItem render={<Link href="/platform/email" />}><Settings />Platform administration</DropdownMenuItem>}
+              <DropdownMenuItem onClick={openTour}><CircleHelp />Product tour</DropdownMenuItem>
+            </>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <AppearanceMenuItem />
@@ -216,6 +224,7 @@ export function DashboardSidebar({
 }: DashboardNavigationProps) {
   const { collapsed, toggle } = useSidebarCollapsed(defaultCollapsed);
   const groups = getDashboardNavigation(props);
+  const settingsItem = getSettingsNavItem(props.isDemo ?? false);
 
   return (
     <aside className={cn(
@@ -241,9 +250,11 @@ export function DashboardSidebar({
       </div>
       <TooltipProvider>
         <GroupedNavigation groups={groups} collapsed={collapsed} />
-        <div className="mt-3 border-t border-sidebar-border pt-3">
-          <NavItem item={{ href: "/settings", label: "Settings", icon: Settings }} collapsed={collapsed} />
-        </div>
+        {settingsItem ? (
+          <div className="mt-3 border-t border-sidebar-border pt-3">
+            <NavItem item={settingsItem} collapsed={collapsed} />
+          </div>
+        ) : null}
       </TooltipProvider>
       <div className="mt-3 border-t border-sidebar-border pt-3">
         <AccountMenu {...props} collapsed={collapsed} />
@@ -255,6 +266,7 @@ export function DashboardSidebar({
 export function MobileNavigation(props: DashboardNavigationProps) {
   const [open, setOpen] = useState(false);
   const groups = getDashboardNavigation(props);
+  const settingsItem = getSettingsNavItem(props.isDemo ?? false);
 
   return (
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur md:hidden">
@@ -273,9 +285,11 @@ export function MobileNavigation(props: DashboardNavigationProps) {
           </SheetHeader>
           <div className="flex min-h-0 flex-1 flex-col px-3 py-4">
             <GroupedNavigation groups={groups} collapsed={false} onNavigate={() => setOpen(false)} />
-            <div className="mt-3 border-t border-sidebar-border pt-3">
-              <NavItem item={{ href: "/settings", label: "Settings", icon: Settings }} collapsed={false} onNavigate={() => setOpen(false)} />
-            </div>
+            {settingsItem ? (
+              <div className="mt-3 border-t border-sidebar-border pt-3">
+                <NavItem item={settingsItem} collapsed={false} onNavigate={() => setOpen(false)} />
+              </div>
+            ) : null}
             <div className="mt-3 border-t border-sidebar-border pt-3">
               <AccountMenu {...props} />
             </div>

@@ -166,7 +166,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Current",
-        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. The CRM itself — pipeline, email sequences, and the lead queue — is available in early access after sign-in.",
+        body: "Public marketing pages, a book-a-demo calendar, and a sample workspace at /demo. Pipeline, email sequences, and the lead queue are filled with fictional sellers. Signup still starts the 14-day pilot.",
       },
       {
         heading: "Next",

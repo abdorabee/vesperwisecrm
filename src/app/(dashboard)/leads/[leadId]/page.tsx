@@ -87,7 +87,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
     <div className="flex flex-col gap-6">
       <Link
         href="/pipeline"
-        className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
+        className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-[color,transform] duration-150 ease-out hover:text-foreground active:scale-[0.96]"
       >
         <ArrowLeft className="size-4 shrink-0" />
         Back to pipeline

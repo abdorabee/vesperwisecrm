@@ -13,7 +13,7 @@ export function ProofStrip() {
 
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-3">
           <span className="font-sans text-sm leading-[1.4] font-light text-[var(--mkt-text2)]">
-            Pipeline, email sequences, and lead queue are live. Book a demo to see the platform and join the pilot program.
+            Pipeline, email sequences, and the lead queue are open in the sample workspace. Book a demo when you want a 14-day pilot.
           </span>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createClient } from "@/lib/supabase/server";
+import { rejectDemoAccountWrites } from "@/lib/demo/guard";
 import type { BillingCapability, BillingPlan } from "@/lib/billing/entitlements";
 import {
   BILLING_PLAN_CATALOG,
@@ -167,6 +168,7 @@ export async function requireBillingCapability(
   accountId: string,
   capability: BillingCapability,
 ): Promise<{ plan: BillingPlan; accessMode: "full" }> {
+  await rejectDemoAccountWrites();
   const state = await getBillingState(accountId);
   const accessMode = deriveBillingAccessMode(state, new Date());
 
@@ -184,6 +186,7 @@ export async function requireBillingCapability(
 }
 
 export async function requireWritableBilling(accountId: string): Promise<BillingState> {
+  await rejectDemoAccountWrites();
   const state = await getBillingState(accountId);
   const accessMode = deriveBillingAccessMode(state, new Date());
   if (accessMode === "billing_required") {

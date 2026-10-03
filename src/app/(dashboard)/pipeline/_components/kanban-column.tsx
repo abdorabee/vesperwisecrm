@@ -1,6 +1,7 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
+import { cn } from "@/lib/utils";
 import { KanbanCard } from "./kanban-card";
 import type { LeadWithContact } from "@/lib/queries/pipeline";
 import type { Tables } from "@/lib/supabase/types";
@@ -23,9 +24,11 @@ export function KanbanColumn({
   return (
     <div
       ref={setNodeRef}
-      className={`surface-quiet flex w-72 shrink-0 flex-col rounded-lg border p-3 ${
-        isOver ? "ring-2 ring-primary" : ""
-      }`}
+      className={cn(
+        // Cards inside are rounded-xl (16px). 12px of padding makes the column 28px.
+        "surface-quiet flex w-72 shrink-0 flex-col rounded-4xl p-3 shadow-(--shadow-border)",
+        isOver && "ring-2 ring-primary",
+      )}
     >
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold">{stage.name}</h3>

@@ -14,9 +14,9 @@ describe("redesigned marketing landing data", () => {
       eyebrow: "ACQUISITION CRM / REAL ESTATE",
       title: "Every lead worked. Nothing goes cold.",
       subhead:
-        "VesperWiseCRM is the acquisition system for real estate teams — intake, skip tracing, AI qualification, dialer, and pipeline in one place, so every seller conversation moves forward on its own.",
-      primaryCta: "Book a demo",
-      secondaryCta: "See the workflow",
+        "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences, and lead queue in one place. Open the sample workspace, then start a 14-day pilot.",
+      primaryCta: "Open the demo",
+      secondaryCta: "Book a demo",
       note: "No card. 14-day pilot.",
       browserTitle: "Lead Queue · All sources",
     });

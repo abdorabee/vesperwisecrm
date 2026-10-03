@@ -80,6 +80,12 @@ export function PricingPreview() {
           <h2 className="mt-5 font-sans text-[clamp(30px,3.4vw,44px)] leading-[1.05] font-normal tracking-normal text-balance text-[var(--mkt-text)]">
             Per seat. Everything included.
           </h2>
+          <p className="mt-4 font-sans text-[15px] leading-[1.6] font-light text-[var(--mkt-text2)]">
+            <Link href="/demo" className="font-medium text-[var(--mkt-text)] underline-offset-4 hover:underline">
+              Open the demo
+            </Link>{" "}
+            to walk the sample workspace before you pick a plan. Book a demo when you want the 14-day pilot.
+          </p>
         </Reveal>
 
         <Stagger className="mt-12 grid gap-4 lg:grid-cols-3 lg:items-start">

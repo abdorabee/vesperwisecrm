@@ -25,14 +25,20 @@ export function FinalCta() {
         </h2>
         <div className="mt-9 flex flex-wrap items-center justify-center gap-2.5">
           <Link
+            href="/demo"
+            className="rounded-md bg-[var(--mkt-accent)] px-5 py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-accent-ink)] transition-[background,transform] duration-150 ease-out hover:bg-[var(--mkt-accent-hover)] active:scale-[0.96]"
+          >
+            Open the demo
+          </Link>
+          <Link
             href="/book-demo"
-            className="rounded-md bg-[var(--mkt-accent)] px-5 py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-accent-ink)] transition-[background,transform] duration-150 hover:bg-[var(--mkt-accent-hover)] active:translate-y-px"
+            className="rounded-md border border-[color:var(--mkt-border)] px-[18px] py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-text)] transition-[color,background,border-color,transform] duration-150 ease-out hover:border-[color:var(--mkt-border-strong)] hover:bg-[var(--mkt-bg)] active:scale-[0.96]"
           >
             Book a demo
           </Link>
           <a
             href="#pricing"
-            className="rounded-md border border-[color:var(--mkt-border)] px-[18px] py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-text)] transition-colors duration-150 hover:border-[color:var(--mkt-border-strong)] hover:bg-[var(--mkt-bg)]"
+            className="rounded-md px-[18px] py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-text2)] transition-colors duration-150 hover:text-[var(--mkt-text)]"
           >
             See pricing
           </a>

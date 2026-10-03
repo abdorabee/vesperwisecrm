@@ -86,6 +86,7 @@ describe("marketing footer destinations", () => {
 describe("marketing public paths", () => {
   test("allows book-demo, solutions, company, resources, and legal routes", () => {
     expect(isMarketingPublicPath("/book-demo")).toBe(true);
+    expect(isMarketingPublicPath("/demo")).toBe(true);
     expect(isMarketingPublicPath("/solutions/wholesalers")).toBe(true);
     expect(isMarketingPublicPath("/privacy")).toBe(true);
     expect(isMarketingPublicPath("/about")).toBe(true);
