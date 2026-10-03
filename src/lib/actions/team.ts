@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { requireAdminAccountId, requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { rejectDemoAccountWrites } from "@/lib/demo/guard";
 import { getBillingSummary, requireWritableBilling } from "@/lib/billing/access";
 import {
   inviteTeamMemberSchema,
@@ -178,6 +179,7 @@ export async function updateOwnSenderIdentity(
   input: MemberSenderIdentityInput,
 ): Promise<void> {
   const data = memberSenderIdentitySchema.parse(input);
+  await rejectDemoAccountWrites();
   const accountId = await requireAccountId();
   const userId = await requireUserId();
   const supabase = await createClient();

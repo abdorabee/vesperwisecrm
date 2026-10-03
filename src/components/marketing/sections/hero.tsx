@@ -2,8 +2,6 @@ import Link from "next/link";
 
 import { MockBrowserFrame } from "@/components/marketing/mock/mock-browser-frame";
 import { MARKETING_HERO_COPY } from "@/components/marketing/mock/mock-data";
-import { MockLeadIntelPanel } from "@/components/marketing/mock/mock-lead-intel-panel";
-import { MockLeadTable } from "@/components/marketing/mock/mock-lead-table";
 import { Reveal } from "@/components/marketing/motion/reveal";
 
 export function Hero() {
@@ -33,17 +31,17 @@ export function Hero() {
 
           <div className="mt-9 flex flex-wrap items-center gap-2.5">
             <Link
-              href="/book-demo"
-              className="rounded-md bg-[var(--mkt-accent)] px-5 py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-accent-ink)] transition-[background,transform] duration-150 hover:bg-[var(--mkt-accent-hover)] active:translate-y-px"
+              href="/demo"
+              className="rounded-md bg-[var(--mkt-accent)] px-5 py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-accent-ink)] transition-[background,transform] duration-150 ease-out hover:bg-[var(--mkt-accent-hover)] active:scale-[0.96]"
             >
               {MARKETING_HERO_COPY.primaryCta}
             </Link>
-            <a
-              href="#ch1"
-              className="rounded-md border border-[color:var(--mkt-border)] px-[18px] py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-text)] transition-colors duration-150 hover:border-[color:var(--mkt-border-strong)] hover:bg-[var(--mkt-bg2)]"
+            <Link
+              href="/book-demo"
+              className="rounded-md border border-[color:var(--mkt-border)] px-[18px] py-3.5 font-sans text-sm leading-none font-medium text-[var(--mkt-text)] transition-[color,background,border-color,transform] duration-150 ease-out hover:border-[color:var(--mkt-border-strong)] hover:bg-[var(--mkt-bg2)] active:scale-[0.96]"
             >
               {MARKETING_HERO_COPY.secondaryCta}
-            </a>
+            </Link>
             <span className="font-mono text-[12.5px] leading-none text-[var(--mkt-text3)] sm:ml-1.5">
               {MARKETING_HERO_COPY.note}
             </span>
@@ -54,38 +52,44 @@ export function Hero() {
           <span className="font-mono text-[10.5px] leading-none font-medium tracking-[0.1em] text-[var(--mkt-text3)]">
             FIG 0.1 — LEAD LIFECYCLE, ONE SURFACE
           </span>
-          <span className="hidden font-mono text-[10.5px] leading-none tracking-[0.06em] text-[var(--mkt-text3)] md:block">
-            app.vesperwisecrm.com / queue
-          </span>
+          <Link
+            href="/demo"
+            className="hidden font-mono text-[10.5px] leading-none tracking-[0.06em] text-[var(--mkt-text3)] transition-colors duration-150 hover:text-[var(--mkt-text)] md:block"
+          >
+            Open the sample workspace
+          </Link>
         </div>
       </div>
 
       <div className="relative mx-auto max-w-[1240px] px-4 sm:px-7">
         <Reveal delay={0.15}>
           <MockBrowserFrame
-            title={MARKETING_HERO_COPY.browserTitle}
+            interactive
+            title="Sample workspace · pipeline, queue, lead"
             className="rounded-b-none rounded-t-[14px] border-b-0"
             style={{
               boxShadow:
                 "0 32px 90px color-mix(in oklch, var(--mkt-text) 14%, transparent)",
             }}
             actions={
-              <>
-                <span className="rounded-[5px] border border-[color:var(--mkt-border-subtle)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-text3)]">
-                  Motivation ≥ 70
-                </span>
-                <span className="rounded-[5px] bg-[var(--mkt-accent)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-accent-ink)]">
-                  Unworked · 12
-                </span>
-              </>
+              <Link
+                href="/demo"
+                className="rounded-[5px] bg-[var(--mkt-accent)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-accent-ink)] transition-[background,transform] duration-150 ease-out hover:bg-[var(--mkt-accent-hover)] active:scale-[0.96]"
+              >
+                Open the demo
+              </Link>
             }
           >
-            <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_320px]">
-              <div className="min-w-0 border-b border-[color:var(--mkt-border-subtle)] lg:border-r lg:border-b-0">
-                <MockLeadTable />
-              </div>
-              <MockLeadIntelPanel />
-            </div>
+            <video
+              className="aspect-video w-full bg-black object-cover"
+              poster="/demo/pipeline-poster.webp"
+              controls
+              playsInline
+              preload="metadata"
+              aria-label="Silent walkthrough of the sample pipeline, queue, and a lead. Open the demo to use the workspace."
+            >
+              <source src="/demo/pipeline-walkthrough.mp4" type="video/mp4" />
+            </video>
           </MockBrowserFrame>
         </Reveal>
       </div>

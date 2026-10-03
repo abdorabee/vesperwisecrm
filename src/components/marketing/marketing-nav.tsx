@@ -73,11 +73,19 @@ export function MarketingNav() {
             Log in
           </Button>
           <Button
+            variant="ghost"
             render={<Link href="/book-demo" />}
+            nativeButton={false}
+            className="hidden rounded-md text-[var(--mkt-text2)] hover:bg-[var(--mkt-bg2)] hover:text-[var(--mkt-text)] sm:inline-flex"
+          >
+            Book a demo
+          </Button>
+          <Button
+            render={<Link href="/demo" />}
             nativeButton={false}
             className="rounded-md border-[color:var(--mkt-accent)] bg-[var(--mkt-accent)] text-[var(--mkt-accent-ink)] hover:bg-[var(--mkt-accent-hover)]"
           >
-            Book a demo
+            Open the demo
           </Button>
         </div>
       </nav>

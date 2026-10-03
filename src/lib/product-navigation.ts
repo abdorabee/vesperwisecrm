@@ -26,6 +26,14 @@ export interface ProductNavGroup {
   items: ProductNavItem[];
 }
 
+export function getSettingsNavItem(isDemo: boolean): ProductNavItem | null {
+  if (isDemo) {
+    return null;
+  }
+
+  return { href: "/settings", label: "Settings", icon: Settings };
+}
+
 export function getDashboardNavigation({
   isAdmin,
   isPlatformAdmin,

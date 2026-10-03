@@ -16,6 +16,8 @@ import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
 import { WorkspaceFormattingProvider } from "@/components/workspace-formatting-context";
 import { getBillingSummary } from "@/lib/billing/access";
 import { getBillingPlanCapabilities } from "@/lib/billing/entitlements";
+import { isDemoAccountEmail } from "@/lib/demo/account";
+import { DemoSampleBanner } from "@/components/demo-sample-banner";
 
 export default async function DashboardLayout({
   children,
@@ -38,6 +40,7 @@ export default async function DashboardLayout({
   }
 
   const isAdmin = membership ? isAdminRole(membership.role) : false;
+  const isDemo = isDemoAccountEmail(user.email);
   const isPlatformAdmin = isPlatformAdminEmail(user.email);
   const billingSummary = membership
     ? await getBillingSummary(membership.accountId)
@@ -88,6 +91,7 @@ export default async function DashboardLayout({
             email={user.email ?? "Signed-in member"}
             role={membership?.role ?? "member"}
             isAdmin={isAdmin}
+            isDemo={isDemo}
             isPlatformAdmin={isPlatformAdmin}
             billingCapabilities={billingCapabilities}
             defaultCollapsed={sidebarCollapsed}
@@ -98,12 +102,14 @@ export default async function DashboardLayout({
               email={user.email ?? "Signed-in member"}
               role={membership?.role ?? "member"}
               isAdmin={isAdmin}
+              isDemo={isDemo}
               isPlatformAdmin={isPlatformAdmin}
               billingCapabilities={billingCapabilities}
             />
+            {isDemo ? <DemoSampleBanner /> : null}
             <main id="main-content" tabIndex={-1} className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
           </div>
-          <OnboardingTour isAdmin={isAdmin} />
+          {isDemo ? null : <OnboardingTour isAdmin={isAdmin} />}
           <ActiveCallPanel dispositions={dialerShell.dispositions} />
         </div>
         </WorkspaceFormattingProvider>

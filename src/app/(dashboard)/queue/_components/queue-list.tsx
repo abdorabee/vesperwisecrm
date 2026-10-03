@@ -155,13 +155,14 @@ function QueueRow({ lead, groups }: QueueRowProps) {
                 </SelectContent>
               </Select>
             )}
-            <Button size="sm" onClick={handleConfirm} disabled={isPending}>
+            <Button size="sm" className="active:scale-100" onClick={handleConfirm} disabled={isPending}>
               <Check className="size-3.5" />
               Confirm
             </Button>
             <Button
               size="sm"
               variant="outline"
+              className="active:scale-100"
               onClick={() => setPendingAction("needs_info")}
               disabled={isPending}
             >
@@ -171,6 +172,7 @@ function QueueRow({ lead, groups }: QueueRowProps) {
             <Button
               size="sm"
               variant="outline"
+              className="active:scale-100"
               onClick={() => setPendingAction("reject")}
               disabled={isPending}
             >
@@ -181,7 +183,7 @@ function QueueRow({ lead, groups }: QueueRowProps) {
         )}
 
         {pendingAction !== null && (
-          <div className="flex flex-col gap-2 rounded-lg border bg-muted/20 p-3">
+          <div className="flex flex-col gap-2 rounded-3xl bg-muted/20 p-3 shadow-(--shadow-border)">
             <Textarea
               value={note}
               onChange={(event) => setNote(event.target.value)}
@@ -195,6 +197,7 @@ function QueueRow({ lead, groups }: QueueRowProps) {
             <div className="flex justify-end gap-2">
               <Button
                 variant="ghost"
+                className="active:scale-100"
                 onClick={() => {
                   setPendingAction(null);
                   setNote("");
@@ -203,6 +206,7 @@ function QueueRow({ lead, groups }: QueueRowProps) {
                 Cancel
               </Button>
               <Button
+                className="active:scale-100"
                 onClick={pendingAction === "reject" ? handleReject : handleNeedsInfo}
                 disabled={isPending || note.trim().length === 0}
               >

@@ -9,6 +9,8 @@ interface MockBrowserFrameProps {
   actions?: ReactNode;
   className?: string;
   style?: CSSProperties;
+  /** Set when children include controls, so the frame is not removed from the accessibility tree. */
+  interactive?: boolean;
 }
 
 /** Window chrome (traffic dots + URL pill) wrapping any product mockup. */
@@ -19,6 +21,7 @@ export function MockBrowserFrame({
   actions,
   className,
   style,
+  interactive = false,
 }: MockBrowserFrameProps) {
   return (
     <div
@@ -27,7 +30,7 @@ export function MockBrowserFrame({
         className,
       )}
       style={style}
-      aria-hidden
+      aria-hidden={interactive ? undefined : true}
     >
       <div className="flex min-h-10 items-center gap-3 border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] px-4 py-2.5">
         <div className="flex shrink-0 gap-1.5">

@@ -16,9 +16,9 @@ export const MARKETING_HERO_COPY: MarketingHeroCopy = {
   eyebrow: "ACQUISITION CRM / REAL ESTATE",
   title: "Every lead worked. Nothing goes cold.",
   subhead:
-    "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences, and lead queue in one place. Early access available now.",
-  primaryCta: "Book a demo",
-  secondaryCta: "See the workflow",
+    "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences, and lead queue in one place. Open the sample workspace, then start a 14-day pilot.",
+  primaryCta: "Open the demo",
+  secondaryCta: "Book a demo",
   note: "No card. 14-day pilot.",
   browserTitle: "Lead Queue · All sources",
 };

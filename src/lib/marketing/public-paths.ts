@@ -1,5 +1,6 @@
 export const MARKETING_PUBLIC_PATHS = [
   "/home",
+  "/demo",
   "/book-demo",
   "/solutions",
   "/docs",

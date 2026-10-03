@@ -1,9 +1,21 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { redirect } from "next/navigation";
 import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
 import { SettingsNavigation } from "@/components/settings/settings-navigation";
+import { createClient } from "@/lib/supabase/server";
+import { isDemoAccountEmail } from "@/lib/demo/account";
 
 export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (isDemoAccountEmail(user?.email)) {
+    redirect("/pipeline");
+  }
+
   const membership = await getCurrentMembership();
   const isAdmin = membership ? isAdminRole(membership.role) : false;
 
