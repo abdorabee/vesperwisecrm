@@ -61,7 +61,9 @@ function asPlan(value: string | null): BillingPlan | null {
 }
 
 function asSource(value: string): BillingSource {
-  return value === "polar" || value === "grandfathered" ? value : "none";
+  return value === "polar" || value === "grandfathered" || value === "trial"
+    ? value
+    : "none";
 }
 
 function asProviderStatus(value: string | null): BillingProviderStatus | null {

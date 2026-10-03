@@ -19,6 +19,7 @@ function subscription(
     cancelAtPeriodEnd: false,
     currentPeriodEnd: "2026-09-01T00:00:00.000Z",
     pastDueSince: null,
+    trialEnd: null,
     ...overrides,
   };
 }
@@ -75,6 +76,26 @@ describe("billing access state", () => {
     ],
     ["revoked subscription", subscription({ providerStatus: "revoked" }), "read_only"],
     ["missing subscription", subscription({ source: "none", plan: null }), "billing_required"],
+    [
+      "team trial inside the window",
+      subscription({
+        source: "trial",
+        plan: "team",
+        providerStatus: "trialing",
+        trialEnd: "2026-10-15T00:00:00.000Z",
+      }),
+      "full",
+    ],
+    [
+      "team trial after trial_end",
+      subscription({
+        source: "trial",
+        plan: "team",
+        providerStatus: "trialing",
+        trialEnd: "2026-08-01T00:00:00.000Z",
+      }),
+      "billing_required",
+    ],
   ];
 
   it.each(cases)("derives %s correctly", (_name, state, expected) => {

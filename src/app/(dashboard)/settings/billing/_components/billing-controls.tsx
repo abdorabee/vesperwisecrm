@@ -46,6 +46,7 @@ const CAPABILITY_LABELS: Record<string, string> = {
 function statusLabel(summary: BillingSummary): string {
   if (summary.accessMode === "billing_required") return "Plan required";
   if (summary.accessMode === "read_only") return "Read-only";
+  if (summary.source === "trial") return "Team trial";
   if (summary.cancelAtPeriodEnd) return "Cancels at period end";
   if (summary.providerStatus === "past_due") return "Past due · grace period";
   if (summary.providerStatus === "trialing") return "Trialing";
@@ -119,9 +120,12 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
     });
   }
 
-  const activePlanLabel = summary.plan
-    ? PLAN_LABELS[summary.plan]
-    : "No plan selected";
+  const onTeamTrial = summary.source === "trial";
+  const activePlanLabel = onTeamTrial
+    ? "Team trial"
+    : summary.plan
+      ? PLAN_LABELS[summary.plan]
+      : "No plan selected";
   const subscriptionLive = Boolean(
     summary.polarSubscriptionId &&
       !["canceled", "revoked", "unpaid", "incomplete_expired"].includes(
@@ -141,7 +145,11 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
             <div>
               <p className="text-lg font-semibold">{activePlanLabel}</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {summary.source === "polar" ? "Polar subscription" : "Workspace access"}
+                {onTeamTrial
+                  ? `Team trial ends ${formatDate(summary.trialEnd)}.`
+                  : summary.source === "polar"
+                    ? "Polar subscription"
+                    : "Workspace access"}
               </p>
             </div>
             <Badge variant={summary.accessMode === "full" ? "default" : "secondary"}>
@@ -149,7 +157,10 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
             </Badge>
           </div>
           <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
-            <div><dt className="text-muted-foreground">Renewal</dt><dd className="mt-1 font-medium">{formatDate(summary.currentPeriodEnd)}</dd></div>
+            <div>
+              <dt className="text-muted-foreground">{onTeamTrial ? "Trial ends" : "Renewal"}</dt>
+              <dd className="mt-1 font-medium">{formatDate(onTeamTrial ? summary.trialEnd : summary.currentPeriodEnd)}</dd>
+            </div>
             <div><dt className="text-muted-foreground">Seats</dt><dd className="mt-1 font-medium">{summary.memberCount} members · {summary.pendingInviteCount} pending · {summary.seats} paid</dd></div>
             <div><dt className="text-muted-foreground">Starter lead usage</dt><dd className="mt-1 font-medium">{summary.leadLimit == null ? `${summary.leadUsage} · unlimited` : `${summary.leadUsage} / ${summary.leadLimit} this UTC month`}</dd></div>
             <div><dt className="text-muted-foreground">Cancellation</dt><dd className="mt-1 font-medium">{summary.cancelAtPeriodEnd ? `Ends ${formatDate(summary.currentPeriodEnd)}` : "Not scheduled"}</dd></div>

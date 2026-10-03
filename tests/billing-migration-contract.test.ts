@@ -5,6 +5,10 @@ const migration = readFileSync(
   "supabase/migrations/20260816163347_polar_billing.sql",
   "utf8",
 );
+const trialMigration = readFileSync(
+  "supabase/migrations/20261003151928_team_trial_access.sql",
+  "utf8",
+);
 
 describe("Polar billing migration contract", () => {
   it("creates account billing, webhook event, and usage tables", () => {
@@ -40,5 +44,31 @@ describe("Polar billing migration contract", () => {
     expect(migration).toContain("as restrictive for update to authenticated");
     expect(migration).toContain("create trigger enforce_billing_invite_capacity");
     expect(migration).toContain("Workspace seat capacity exceeded");
+  });
+});
+
+describe("Team trial migration contract", () => {
+  it("inserts a 60-day Team trial for new accounts", () => {
+    expect(trialMigration).toContain("billing_private.create_billing_account()");
+    expect(trialMigration).toContain("'trial'");
+    expect(trialMigration).toContain("'team'");
+    expect(trialMigration).toContain("'trialing'");
+    expect(trialMigration).toContain("now() + interval '60 days'");
+    expect(trialMigration).toContain("source in ('polar', 'grandfathered', 'none', 'trial')");
+  });
+
+  it("allows trial writes only before trial_end", () => {
+    expect(trialMigration).toContain("billing_private.is_writable_account");
+    expect(trialMigration).toContain("v_source = 'trial'");
+    expect(trialMigration).toContain("v_trial_end > now()");
+    expect(trialMigration).toContain("v_trial_end <= now()");
+    expect(trialMigration).toContain("raise exception 'Billing required for this workspace'");
+  });
+
+  it("backfills unpaid workspaces from account creation without touching paid rows", () => {
+    expect(trialMigration).toContain("accounts.created_at + interval '60 days'");
+    expect(trialMigration).toContain("billing.source = 'none'");
+    expect(trialMigration).not.toContain("billing.source = 'grandfathered'");
+    expect(trialMigration).not.toContain("billing.source = 'polar'");
   });
 });

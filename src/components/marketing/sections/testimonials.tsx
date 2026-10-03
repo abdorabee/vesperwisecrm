@@ -12,7 +12,7 @@ export function Testimonials() {
               </span>
             </div>
             <h2 className="mt-5 max-w-[20ch] font-sans text-[clamp(30px,3.4vw,44px)] leading-[1.05] font-normal tracking-normal text-balance text-[var(--mkt-text)]">
-              Join the pilot program.
+              Team for 60 days. No card.
             </h2>
           </div>
         </Reveal>
@@ -20,7 +20,7 @@ export function Testimonials() {
         <div className="mt-12 rounded-[14px] border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] p-8 shadow-[0_18px_50px_color-mix(in_oklch,var(--mkt-text)_6%,transparent)]">
           <p className="font-sans text-[15px] leading-[1.65] font-light text-[var(--mkt-text2)]">
             VesperWiseCRM is in early access. Pipeline management, email sequences, and the lead queue are live.
-            Book a demo to see the platform, discuss your workflow, and get onboarding support during the pilot phase.
+            Every new workspace gets Team free for 60 days, with no card. Book a demo if you want a walkthrough before you sign up.
           </p>
         </div>
       </div>
