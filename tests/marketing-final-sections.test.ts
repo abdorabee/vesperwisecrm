@@ -103,15 +103,17 @@ describe("final marketing landing sections", () => {
     expect(sectionText).toContain(
       "For multi-market operations with dispositions and in-house closing.",
     );
-    expect(section).toContain("Start pilot");
+    expect(section).toContain("Start free trial");
     expect(section).toContain('href: "/signup"');
-    expect(section).toContain("Book a demo");
-    expect(section).toContain('href: "/book-demo"');
+    expect(section).not.toContain("Start pilot");
+    expect(section).not.toContain('href: "/book-demo"');
     expect(section).toContain("Talk to sales");
     expect(section).toContain('href: "/contact"');
-    expect(section).toContain("Skip tracing and telephony billed at cost.");
     expect(sectionText).toContain(
-      "Figures shown are placeholders pending final pricing sign-off.",
+      "Every new workspace gets Team free for 60 days. No card.",
+    );
+    expect(sectionText).toContain(
+      "Annual billing available. Prices apply after the trial.",
     );
     expectNoLegacyMarketingTokens(section);
   });
@@ -128,7 +130,8 @@ describe("final marketing landing sections", () => {
     expect(section).toContain('href="/book-demo"');
     expect(section).toContain("See pricing");
     expect(section).toContain('href="#pricing"');
-    expect(section).toContain("14-DAY PILOT");
+    expect(section).toContain("60-DAY TEAM TRIAL");
+    expect(section).not.toContain("14-DAY PILOT");
     expect(section).toContain("DATA MIGRATION INCLUDED");
     expect(section).toContain("NO ANNUAL LOCK-IN");
     expectNoLegacyMarketingTokens(section);

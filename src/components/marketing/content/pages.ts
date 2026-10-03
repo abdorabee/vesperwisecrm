@@ -142,7 +142,7 @@ export const MARKETING_PAGES = {
   onboarding: {
     href: "/onboarding",
     eyebrow: "Resources / Onboarding",
-    title: "A 14-day pilot, not a six-month implementation.",
+    title: "A 60-day Team trial, not a six-month implementation.",
     description:
       "Start with intake, the queue, and one pipeline. Data migration is included on the public offer. Dedicated onboarding is on Scale.",
     sections: [
@@ -155,7 +155,7 @@ export const MARKETING_PAGES = {
         body: "Turn on email sequences, assign ownership, and move leads through pipeline stages. An in-app tour walks signed-in members through the same path.",
       },
     ],
-    cta: { label: "Start a pilot", href: "/signup" },
+    cta: { label: "Start free trial", href: "/signup" },
   },
   changelog: {
     href: "/changelog",
@@ -305,7 +305,7 @@ export const MARKETING_PAGES = {
     eyebrow: "Legal / Terms",
     title: "Using the public site and the product.",
     description:
-      "These terms are a working placeholder for the marketing site and a 14-day pilot. They are not a substitute for a signed order form or counsel review.",
+      "These terms are a working placeholder for the marketing site and a 60-day Team trial. They are not a substitute for a signed order form or counsel review.",
     sections: [
       {
         heading: "The site",
@@ -317,7 +317,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Pilots",
-        body: "Published offers (no card, 14-day pilot, data migration included) apply until replaced by an order form. Early access pricing shown.",
+        body: "Published offers (no card, Team free for 60 days, data migration included) apply until replaced by an order form. Early access pricing shown.",
       },
     ],
     cta: { label: "See pricing", href: "/home#pricing" },

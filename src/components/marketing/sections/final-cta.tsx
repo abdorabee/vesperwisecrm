@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Reveal } from "@/components/marketing/motion/reveal";
 
 const CTA_BADGES = [
-  "14-DAY PILOT",
+  "60-DAY TEAM TRIAL",
   "DATA MIGRATION INCLUDED",
   "NO ANNUAL LOCK-IN",
 ];

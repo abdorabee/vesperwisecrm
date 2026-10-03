@@ -29,7 +29,7 @@ const PRICING_TIERS: MarketingPricingTier[] = [
       "Contact management",
       "1,000 leads / mo",
     ],
-    cta: "Start pilot",
+    cta: "Start free trial",
     href: "/signup",
   },
   {
@@ -45,8 +45,8 @@ const PRICING_TIERS: MarketingPricingTier[] = [
       "Advanced pipeline views",
       "Unlimited leads",
     ],
-    cta: "Book a demo",
-    href: "/book-demo",
+    cta: "Start free trial",
+    href: "/signup",
     highlighted: true,
   },
   {
@@ -144,8 +144,11 @@ export function PricingPreview() {
           ))}
         </Stagger>
 
-        <p className="mt-6 max-w-[78ch] font-mono text-[10.5px] leading-[1.6] tracking-[0.04em] text-[var(--mkt-text3)]">
-          Annual billing available. Early access pricing shown — subject to change before general availability.
+        <p className="mt-6 max-w-[78ch] font-sans text-[14.5px] leading-[1.5] font-light text-[var(--mkt-text2)]">
+          Every new workspace gets Team free for 60 days. No card.
+        </p>
+        <p className="mt-3 max-w-[78ch] font-mono text-[10.5px] leading-[1.6] tracking-[0.04em] text-[var(--mkt-text3)]">
+          Annual billing available. Prices apply after the trial. Early access pricing shown — subject to change before general availability.
         </p>
       </div>
     </section>

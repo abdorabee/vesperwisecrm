@@ -19,7 +19,7 @@ export const MARKETING_HERO_COPY: MarketingHeroCopy = {
     "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences, and lead queue in one place. Early access available now.",
   primaryCta: "Book a demo",
   secondaryCta: "See the workflow",
-  note: "No card. 14-day pilot.",
+  note: "No card. Team free for 60 days.",
   browserTitle: "Lead Queue · All sources",
 };
 

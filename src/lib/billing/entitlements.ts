@@ -15,7 +15,7 @@ export type BillingCapability =
   | "skip_tracing"
   | "dedicated_onboarding";
 
-export type BillingSource = "polar" | "grandfathered" | "none";
+export type BillingSource = "polar" | "grandfathered" | "none" | "trial";
 
 export type BillingProviderStatus =
   | "incomplete"
@@ -35,6 +35,7 @@ export interface BillingSubscriptionState {
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string | null;
   pastDueSince: string | null;
+  trialEnd: string | null;
 }
 
 export type BillingAccessMode = "full" | "read_only" | "billing_required";
@@ -111,6 +112,14 @@ export function deriveBillingAccessMode(
   state: BillingSubscriptionState,
   now = new Date(),
 ): BillingAccessMode {
+  if (state.source === "trial") {
+    const trialEndsAt = state.trialEnd ? new Date(state.trialEnd).getTime() : Number.NaN;
+    if (state.plan && now.getTime() < trialEndsAt) {
+      return "full";
+    }
+    return "billing_required";
+  }
+
   if (state.source === "none" || !state.plan) {
     return "billing_required";
   }
