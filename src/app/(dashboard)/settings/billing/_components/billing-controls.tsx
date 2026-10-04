@@ -35,12 +35,6 @@ const CAPABILITY_LABELS: Record<string, string> = {
   ai: "AI scoring and summaries",
   workflows: "Workflows",
   routing: "Routing",
-  multi_market_reporting: "Multi-market reporting",
-  api_sync: "API and data-warehouse sync",
-  sso: "SSO",
-  audit_log: "Audit log",
-  skip_tracing: "Skip tracing",
-  dedicated_onboarding: "Dedicated onboarding",
 };
 
 function statusLabel(summary: BillingSummary): string {
@@ -219,7 +213,7 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
         )}
       </SettingsSection>
 
-      <SettingsSection title="Choose or change plan" description="Starter and Team checkout are enabled. Scale remains visible for planning but checkout is intentionally locked until its capabilities are verified.">
+      <SettingsSection title="Choose or change plan" description="Starter and Team checkout are enabled. Scale stays talk to sales. Checkout for Scale is not available.">
         <div className="grid gap-3 sm:grid-cols-2">
           {(["starter", "team", "scale"] as BillingPlan[]).map((plan) => {
             const current = summary.plan === plan && subscriptionLive;
@@ -231,7 +225,7 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
                   {current && <Badge variant="secondary">Current</Badge>}
                 </div>
                 <p className="mt-2 min-h-10 text-sm text-muted-foreground">
-                  {plan === "starter" ? "Pipeline, review queue, sequences, and 1,000 leads per UTC month." : plan === "team" ? "Starter benefits plus dialer, AI, workflows, routing, and unlimited leads." : "Team benefits plus Scale-only capabilities. Checkout is not enabled yet."}
+                  {plan === "starter" ? "Pipeline, review queue, sequences, and 1,000 leads per UTC month." : plan === "team" ? "Starter benefits plus dialer, AI, workflows, routing, and unlimited leads." : "Custom. Talk to sales. Checkout is not available."}
                 </p>
                 <Button
                   type="button"

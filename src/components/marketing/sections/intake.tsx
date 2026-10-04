@@ -18,9 +18,9 @@ export function Intake() {
               </h2>
             </div>
             <p className="mt-5 max-w-[42ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
-              Pull leads from every channel and enrich them on arrival. Skip
-              tracing, owner data and property context are appended before the
-              record reaches a rep.
+              Pull leads from forms, imports, and the channels you connect.
+              Contact and property details you enter stay on the record before
+              a rep works it.
             </p>
           </div>
 

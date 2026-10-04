@@ -5,11 +5,13 @@ import type { BillingCapability, BillingPlan } from "@/lib/billing/entitlements"
 import {
   BILLING_PLAN_CATALOG,
   deriveBillingAccessMode,
+  getBillableNavCapabilities,
   getBillingPlanLeadLimit,
   type BillingAccessMode,
   type BillingProviderStatus,
   type BillingSource,
 } from "@/lib/billing/entitlements";
+import { getCurrentMembership } from "@/lib/queries/members";
 
 export interface BillingState {
   accountId: string;
@@ -199,4 +201,11 @@ export async function requireWritableBilling(accountId: string): Promise<Billing
 
 export function hasWritableBillingAccess(state: BillingState): boolean {
   return deriveBillingAccessMode(state, new Date()) === "full";
+}
+
+export async function getCurrentBillableNavCapabilities(): Promise<BillingCapability[]> {
+  const membership = await getCurrentMembership();
+  if (!membership) return [];
+  const summary = await getBillingSummary(membership.accountId);
+  return getBillableNavCapabilities(summary.plan, summary.accessMode);
 }

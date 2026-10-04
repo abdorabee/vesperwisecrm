@@ -42,13 +42,13 @@ describe("marketing footer destinations", () => {
   test("maps product topics to existing home sections", () => {
     const product = FOOTER_COLUMNS.find((column) => column.title === "PRODUCT");
     expect(product?.links).toEqual([
-      { label: "Lead intake", href: "/home#ch1" },
-      { label: "Skip tracing", href: "/home#ch1" },
-      { label: "Dialer", href: "/home#ch3" },
+      { label: "Lead queue", href: "/home#ch1" },
       { label: "Pipeline", href: "/home#ch4" },
+      { label: "Email sequences", href: "/home#ch5" },
       { label: "Workflows", href: "/home#ch5" },
       { label: "Reporting", href: "/home#ch6" },
     ]);
+    expect(product?.links.map((link) => link.label)).not.toContain("Skip tracing");
   });
 
   test("points remaining columns at dedicated marketing routes", () => {

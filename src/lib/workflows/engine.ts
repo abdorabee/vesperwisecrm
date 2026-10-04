@@ -1,11 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { runWorkflowAction } from "@/lib/workflows/actions";
 import type { Tables } from "@/lib/supabase/types";
-import {
-  billingStateFromRow,
-  hasWritableBillingAccess,
-} from "@/lib/billing/access";
-import { BILLING_PLAN_CATALOG } from "@/lib/billing/entitlements";
+import { billingStateFromRow } from "@/lib/billing/access";
+import { canRunScheduledWorkflows } from "@/lib/billing/entitlements";
 
 export type SyncWorkflowTrigger = "lead_created" | "stage_changed" | "tag_added";
 
@@ -47,11 +44,7 @@ export async function runTriggeredWorkflows(
   const billingState = billingAccount
     ? billingStateFromRow(billingAccount)
     : null;
-  if (
-    !billingState?.plan ||
-    !hasWritableBillingAccess(billingState) ||
-    !BILLING_PLAN_CATALOG[billingState.plan].capabilities.includes("workflows")
-  ) {
+  if (!billingState || !canRunScheduledWorkflows(billingState)) {
     return;
   }
 

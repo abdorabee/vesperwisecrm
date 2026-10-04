@@ -18,6 +18,7 @@ export function GettingStartedChecklist({
   hasLeads,
   emailConnected,
   callingConnected,
+  showCalling,
 }: {
   isAdmin: boolean;
   workspaceReviewed: boolean;
@@ -25,13 +26,14 @@ export function GettingStartedChecklist({
   hasLeads: boolean;
   emailConnected: boolean;
   callingConnected: boolean;
+  showCalling: boolean;
 }) {
   const items: ChecklistItem[] = [
     ...(isAdmin ? [{ label: "Review workspace settings", description: "Confirm your name, timezone, currency, and formats", href: "/settings/workspace", complete: workspaceReviewed, icon: Settings }] : []),
     ...(isAdmin ? [{ label: "Invite your team", description: "Add the people who will qualify and work leads", href: "/settings/members", complete: hasTeammates, icon: Users }] : []),
     { label: hasLeads ? "Lead data added" : "Add or import your first lead", description: "Start with quick intake or import a CSV from your previous CRM", href: hasLeads ? "/pipeline" : "/intake", complete: hasLeads, icon: hasLeads ? PhoneCall : Upload },
     ...(isAdmin ? [{ label: "Set up outbound email", description: "Verify a sending domain and reply routing", href: "/settings/email", complete: emailConnected, icon: Mail }] : []),
-    ...(isAdmin ? [{ label: "Connect calling", description: "Use the Twilio account your workspace owns", href: "/settings/calling", complete: callingConnected, icon: PhoneCall }] : []),
+    ...(isAdmin && showCalling ? [{ label: "Connect calling", description: "Use the Twilio account your workspace owns", href: "/settings/calling", complete: callingConnected, icon: PhoneCall }] : []),
   ];
   const completeCount = items.filter((item) => item.complete).length;
   if (completeCount === items.length) return null;

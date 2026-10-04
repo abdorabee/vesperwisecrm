@@ -3,6 +3,9 @@ import {
   getCurrentSettingsLocation,
   getSettingsNavigationGroups,
 } from "../src/components/settings/settings-navigation-model";
+import { getBillableNavCapabilities } from "../src/lib/billing/entitlements";
+
+const teamFull = getBillableNavCapabilities("team", "full");
 
 describe("settings navigation", () => {
   test("ordinary members only receive supported personal and workspace destinations", () => {
@@ -17,9 +20,34 @@ describe("settings navigation", () => {
   test("describes the active page with its settings group", () => {
     const location = getCurrentSettingsLocation(
       "/settings/calling",
-      getSettingsNavigationGroups(true),
+      getSettingsNavigationGroups(true, teamFull),
     );
     expect(location).toMatchObject({ groupLabel: "Communication", label: "Calling" });
+  });
+
+  test("hides lead routing and calling without those capabilities or full access", () => {
+    const starter = getSettingsNavigationGroups(
+      true,
+      getBillableNavCapabilities("starter", "full"),
+    )
+      .flatMap((group) => group.items)
+      .map((item) => item.href);
+    const expiredTrial = getSettingsNavigationGroups(
+      true,
+      getBillableNavCapabilities("team", "billing_required"),
+    )
+      .flatMap((group) => group.items)
+      .map((item) => item.href);
+    const team = getSettingsNavigationGroups(true, teamFull)
+      .flatMap((group) => group.items)
+      .map((item) => item.href);
+
+    expect(starter).not.toContain("/settings/routing");
+    expect(starter).not.toContain("/settings/calling");
+    expect(expiredTrial).not.toContain("/settings/routing");
+    expect(expiredTrial).not.toContain("/settings/calling");
+    expect(team).toContain("/settings/routing");
+    expect(team).toContain("/settings/calling");
   });
 
   test("exposes billing to workspace admins", () => {

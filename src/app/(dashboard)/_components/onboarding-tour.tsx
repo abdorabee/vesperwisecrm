@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 
 interface OnboardingTourProps {
   isAdmin: boolean;
+  includeWorkflows: boolean;
 }
 
 interface TourStep {
@@ -69,15 +70,20 @@ const TOUR_STEPS: TourStep[] = [
   },
 ];
 
-export function OnboardingTour({ isAdmin }: OnboardingTourProps) {
+export function OnboardingTour({ isAdmin, includeWorkflows }: OnboardingTourProps) {
   const { open, setOpen, closeTour } = useOnboardingTour();
   const [stepIndex, setStepIndex] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
   const completingRef = useRef(false);
 
   const steps = useMemo(
-    () => TOUR_STEPS.filter((step) => isAdmin || !step.adminOnly),
-    [isAdmin],
+    () =>
+      TOUR_STEPS.filter((step) => {
+        if (step.adminOnly && !isAdmin) return false;
+        if (step.route === "/workflows" && !includeWorkflows) return false;
+        return true;
+      }),
+    [includeWorkflows, isAdmin],
   );
   const currentStep = steps[stepIndex] ?? steps[0];
   const isFirstStep = stepIndex === 0;

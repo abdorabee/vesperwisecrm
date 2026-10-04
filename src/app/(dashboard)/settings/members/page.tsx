@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requireSettingsAdmin } from "@/lib/settings-access";
+import { getCurrentBillableNavCapabilities } from "@/lib/billing/access";
 import { getAccountMemberProfiles, getPendingInvites } from "@/lib/queries/members";
 import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
 import { getTvDisplayTokensForAdmin } from "@/lib/queries/tv";
@@ -13,6 +14,7 @@ import { PendingInvites } from "./_components/pending-invites";
 
 export default async function MembersSettingsPage() {
   await requireSettingsAdmin();
+  const billingCapabilities = await getCurrentBillableNavCapabilities();
   const [members, invites, emailSettings, tvTokens] = await Promise.all([
     getAccountMemberProfiles(),
     getPendingInvites(),
@@ -26,7 +28,9 @@ export default async function MembersSettingsPage() {
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <InviteMemberDialog />
-            <Button render={<Link href="/settings/routing" />} variant="outline" nativeButton={false}>Lead routing</Button>
+            {billingCapabilities.includes("routing") ? (
+              <Button render={<Link href="/settings/routing" />} variant="outline" nativeButton={false}>Lead routing</Button>
+            ) : null}
           </div>
           <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
