@@ -1,7 +1,10 @@
+import type { BillingCapability } from "@/lib/billing/entitlements";
+
 export interface SettingsNavigationItem {
   href: string;
   label: string;
   adminOnly?: boolean;
+  requiresCapability?: BillingCapability;
 }
 
 export interface SettingsNavigationGroup {
@@ -16,7 +19,12 @@ const SETTINGS_GROUPS: SettingsNavigationGroup[] = [
     items: [
       { href: "/settings/workspace", label: "General" },
       { href: "/settings/members", label: "Members", adminOnly: true },
-      { href: "/settings/routing", label: "Lead routing", adminOnly: true },
+      {
+        href: "/settings/routing",
+        label: "Lead routing",
+        adminOnly: true,
+        requiresCapability: "routing",
+      },
       { href: "/settings/billing", label: "Billing", adminOnly: true },
     ],
   },
@@ -24,7 +32,12 @@ const SETTINGS_GROUPS: SettingsNavigationGroup[] = [
     label: "Communication",
     items: [
       { href: "/settings/email", label: "Email", adminOnly: true },
-      { href: "/settings/calling", label: "Calling", adminOnly: true },
+      {
+        href: "/settings/calling",
+        label: "Calling",
+        adminOnly: true,
+        requiresCapability: "dialer",
+      },
     ],
   },
     {
@@ -45,10 +58,18 @@ export function isSettingsPathActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function getSettingsNavigationGroups(isAdmin: boolean): SettingsNavigationGroup[] {
+export function getSettingsNavigationGroups(
+  isAdmin: boolean,
+  billingCapabilities: readonly BillingCapability[] = [],
+): SettingsNavigationGroup[] {
+  const allowed = new Set(billingCapabilities);
   return SETTINGS_GROUPS.map((group) => ({
     ...group,
-    items: group.items.filter((item) => isAdmin || !item.adminOnly),
+    items: group.items.filter((item) => {
+      if (item.adminOnly && !isAdmin) return false;
+      if (item.requiresCapability && !allowed.has(item.requiresCapability)) return false;
+      return true;
+    }),
   })).filter((group) => group.items.length > 0);
 }
 

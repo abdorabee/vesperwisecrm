@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { getDashboardNavigation } from "../src/lib/product-navigation";
+import { getBillableNavCapabilities } from "../src/lib/billing/entitlements";
 
 describe("product navigation", () => {
   test("organizes the acquisition product around customer workflows", () => {
@@ -34,5 +35,29 @@ describe("product navigation", () => {
     expect(adminHrefs).toContain("/platform/email");
     expect(adminHrefs).not.toContain("/contacts");
     expect(adminHrefs).not.toContain("/deals");
+  });
+
+  test("hides dialer and workflows when the plan lacks them or access is not full", () => {
+    const hrefsFor = (
+      plan: "starter" | "team",
+      accessMode: "full" | "billing_required",
+    ) =>
+      getDashboardNavigation({
+        isAdmin: false,
+        isPlatformAdmin: false,
+        billingCapabilities: getBillableNavCapabilities(plan, accessMode),
+      })
+        .flatMap((group) => group.items)
+        .map((item) => item.href);
+
+    expect(hrefsFor("starter", "full")).not.toContain("/dialer");
+    expect(hrefsFor("starter", "full")).not.toContain("/workflows");
+    expect(hrefsFor("starter", "full")).toContain("/pipeline");
+    expect(hrefsFor("team", "billing_required")).not.toContain("/dialer");
+    expect(hrefsFor("team", "billing_required")).not.toContain("/workflows");
+    expect(hrefsFor("team", "billing_required")).toContain("/pipeline");
+    expect(hrefsFor("team", "full")).toEqual(
+      expect.arrayContaining(["/dialer", "/workflows", "/pipeline"]),
+    );
   });
 });

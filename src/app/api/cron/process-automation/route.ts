@@ -8,6 +8,7 @@ import {
   billingStateFromRow,
   hasWritableBillingAccess,
 } from "@/lib/billing/access";
+import { canRunScheduledWorkflows } from "@/lib/billing/entitlements";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -67,10 +68,22 @@ async function processDueSequenceSteps(
 // workflow run instead of silently skipped.
 const CRON_SAFE_ACTION_TYPES = new Set(["change_stage", "add_tag"]);
 
+async function getWorkflowCapableAccounts(
+  supabase: ReturnType<typeof createServiceRoleClient>,
+): Promise<Set<string>> {
+  const { data } = await supabase.from("billing_accounts").select("*");
+  return new Set(
+    (data ?? [])
+      .map((row) => billingStateFromRow(row))
+      .filter((state) => canRunScheduledWorkflows(state))
+      .map((state) => state.accountId),
+  );
+}
+
 async function processNoActivityWorkflows(
   supabase: ReturnType<typeof createServiceRoleClient>,
 ): Promise<{ triggered: number; failed: number }> {
-  const writableAccounts = await getWritableBillingAccounts(supabase);
+  const writableAccounts = await getWorkflowCapableAccounts(supabase);
   const { data: workflows } = await supabase
     .from("workflows")
     .select("*, workflow_actions(*)")
@@ -173,7 +186,7 @@ async function processNoActivityWorkflows(
 async function processNoNextActionWorkflows(
   supabase: ReturnType<typeof createServiceRoleClient>,
 ): Promise<{ triggered: number; failed: number }> {
-  const writableAccounts = await getWritableBillingAccounts(supabase);
+  const writableAccounts = await getWorkflowCapableAccounts(supabase);
   const { data: workflows } = await supabase
     .from("workflows")
     .select("*, workflow_actions(*)")

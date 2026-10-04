@@ -79,7 +79,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     name: "Estate of H. Calloway",
     address: "77 Ellsworth Rd · Anderson, IN",
     source: "Probate",
-    stage: "Skip traced",
+    stage: "Contacted",
     score: 88,
     touch: "6h ago",
   },
@@ -101,7 +101,7 @@ export interface MarketingHeroActivityEvent {
 
 export const MARKETING_HERO_ACTIVITY: MarketingHeroActivityEvent[] = [
   {
-    text: "Skip trace returned 3 phones, 1 email",
+    text: "Lead added from a cold list",
     time: "TODAY 09:14",
     accent: false,
   },

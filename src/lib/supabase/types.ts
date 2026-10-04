@@ -190,6 +190,7 @@ export type Database = {
           date_format: string
           id: string
           name: string
+          terms_accepted_at: string | null
           time_format: string
           timezone: string | null
           updated_at: string
@@ -200,6 +201,7 @@ export type Database = {
           date_format?: string
           id?: string
           name: string
+          terms_accepted_at?: string | null
           time_format?: string
           timezone?: string | null
           updated_at?: string
@@ -210,6 +212,7 @@ export type Database = {
           date_format?: string
           id?: string
           name?: string
+          terms_accepted_at?: string | null
           time_format?: string
           timezone?: string | null
           updated_at?: string

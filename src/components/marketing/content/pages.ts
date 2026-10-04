@@ -1,3 +1,9 @@
+import {
+  LEGAL_LAST_UPDATED,
+  PUBLIC_BILLING_CADENCE,
+  PUBLIC_SEAT_OFFER,
+} from "@/lib/billing/public-offer";
+
 export interface MarketingPageSection {
   heading: string;
   body: string;
@@ -9,6 +15,7 @@ export interface MarketingPageContent {
   title: string;
   description: string;
   sections: MarketingPageSection[];
+  updated?: string;
   cta?: { label: string; href: string };
   form?: "contact";
 }
@@ -108,8 +115,8 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
         body: "Notes, property fields, and activity history travel with the lead into dispositions. Nobody re-asks the seller what was already said.",
       },
       {
-        heading: "Multi-market reporting without a warehouse project",
-        body: "Scale plans cover reporting across markets. The pipeline is the source of truth for what is available, pending, or stuck.",
+        heading: "The pipeline stays the record",
+        body: "Notes, property fields, and activity history stay on the lead. The pipeline shows what is available, pending, or stuck.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -144,7 +151,7 @@ export const MARKETING_PAGES = {
     eyebrow: "Resources / Onboarding",
     title: "A 60-day Team trial, not a six-month implementation.",
     description:
-      "Start with intake, the queue, and one pipeline. Data migration is included on the public offer. Dedicated onboarding is on Scale.",
+      "Start with intake, the queue, and one pipeline. CSV import of contacts and leads is in workspace settings.",
     sections: [
       {
         heading: "Week one: get leads in",
@@ -170,7 +177,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Next",
-        body: "Attributed customer quotes and final pricing replace the labeled placeholders on the landing page. No invented metrics in the meantime.",
+        body: "Attributed customer quotes replace the labeled placeholders on the landing page. Seat prices on the pricing section are the current monthly offer. No invented metrics in the meantime.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -252,7 +259,7 @@ export const MARKETING_PAGES = {
     eyebrow: "Company / Security",
     title: "Tenant isolation is the default, not an add-on.",
     description:
-      "Workspaces are separated in Postgres with row-level security. Auth is handled by Supabase. Scale includes SSO and an audit log.",
+      "Workspaces are separated in Postgres with row-level security. Sign-in is email and password through Supabase.",
     sections: [
       {
         heading: "Access",
@@ -284,8 +291,13 @@ export const MARKETING_PAGES = {
     eyebrow: "Legal / Privacy",
     title: "What we collect on this site.",
     description:
-      "This is a working privacy notice for the public marketing site, not counsel-reviewed legal advice. The signed-in CRM has its own account-level data practices.",
+      "This privacy notice describes the public site and the signed-in product. It is not counsel-reviewed legal advice.",
+    updated: LEGAL_LAST_UPDATED,
     sections: [
+      {
+        heading: "The offer",
+        body: `${PUBLIC_SEAT_OFFER} ${PUBLIC_BILLING_CADENCE}`,
+      },
       {
         heading: "Marketing site",
         body: "If you book a demo or send a contact message, we collect your name, work email, company, and the message or slot you chose so we can reply. We do not sell that information.",
@@ -293,6 +305,14 @@ export const MARKETING_PAGES = {
       {
         heading: "Workspace data",
         body: "Lead, call, and email data in a signed-in workspace belongs to that account. Providers you connect (email, Twilio, Google) process data under their terms and your configuration.",
+      },
+      {
+        heading: "Subprocessors",
+        body: "Supabase stores workspace data and handles sign-in. Polar processes Starter and Team checkout, invoices, and cancellation. Resend sends workspace email and signup messages when email is configured. AI scoring and call-note parsing send lead text to Anthropic when that feature is configured and the plan includes it. Calls use the Twilio account the workspace connects. SMS uses Twilio when platform SMS credentials are set. Google Docs and Drive run only after a workspace connects Google.",
+      },
+      {
+        heading: "Retention and deletion",
+        body: "There is no automatic deletion schedule. Canceling a Polar subscription does not delete leads, calls, or email stored for the workspace. The product has no self-serve control that deletes a workspace. Ask through the contact form if you need data removed.",
       },
       {
         heading: "Contact",
@@ -305,19 +325,32 @@ export const MARKETING_PAGES = {
     eyebrow: "Legal / Terms",
     title: "Using the public site and the product.",
     description:
-      "These terms are a working placeholder for the marketing site and a 60-day Team trial. They are not a substitute for a signed order form or counsel review.",
+      "These terms describe the public site and the current product offer. They are not a substitute for a signed order form or counsel review.",
+    updated: LEGAL_LAST_UPDATED,
     sections: [
       {
+        heading: "The offer",
+        body: `${PUBLIC_SEAT_OFFER} ${PUBLIC_BILLING_CADENCE}`,
+      },
+      {
         heading: "The site",
-        body: "Marketing copy, interface examples, and pricing figures may be placeholders. Do not treat illustrative names, quotes, or numbers as customer proof.",
+        body: "Illustrative names, interface examples, and quotes on the marketing site are not customer proof. The seat prices in the offer above are the current prices.",
       },
       {
         heading: "The product",
-        body: "Access to VesperWise CRM requires an account. You are responsible for the data you import and for credentials you connect. We may suspend abuse of intake, email, or telephony.",
+        body: "Access to VesperWise CRM requires an account. Lead, call, and email data in a signed-in workspace belongs to that account. You are responsible for the data you import and for credentials you connect. We may suspend abuse of intake, email, or telephony.",
       },
       {
-        heading: "Pilots",
-        body: "Published offers (no card, Team free for 60 days, data migration included) apply until replaced by an order form. Early access pricing shown.",
+        heading: "Cancellation and refunds",
+        body: "A workspace admin can cancel a Polar subscription at period end from Billing settings. The workspace keeps full access until that period ends. Canceling does not delete workspace data, and the app does not issue a refund as part of that cancellation. The 60-day Team trial does not ask for a card.",
+      },
+      {
+        heading: "Auto-renewal",
+        body: "A paid Starter or Team subscription renews each month through Polar until an admin cancels it at period end. There is no annual plan.",
+      },
+      {
+        heading: "Calling and texting",
+        body: "Calls use the Twilio account a workspace admin connects in Calling settings. A call is refused when that phone number is marked Do Not Call. A sequence step set to SMS sends a text to the phone number on the contact when platform Twilio SMS credentials are configured, and that send does not check Do Not Call or an opt-out flag. Marketing email steps skip contacts whose email is marked opted out. A platform admin can suspend a workspace's outbound email. You are responsible for the calls and texts sent from your workspace.",
       },
     ],
     cta: { label: "See pricing", href: "/home#pricing" },

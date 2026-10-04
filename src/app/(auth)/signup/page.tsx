@@ -89,6 +89,37 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
           </select>
         </div>
 
+        <div className="flex items-start gap-3">
+          <input
+            id="signup-accept-terms"
+            name="accept_terms"
+            type="checkbox"
+            value="yes"
+            required
+            className="mt-1 size-4 shrink-0 accent-[var(--mkt-accent)]"
+          />
+          <label
+            htmlFor="signup-accept-terms"
+            className="text-sm leading-relaxed text-[var(--mkt-text2)]"
+          >
+            I agree to the{" "}
+            <Link
+              href="/terms"
+              className="font-medium text-[var(--mkt-text)] underline decoration-[var(--mkt-border-strong)] underline-offset-4"
+            >
+              Terms
+            </Link>{" "}
+            and{" "}
+            <Link
+              href="/privacy"
+              className="font-medium text-[var(--mkt-text)] underline decoration-[var(--mkt-border-strong)] underline-offset-4"
+            >
+              Privacy notice
+            </Link>
+            .
+          </label>
+        </div>
+
         <AuthSubmitButton idleLabel="Create account" pendingLabel="Creating account…" />
       </form>
 

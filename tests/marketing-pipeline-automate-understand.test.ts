@@ -53,32 +53,35 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
       },
       {
         kind: "ACTION",
-        title: "Skip trace + enrich",
-        detail: "Phones, email, property data",
-      },
-      {
-        kind: "ACTION",
-        title: "Score motivation",
-        detail: "AI, from form + call data",
-        accent: true,
+        title: "Assign to pipeline stage",
+        detail: "Based on source and type",
       },
       {
         kind: "BRANCH",
-        title: "Score ≥ 70?",
-        detail: "Yes → assign · No → nurture",
+        title: "Has contact info?",
+        detail: "Yes → route · No → create a task",
       },
       {
         kind: "ACTION",
-        title: "Route to rep",
+        title: "Route to team member",
         detail: "Round robin by market",
+        accent: true,
       },
       {
         kind: "ACTION",
-        title: "Queue power dial",
-        detail: "First touch within 5 min",
+        title: "Create follow-up task",
+        detail: "Schedule first touch",
+      },
+      {
+        kind: "ACTION",
+        title: "Start email sequence",
+        detail: "Intro and qualification",
         accent: true,
       },
     ]);
+    expect(JSON.stringify(MARKETING_WORKFLOW_STEPS).toLowerCase()).not.toContain(
+      "skip trace",
+    );
 
     expect(MARKETING_OTHER_WORKFLOWS).toEqual([
       {

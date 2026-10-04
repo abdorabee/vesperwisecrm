@@ -11,8 +11,39 @@ import {
   canSendBrandedAuthEmail,
   sendSignupConfirmationEmail,
 } from "@/lib/email/auth-emails";
+import { signupTermsAccepted } from "@/lib/auth/signup-terms";
 
 const SIGNUPS_PER_HOUR = 10;
+
+function signupFailure(message: string, plan: string | null): never {
+  redirect(
+    `/signup?error=${encodeURIComponent(message)}${plan ? `&plan=${plan}` : ""}`,
+  );
+}
+
+async function recordTermsAcceptance(userId: string): Promise<void> {
+  const serviceRole = createServiceRoleClient();
+  const { data: membership, error: membershipError } = await serviceRole
+    .from("account_members")
+    .select("account_id")
+    .eq("user_id", userId)
+    .eq("role", "owner")
+    .limit(1)
+    .maybeSingle();
+
+  if (membershipError || !membership) {
+    throw new Error(membershipError?.message ?? "Could not record terms acceptance");
+  }
+
+  const { error } = await serviceRole
+    .from("accounts")
+    .update({ terms_accepted_at: new Date().toISOString() })
+    .eq("id", membership.account_id);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
 
 export async function signIn(formData: FormData): Promise<void> {
   const email = String(formData.get("email") ?? "");
@@ -37,6 +68,15 @@ export async function signIn(formData: FormData): Promise<void> {
 }
 
 export async function signUp(formData: FormData): Promise<void> {
+  const planValue = String(formData.get("plan") ?? "");
+  const plan = planValue === "starter" || planValue === "team" ? planValue : null;
+  if (!signupTermsAccepted(formData)) {
+    signupFailure(
+      "Accept the Terms and Privacy notice to create a workspace.",
+      plan,
+    );
+  }
+
   // Each signup mints a service-role auth link and sends an email. Unthrottled,
   // that is a free bulk-mail primitive attached to our sending domain.
   const withinBudget = await consumeRateLimit({
@@ -55,8 +95,6 @@ export async function signUp(formData: FormData): Promise<void> {
   const password = String(formData.get("password") ?? "");
   const nicheValue = String(formData.get("niche") ?? "");
   const niche = nicheValue === "agency" ? "agency" : "wholesaler";
-  const planValue = String(formData.get("plan") ?? "");
-  const plan = planValue === "starter" || planValue === "team" ? planValue : null;
   const next = plan ? `/settings/billing?plan=${plan}` : "/pipeline";
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ??
@@ -81,11 +119,21 @@ export async function signUp(formData: FormData): Promise<void> {
       },
     });
 
-    if (error || !data?.properties?.hashed_token) {
-      redirect(
-        `/signup?error=${encodeURIComponent(
-          error?.message ?? "Failed to create confirmation link",
-        )}${plan ? `&plan=${plan}` : ""}`,
+    if (error || !data?.properties?.hashed_token || !data.user?.id) {
+      signupFailure(
+        error?.message ?? "Failed to create confirmation link",
+        plan,
+      );
+    }
+
+    try {
+      await recordTermsAcceptance(data.user.id);
+    } catch (recordError) {
+      signupFailure(
+        recordError instanceof Error
+          ? recordError.message
+          : "Could not record terms acceptance",
+        plan,
       );
     }
 
@@ -109,7 +157,7 @@ export async function signUp(formData: FormData): Promise<void> {
     }
   } else {
     const supabase = await createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -118,9 +166,18 @@ export async function signUp(formData: FormData): Promise<void> {
       },
     });
 
-    if (error) {
-      redirect(
-        `/signup?error=${encodeURIComponent(error.message)}${plan ? `&plan=${plan}` : ""}`,
+    if (error || !data.user?.id) {
+      signupFailure(error?.message ?? "Could not create the account", plan);
+    }
+
+    try {
+      await recordTermsAcceptance(data.user.id);
+    } catch (recordError) {
+      signupFailure(
+        recordError instanceof Error
+          ? recordError.message
+          : "Could not record terms acceptance",
+        plan,
       );
     }
   }

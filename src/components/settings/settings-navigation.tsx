@@ -9,12 +9,19 @@ import {
   getSettingsNavigationGroups,
   isSettingsPathActive,
 } from "@/components/settings/settings-navigation-model";
+import type { BillingCapability } from "@/lib/billing/entitlements";
 import { cn } from "@/lib/utils";
 
-export function SettingsNavigation({ isAdmin }: { isAdmin: boolean }) {
+export function SettingsNavigation({
+  isAdmin,
+  billingCapabilities,
+}: {
+  isAdmin: boolean;
+  billingCapabilities: readonly BillingCapability[];
+}) {
   const pathname = usePathname();
   const router = useRouter();
-  const groups = getSettingsNavigationGroups(isAdmin);
+  const groups = getSettingsNavigationGroups(isAdmin, billingCapabilities);
   const current = getCurrentSettingsLocation(pathname, groups);
 
   function navigate(event: MouseEvent<HTMLElement>, href: string): boolean {

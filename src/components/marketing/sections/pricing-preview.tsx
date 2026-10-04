@@ -3,6 +3,10 @@ import { Check } from "lucide-react";
 
 import { Stagger, StaggerItem } from "@/components/marketing/motion/stagger";
 import { Reveal } from "@/components/marketing/motion/reveal";
+import {
+  PUBLIC_BILLING_CADENCE,
+  PUBLIC_SEAT_OFFER,
+} from "@/lib/billing/public-offer";
 import { cn } from "@/lib/utils";
 
 interface MarketingPricingTier {
@@ -41,8 +45,8 @@ const PRICING_TIERS: MarketingPricingTier[] = [
       "For acquisition teams running paid channels and cold lists side by side.",
     features: [
       "Workflows and routing",
-      "Team roles & permissions",
-      "Advanced pipeline views",
+      "Dialer",
+      "AI",
       "Unlimited leads",
     ],
     cta: "Start free trial",
@@ -52,15 +56,9 @@ const PRICING_TIERS: MarketingPricingTier[] = [
   {
     name: "Scale",
     price: "Custom",
-    cadence: "ANNUAL",
-    blurb:
-      "For multi-market operations with dispositions and in-house closing.",
-    features: [
-      "Multi-market reporting",
-      "API and data warehouse sync",
-      "SSO and audit log",
-      "Dedicated onboarding",
-    ],
+    cadence: "CUSTOM",
+    blurb: "Talk to sales. Checkout is not available.",
+    features: ["Custom scope with sales"],
     cta: "Talk to sales",
     href: "/contact",
   },
@@ -78,7 +76,7 @@ export function PricingPreview() {
             9.0 — PRICING
           </span>
           <h2 className="mt-5 font-sans text-[clamp(30px,3.4vw,44px)] leading-[1.05] font-normal tracking-normal text-balance text-[var(--mkt-text)]">
-            Per seat. Everything included.
+            Per seat. Monthly.
           </h2>
         </Reveal>
 
@@ -145,10 +143,10 @@ export function PricingPreview() {
         </Stagger>
 
         <p className="mt-6 max-w-[78ch] font-sans text-[14.5px] leading-[1.5] font-light text-[var(--mkt-text2)]">
-          Every new workspace gets Team free for 60 days. No card.
+          {PUBLIC_SEAT_OFFER}
         </p>
         <p className="mt-3 max-w-[78ch] font-mono text-[10.5px] leading-[1.6] tracking-[0.04em] text-[var(--mkt-text3)]">
-          Annual billing available. Prices apply after the trial. Early access pricing shown — subject to change before general availability.
+          {PUBLIC_BILLING_CADENCE}
         </p>
       </div>
     </section>

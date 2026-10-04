@@ -7,13 +7,7 @@ export type BillingCapability =
   | "dialer"
   | "ai"
   | "workflows"
-  | "routing"
-  | "multi_market_reporting"
-  | "api_sync"
-  | "sso"
-  | "audit_log"
-  | "skip_tracing"
-  | "dedicated_onboarding";
+  | "routing";
 
 export type BillingSource = "polar" | "grandfathered" | "none" | "trial";
 
@@ -72,19 +66,17 @@ export const BILLING_PLAN_CATALOG: Record<BillingPlan, BillingPlanDefinition> = 
     checkoutEnabled: true,
   },
   scale: {
-    capabilities: [
-      ...TEAM_CAPABILITIES,
-      "multi_market_reporting",
-      "api_sync",
-      "sso",
-      "audit_log",
-      "skip_tracing",
-      "dedicated_onboarding",
-    ],
+    capabilities: TEAM_CAPABILITIES,
     leadLimitPerUtcMonth: null,
     checkoutEnabled: false,
   },
 };
+
+const FULL_ACCESS_NAV_CAPABILITIES = new Set<BillingCapability>([
+  "dialer",
+  "workflows",
+  "routing",
+]);
 
 export function getBillingPlanCapabilities(
   plan: BillingPlan,
@@ -94,6 +86,31 @@ export function getBillingPlanCapabilities(
 
 export function getBillingPlanLeadLimit(plan: BillingPlan): number | null {
   return BILLING_PLAN_CATALOG[plan].leadLimitPerUtcMonth;
+}
+
+export function getBillableNavCapabilities(
+  plan: BillingPlan | null,
+  accessMode: BillingAccessMode,
+): BillingCapability[] {
+  if (!plan) return [];
+  const capabilities = getBillingPlanCapabilities(plan);
+  if (accessMode === "full") return capabilities;
+  return capabilities.filter(
+    (capability) => !FULL_ACCESS_NAV_CAPABILITIES.has(capability),
+  );
+}
+
+export function canRunScheduledWorkflows(
+  state: BillingSubscriptionState,
+  now = new Date(),
+): boolean {
+  return (
+    deriveBillingAccessMode(state, now) === "full" &&
+    Boolean(
+      state.plan &&
+        BILLING_PLAN_CATALOG[state.plan].capabilities.includes("workflows"),
+    )
+  );
 }
 
 function isWithinPastDueGracePeriod(

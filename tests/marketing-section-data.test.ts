@@ -17,9 +17,11 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     expect(MARKETING_INTAKE_SOURCES).toEqual([
       { n: "01", label: "PPC, SEO and inbound seller forms", meta: "REAL TIME" },
       { n: "02", label: "Cold lists, direct mail and probate records", meta: "CSV / API" },
-      { n: "03", label: "Skip tracing on every new record", meta: "AUTO" },
-      { n: "04", label: "Duplicate and DNC scrubbing", meta: "AUTO" },
+      { n: "03", label: "Duplicate detection on import", meta: "AUTO" },
     ]);
+    expect(
+      MARKETING_INTAKE_SOURCES.map((source) => source.label).join(" ").toLowerCase(),
+    ).not.toContain("skip tracing");
 
     expect(MARKETING_INTAKE_FILTERS).toEqual([
       { label: "Absentee owner", on: true },
@@ -65,9 +67,9 @@ describe("marketing Intake, Qualify, and Engage data", () => {
 
   test("keeps approved engage stats, waveform, queue, and sequence", () => {
     expect(MARKETING_ENGAGE_STATS).toEqual([
-      { label: "Dial attempts per hour, per rep", value: "3.4×" },
-      { label: "Median time from lead to first call", value: "4 min" },
-      { label: "Callbacks auto-scheduled", value: "100%" },
+      { label: "Email sequences", value: "Live" },
+      { label: "Contact timeline", value: "Live" },
+      { label: "Pipeline stages", value: "Live" },
     ]);
 
     expect(MARKETING_WAVEFORM_BARS).toHaveLength(48);

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import {
   BILLING_PLAN_CATALOG,
+  canRunScheduledWorkflows,
   deriveBillingAccessMode,
+  getBillableNavCapabilities,
   getBillingPlanCapabilities,
   getBillingPlanLeadLimit,
   type BillingPlan,
@@ -40,8 +42,55 @@ describe("billing plan catalog", () => {
     expect(getBillingPlanLeadLimit("scale")).toBeNull();
   });
 
-  it("keeps Scale checkout disabled until its capabilities are ready", () => {
+  it("keeps Scale checkout disabled and does not add unshipped capabilities", () => {
     expect(BILLING_PLAN_CATALOG.scale.checkoutEnabled).toBe(false);
+    expect(getBillingPlanCapabilities("scale")).toEqual(
+      getBillingPlanCapabilities("team"),
+    );
+  });
+
+  it("hides dialer, workflows, and routing after trial_end", () => {
+    expect(getBillableNavCapabilities("team", "full")).toEqual(
+      expect.arrayContaining(["dialer", "workflows", "routing"]),
+    );
+    expect(getBillableNavCapabilities("team", "billing_required")).not.toContain(
+      "dialer",
+    );
+    expect(getBillableNavCapabilities("team", "billing_required")).not.toContain(
+      "workflows",
+    );
+    expect(getBillableNavCapabilities("team", "billing_required")).not.toContain(
+      "routing",
+    );
+    expect(getBillableNavCapabilities("team", "billing_required")).toEqual(
+      expect.arrayContaining(["pipeline", "queue", "sequences"]),
+    );
+    expect(getBillableNavCapabilities("starter", "full")).not.toContain("dialer");
+    expect(getBillableNavCapabilities("starter", "full")).not.toContain("workflows");
+  });
+
+  it("blocks scheduled workflows on a writable Starter plan and an expired trial", () => {
+    expect(canRunScheduledWorkflows(subscription())).toBe(false);
+    expect(
+      canRunScheduledWorkflows(
+        subscription({
+          source: "polar",
+          plan: "team",
+          providerStatus: "active",
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      canRunScheduledWorkflows(
+        subscription({
+          source: "trial",
+          plan: "team",
+          providerStatus: "trialing",
+          trialEnd: "2026-08-01T00:00:00.000Z",
+        }),
+        new Date("2026-08-16T00:00:00.000Z"),
+      ),
+    ).toBe(false);
   });
 });
 

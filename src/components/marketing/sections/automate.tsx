@@ -31,7 +31,7 @@ export const MARKETING_WORKFLOW_STEPS: MarketingWorkflowStep[] = [
   {
     kind: "BRANCH",
     title: "Has contact info?",
-    detail: "Yes → assign · No → research",
+    detail: "Yes → route · No → create a task",
   },
   {
     kind: "ACTION",

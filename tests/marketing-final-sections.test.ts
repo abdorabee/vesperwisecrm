@@ -38,40 +38,33 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("One system instead of six tabs.");
     expect(sectionText).toContain(
       normalizeWhitespace(
-        "Teams arrive at VesperWiseCRM from a spreadsheet, a generic CRM, a separate dialer and a skip tracing vendor. The handoffs between them are where leads die.",
+        "Teams arrive at VesperWiseCRM from spreadsheets and generic CRMs where follow-up dies in the gaps. Pipeline, email sequences, and the lead queue live on one platform.",
       ),
     );
     expect(section).toContain("Leads in a shared spreadsheet");
-    expect(section).toContain("One queue, scored and assigned");
-    expect(section).toContain("Skip tracing in a separate vendor portal");
-    expect(section).toContain("Enrichment on record creation");
-    expect(section).toContain("Dialer disconnected from the CRM");
-    expect(section).toContain("Dial from the record, logged automatically");
-    expect(section).toContain("Call notes typed from memory");
-    expect(section).toContain("Transcribed, summarised, scored");
+    expect(section).toContain("One queue with clear stages and assignments");
+    expect(section).toContain("Contact info scattered across tools");
+    expect(section).toContain("All contact history on one record");
+    expect(section).toContain("Manual email follow-up tracking");
+    expect(section).toContain("Automated email sequences with tracking");
+    expect(section).toContain("Pipeline buried in spreadsheet tabs");
+    expect(section).toContain("Visual pipeline with drag-and-drop stages");
     expect(section).toContain("Follow-up depends on who remembers");
     expect(section).toContain("Sequences and workflows own the follow-up");
+    expect(section.toLowerCase()).not.toContain("skip tracing");
     expectNoLegacyMarketingTokens(section);
   });
 
-  test("keeps the approved placeholder testimonials", () => {
+  test("states early access without invented customer quotes", () => {
     const section = source("src/components/marketing/sections/testimonials.tsx");
 
     expect(section).toContain("8.0");
-    expect(section).toContain("FROM THE FIELD");
-    expect(section).toContain("PLACEHOLDER — REPLACE WITH ATTRIBUTED QUOTES");
+    expect(section).toContain("EARLY ACCESS");
+    expect(section).toContain("Team for 60 days. No card.");
     expect(section).toContain(
-      "The queue tells the team who to call and why. That decision used to eat the first hour of every morning.",
+      "VesperWiseCRM is in early access. Pipeline management, email sequences, and the lead queue are live.",
     );
-    expect(section).toContain("PLACEHOLDER · ACQUISITIONS MANAGER");
-    expect(section).toContain(
-      "Call summaries mean a lead can change hands without losing the context of the conversation.",
-    );
-    expect(section).toContain("PLACEHOLDER · TEAM LEAD");
-    expect(section).toContain(
-      "We stopped losing revived leads. The ninety-day nurture rule pays for the software on its own.",
-    );
-    expect(section).toContain("PLACEHOLDER · OWNER");
+    expect(section).not.toContain("PLACEHOLDER ·");
     expectNoLegacyMarketingTokens(section);
   });
 
@@ -84,7 +77,17 @@ describe("final marketing landing sections", () => {
     expect(section).toContain('id="pricing"');
     expect(section).toContain("9.0");
     expect(section).toContain("PRICING");
-    expect(section).toContain("Per seat. Everything included.");
+    expect(section).toContain("Per seat. Monthly.");
+    expect(section).toContain("Dialer");
+    expect(section).toContain('"AI"');
+    expect(section).toContain("Workflows and routing");
+    expect(section).toContain("Unlimited leads");
+    expect(section).not.toContain("Team roles & permissions");
+    expect(section).not.toContain("Advanced pipeline views");
+    expect(section).not.toContain("SSO and audit log");
+    expect(section).not.toContain("Multi-market reporting");
+    expect(section).not.toContain("API and data warehouse sync");
+    expect(section).not.toContain("Dedicated onboarding");
     expect(section).toContain("Starter");
     expect(section).toContain("$99");
     expect(section).toContain("/ SEAT / MO");
@@ -99,22 +102,19 @@ describe("final marketing landing sections", () => {
     );
     expect(section).toContain("Scale");
     expect(section).toContain("Custom");
-    expect(section).toContain("ANNUAL");
-    expect(sectionText).toContain(
-      "For multi-market operations with dispositions and in-house closing.",
-    );
+    expect(section).toContain("CUSTOM");
+    expect(section).not.toContain("ANNUAL");
+    expect(sectionText).toContain("Talk to sales. Checkout is not available.");
     expect(section).toContain("Start free trial");
     expect(section).toContain('href: "/signup"');
     expect(section).not.toContain("Start pilot");
     expect(section).not.toContain('href: "/book-demo"');
     expect(section).toContain("Talk to sales");
     expect(section).toContain('href: "/contact"');
-    expect(sectionText).toContain(
-      "Every new workspace gets Team free for 60 days. No card.",
-    );
-    expect(sectionText).toContain(
-      "Annual billing available. Prices apply after the trial.",
-    );
+    expect(section).toContain("PUBLIC_SEAT_OFFER");
+    expect(section).toContain("PUBLIC_BILLING_CADENCE");
+    expect(section).not.toContain("Annual billing available");
+    expect(section).not.toContain("Everything included");
     expectNoLegacyMarketingTokens(section);
   });
 
@@ -168,7 +168,7 @@ describe("marketing home page section order", () => {
       "VesperWise CRM — Every Lead Worked. Nothing Goes Cold.",
     );
     expect(page).toContain("real estate acquisition teams");
-    expect(page).toContain("skip tracing");
+    expect(page).not.toContain("skip tracing");
     expect(page).toContain("AI qualification");
     expect(page).toContain("dialer");
     expect(page).toContain("pipeline");

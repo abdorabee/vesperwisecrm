@@ -15,7 +15,7 @@ import { isDialerEnabled } from "@/lib/dialer/config";
 import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
 import { WorkspaceFormattingProvider } from "@/components/workspace-formatting-context";
 import { getBillingSummary } from "@/lib/billing/access";
-import { getBillingPlanCapabilities } from "@/lib/billing/entitlements";
+import { getBillableNavCapabilities } from "@/lib/billing/entitlements";
 
 export default async function DashboardLayout({
   children,
@@ -42,9 +42,10 @@ export default async function DashboardLayout({
   const billingSummary = membership
     ? await getBillingSummary(membership.accountId)
     : null;
-  const billingCapabilities = billingSummary?.plan
-    ? getBillingPlanCapabilities(billingSummary.plan)
-    : [];
+  const billingCapabilities = getBillableNavCapabilities(
+    billingSummary?.plan ?? null,
+    billingSummary?.accessMode ?? "billing_required",
+  );
   const workspace = await getWorkspaceSettings();
   // Read here so the rail renders at its final width on the server; reading it
   // on the client instead is what made a collapsed sidebar flash open on load.
@@ -103,7 +104,10 @@ export default async function DashboardLayout({
             />
             <main id="main-content" tabIndex={-1} className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
           </div>
-          <OnboardingTour isAdmin={isAdmin} />
+          <OnboardingTour
+            isAdmin={isAdmin}
+            includeWorkflows={billingCapabilities.includes("workflows")}
+          />
           <ActiveCallPanel dispositions={dialerShell.dispositions} />
         </div>
         </WorkspaceFormattingProvider>

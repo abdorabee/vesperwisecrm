@@ -37,7 +37,7 @@ describe("redesigned marketing landing data", () => {
   test("keeps the approved activity, proof logos, and premise captions", () => {
     expect(MARKETING_HERO_ACTIVITY).toEqual([
       {
-        text: "Skip trace returned 3 phones, 1 email",
+        text: "Lead added from a cold list",
         time: "TODAY 09:14",
         accent: false,
       },
@@ -58,18 +58,12 @@ describe("redesigned marketing landing data", () => {
       },
     ]);
 
-    expect(MARKETING_PROOF_LOGOS).toEqual([
-      "Keystone Property Group",
-      "Redbrick Home Buyers",
-      "Harbor & Vale",
-      "Northlight Equity",
-      "Cardinal Offer Co.",
-    ]);
+    expect(MARKETING_PROOF_LOGOS).toEqual([]);
 
     expect(MARKETING_PREMISE_STEPS.map((step) => step.caption)).toEqual([
-      "Every source — PPC, cold lists, referrals, probate — lands in one queue with skip tracing already attached.",
-      "Calls are transcribed and scored, so motivation and condition are known before a human reads the record.",
-      "Dialer, sequences, tasks and pipeline sit on the same record. The next action is never a guess.",
+      "Every source — PPC, cold lists, referrals, probate — lands in one queue. No CSV shuffling.",
+      "Track contact attempts, notes, and stage changes on one record. Know where every conversation stands.",
+      "Email sequences, tasks and pipeline sit on the same record. The next action is never a guess.",
     ]);
   });
 });

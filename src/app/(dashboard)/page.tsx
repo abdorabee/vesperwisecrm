@@ -10,6 +10,7 @@ import { getAtRiskLeads, getDashboardStats } from "@/lib/queries/reporting";
 import { getYourDayTasks } from "@/lib/queries/tasks";
 import { getAccountMemberProfiles } from "@/lib/queries/members";
 import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
+import { getCurrentBillableNavCapabilities } from "@/lib/billing/access";
 import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
 import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
 import { getDialerCredentialStatus } from "@/lib/queries/dialer-credentials";
@@ -46,6 +47,7 @@ export default async function DashboardPage() {
     getWorkspaceSettings(),
   ]);
   const isAdmin = membership ? isAdminRole(membership.role) : false;
+  const billingCapabilities = await getCurrentBillableNavCapabilities();
   const [emailSettings, dialerCredentials] = isAdmin
     ? await Promise.all([getAccountEmailSettingsForAdmin(), getDialerCredentialStatus()])
     : [null, null];
@@ -70,6 +72,7 @@ export default async function DashboardPage() {
         hasLeads={stats.totalLeads > 0}
         emailConnected={isAccountEmailReady(emailSettings)}
         callingConnected={Boolean(dialerCredentials?.connected && dialerCredentials.status === "active")}
+        showCalling={billingCapabilities.includes("dialer")}
       />
 
       <Card>

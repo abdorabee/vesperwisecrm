@@ -12,6 +12,11 @@ export function MarketingContentPage({ page }: { page: MarketingPageContent }) {
       description={page.description}
       cta={page.form === "contact" ? undefined : page.cta}
     >
+      {page.updated ? (
+        <p className="mb-6 font-mono text-[11px] leading-none tracking-[0.06em] text-[var(--mkt-text3)]">
+          Last updated {page.updated}
+        </p>
+      ) : null}
       {page.sections.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2">
           {page.sections.map((section) => (

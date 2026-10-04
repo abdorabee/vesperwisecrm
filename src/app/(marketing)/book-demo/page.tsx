@@ -8,7 +8,7 @@ const SITE_URL =
 
 const TITLE = "Book a demo — VesperWise CRM";
 const DESCRIPTION =
-  "Pick a weekday slot for a 30-minute walkthrough of intake, skip tracing, the queue, and the dialer. No card required.";
+  "Pick a weekday slot for a 30-minute walkthrough of intake, the queue, the dialer, and the pipeline. No card required.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
