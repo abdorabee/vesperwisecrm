@@ -72,8 +72,11 @@ export async function loadImportJobProgress(
 export async function processImportJob(
   supabase: CRMClient,
   jobId: string,
-  options?: { actorUserId?: string | null; accountId?: string },
+  options?: { actorUserId?: string | null; accountId?: string; maxDurationMs?: number },
 ): Promise<ImportJobProgress> {
+  const startTime = Date.now();
+  const maxDuration = options?.maxDurationMs ?? 30_000;
+
   let jobQuery = supabase.from("import_jobs").select("*").eq("id", jobId);
   if (options?.accountId) {
     jobQuery = jobQuery.eq("account_id", options.accountId);
@@ -84,7 +87,7 @@ export async function processImportJob(
     throw new Error(jobError?.message ?? "Import job not found");
   }
 
-  if (job.status === "completed" || job.status === "failed") {
+  if (job.status === "completed" || job.status === "failed" || job.status === "cancelled") {
     return loadImportJobProgress(supabase, jobId, options?.accountId);
   }
 
@@ -98,48 +101,54 @@ export async function processImportJob(
     throw new Error(claimError.message);
   }
 
-  const { data: pendingRows, error: pendingError } = await supabase
-    .from("import_job_rows")
-    .select("*")
-    .eq("job_id", jobId)
-    .eq("status", "pending")
-    .order("row_number")
-    .limit(IMPORT_BATCH_SIZE);
-
-  if (pendingError) {
-    throw new Error(pendingError.message);
-  }
-
   const stageMap = (job.stage_map ?? {}) as Record<string, string>;
   let imported = job.imported_count;
   let failed = job.failed_count;
-  const newErrors: string[] = [];
+  const allErrors: string[] = [];
 
-  for (const row of pendingRows ?? []) {
-    try {
-      const record = parseCanonicalPayload(row.payload);
-      await writeCanonicalRecord(supabase, {
-        accountId: job.account_id,
-        actorUserId: options?.actorUserId ?? job.created_by_user_id,
-        record,
-        stageMap,
-      });
-      const { error } = await supabase
-        .from("import_job_rows")
-        .update({ status: "imported", error_text: null })
-        .eq("id", row.id);
-      if (error) {
-        throw new Error(error.message);
+  while (Date.now() - startTime < maxDuration) {
+    const { data: pendingRows, error: pendingError } = await supabase.rpc(
+      "claim_import_job_rows",
+      {
+        p_job_id: jobId,
+        p_limit: IMPORT_BATCH_SIZE,
       }
-      imported += 1;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Failed to import";
-      failed += 1;
-      newErrors.push(`Row ${row.row_number}: ${message}`);
-      await supabase
-        .from("import_job_rows")
-        .update({ status: "failed", error_text: message })
-        .eq("id", row.id);
+    );
+
+    if (pendingError) {
+      throw new Error(pendingError.message);
+    }
+
+    if (!pendingRows || pendingRows.length === 0) {
+      break;
+    }
+
+    for (const row of pendingRows) {
+      try {
+        const record = parseCanonicalPayload(row.payload);
+        await writeCanonicalRecord(supabase, {
+          accountId: job.account_id,
+          actorUserId: options?.actorUserId ?? job.created_by_user_id,
+          record,
+          stageMap,
+        });
+        const { error } = await supabase
+          .from("import_job_rows")
+          .update({ status: "imported", error_text: null })
+          .eq("id", row.id);
+        if (error) {
+          throw new Error(error.message);
+        }
+        imported += 1;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Failed to import";
+        failed += 1;
+        allErrors.push(`Row ${row.row_number}: ${message}`);
+        await supabase
+          .from("import_job_rows")
+          .update({ status: "failed", error_text: message })
+          .eq("id", row.id);
+      }
     }
   }
 
@@ -149,7 +158,7 @@ export async function processImportJob(
     .eq("job_id", jobId)
     .eq("status", "pending");
 
-  const errorSummary = [...newErrors, job.error_summary]
+  const errorSummary = [...allErrors, job.error_summary]
     .filter(Boolean)
     .slice(0, 20)
     .join("\n") || null;
@@ -173,6 +182,7 @@ export async function processImportJob(
 export async function processPendingImportJobs(
   supabase: CRMClient,
   limit = 5,
+  maxDurationMs = 540_000,
 ): Promise<{ jobs: number; imported: number; failed: number }> {
   const { data: jobs, error } = await supabase
     .from("import_jobs")
@@ -189,7 +199,9 @@ export async function processPendingImportJobs(
   let failed = 0;
 
   for (const job of jobs ?? []) {
-    const progress = await processImportJob(supabase, job.id);
+    const progress = await processImportJob(supabase, job.id, {
+      maxDurationMs,
+    });
     imported += progress.importedCount;
     failed += progress.failedCount;
   }
