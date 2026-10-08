@@ -185,6 +185,7 @@ export type Database = {
       }
       accounts: {
         Row: {
+          age_confirmed_at: string | null
           created_at: string
           currency_code: string
           date_format: string
@@ -196,6 +197,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          age_confirmed_at?: string | null
           created_at?: string
           currency_code?: string
           date_format?: string
@@ -207,6 +209,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          age_confirmed_at?: string | null
           created_at?: string
           currency_code?: string
           date_format?: string

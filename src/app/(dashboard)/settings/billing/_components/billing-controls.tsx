@@ -11,6 +11,7 @@ import {
   type BillingPlan,
 } from "@/lib/billing/entitlements";
 import type { BillingSummary } from "@/lib/billing/access";
+import { checkoutRenewalDisclosure } from "@/lib/billing/checkout-renewal";
 import {
   cancelBillingAtPeriodEnd,
   changeBillingPlan,
@@ -227,9 +228,22 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
                 <p className="mt-2 min-h-10 text-sm text-muted-foreground">
                   {plan === "starter" ? "Pipeline, review queue, sequences, and 1,000 leads per UTC month." : plan === "team" ? "Starter benefits plus dialer, AI, workflows, routing, and unlimited leads." : "Custom. Talk to sales. Checkout is not available."}
                 </p>
+                {plan === "starter" || plan === "team" ? (
+                  <p
+                    id={`${plan}-renewal-terms`}
+                    className="mt-4 text-sm leading-relaxed text-muted-foreground"
+                  >
+                    {checkoutRenewalDisclosure(plan)}
+                  </p>
+                ) : null}
                 <Button
                   type="button"
-                  className="mt-4 w-full"
+                  className="mt-3 w-full"
+                  aria-describedby={
+                    plan === "starter" || plan === "team"
+                      ? `${plan}-renewal-terms`
+                      : undefined
+                  }
                   variant={current ? "secondary" : "outline"}
                   disabled={pending || current || !enabled}
                   onClick={() =>
