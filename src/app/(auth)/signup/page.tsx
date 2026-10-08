@@ -91,6 +91,23 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
 
         <div className="flex items-start gap-3">
           <input
+            id="signup-confirm-age"
+            name="confirm_age"
+            type="checkbox"
+            value="yes"
+            required
+            className="mt-1 size-4 shrink-0 accent-[var(--mkt-accent)]"
+          />
+          <label
+            htmlFor="signup-confirm-age"
+            className="text-sm leading-relaxed text-[var(--mkt-text2)]"
+          >
+            I am 18 or older
+          </label>
+        </div>
+
+        <div className="flex items-start gap-3">
+          <input
             id="signup-accept-terms"
             name="accept_terms"
             type="checkbox"

@@ -11,6 +11,7 @@ import {
   canSendBrandedAuthEmail,
   sendSignupConfirmationEmail,
 } from "@/lib/email/auth-emails";
+import { signupAgeConfirmed } from "@/lib/auth/signup-age";
 import { signupTermsAccepted } from "@/lib/auth/signup-terms";
 
 const SIGNUPS_PER_HOUR = 10;
@@ -21,7 +22,7 @@ function signupFailure(message: string, plan: string | null): never {
   );
 }
 
-async function recordTermsAcceptance(userId: string): Promise<void> {
+async function recordSignupAttestations(userId: string): Promise<void> {
   const serviceRole = createServiceRoleClient();
   const { data: membership, error: membershipError } = await serviceRole
     .from("account_members")
@@ -32,12 +33,16 @@ async function recordTermsAcceptance(userId: string): Promise<void> {
     .maybeSingle();
 
   if (membershipError || !membership) {
-    throw new Error(membershipError?.message ?? "Could not record terms acceptance");
+    throw new Error(membershipError?.message ?? "Could not record signup attestations");
   }
 
+  const acceptedAt = new Date().toISOString();
   const { error } = await serviceRole
     .from("accounts")
-    .update({ terms_accepted_at: new Date().toISOString() })
+    .update({
+      terms_accepted_at: acceptedAt,
+      age_confirmed_at: acceptedAt,
+    })
     .eq("id", membership.account_id);
 
   if (error) {
@@ -73,6 +78,12 @@ export async function signUp(formData: FormData): Promise<void> {
   if (!signupTermsAccepted(formData)) {
     signupFailure(
       "Accept the Terms and Privacy notice to create a workspace.",
+      plan,
+    );
+  }
+  if (!signupAgeConfirmed(formData)) {
+    signupFailure(
+      "Confirm that you are 18 or older to create a workspace.",
       plan,
     );
   }
@@ -127,12 +138,12 @@ export async function signUp(formData: FormData): Promise<void> {
     }
 
     try {
-      await recordTermsAcceptance(data.user.id);
+      await recordSignupAttestations(data.user.id);
     } catch (recordError) {
       signupFailure(
         recordError instanceof Error
           ? recordError.message
-          : "Could not record terms acceptance",
+          : "Could not record signup attestations",
         plan,
       );
     }
@@ -171,12 +182,12 @@ export async function signUp(formData: FormData): Promise<void> {
     }
 
     try {
-      await recordTermsAcceptance(data.user.id);
+      await recordSignupAttestations(data.user.id);
     } catch (recordError) {
       signupFailure(
         recordError instanceof Error
           ? recordError.message
-          : "Could not record terms acceptance",
+          : "Could not record signup attestations",
         plan,
       );
     }
