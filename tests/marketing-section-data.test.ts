@@ -6,8 +6,8 @@ import {
   MARKETING_FUNNEL_BARS,
   MARKETING_INTAKE_FILTERS,
   MARKETING_INTAKE_SOURCES,
-  MARKETING_QUALIFY_SCORES,
   MARKETING_QUALIFY_TAGS,
+  MARKETING_SELECTED_LEAD,
   MARKETING_UP_NEXT,
   MARKETING_WAVEFORM_BARS,
 } from "../src/components/marketing/mock/mock-data";
@@ -47,13 +47,13 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     });
   });
 
-  test("keeps approved qualify scores and tags", () => {
-    expect(MARKETING_QUALIFY_SCORES).toEqual([
-      { label: "MOTIVATION", value: "92", pct: 92, tone: "accent" },
-      { label: "TIMELINE", value: "30d", pct: 84, tone: "accent" },
-      { label: "CONDITION", value: "C-", pct: 46, tone: "strong" },
-      { label: "SPREAD", value: "$29k", pct: 62, tone: "strong" },
-    ]);
+  test("keeps the pipeline card on the qualify record, plus notes tags", () => {
+    expect(MARKETING_SELECTED_LEAD).toEqual({
+      title: "4127 Kessler Blvd",
+      contact: "Marcus Whitfield",
+      owner: "Dana Reyes",
+      stage: "Qualified",
+    });
 
     expect(MARKETING_QUALIFY_TAGS).toEqual([
       "probate",
@@ -67,7 +67,7 @@ describe("marketing Intake, Qualify, and Engage data", () => {
 
   test("keeps approved engage stats, waveform, queue, and sequence", () => {
     expect(MARKETING_ENGAGE_STATS).toEqual([
-      { label: "Email sequences", value: "Live" },
+      { label: "Email sequences", value: "Early" },
       { label: "Contact timeline", value: "Live" },
       { label: "Pipeline stages", value: "Live" },
     ]);
@@ -83,21 +83,21 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     expect(MARKETING_WAVEFORM_BARS[47]).toMatchObject({ active: false });
 
     expect(MARKETING_UP_NEXT).toEqual([
-      "R. Petrossian · 85",
-      "Estate of H. Calloway · 88",
-      "P. Raghunathan · 71",
-      "T. Lindgren · 54",
-      "W. Nkemdirim · 41",
+      "R. Petrossian · Appointment",
+      "Estate of H. Calloway · Contacted",
+      "P. Raghunathan · New",
+      "T. Lindgren · Nurture",
+      "W. Nkemdirim · No contact",
     ]);
 
     expect(MARKETING_DAY_SEQUENCE).toEqual([
-      { day: "D1", action: "Call + voicemail drop", state: 2 },
-      { day: "D1", action: "SMS: cash offer intro", state: 2 },
+      { day: "D1", action: "Email: intro", state: 2 },
       { day: "D2", action: "Email: process outline", state: 2 },
-      { day: "D3", action: "Call attempt 2", state: 1 },
-      { day: "D5", action: "SMS check-in", state: 0 },
+      { day: "D3", action: "Email: follow-up", state: 1 },
+      { day: "D4", action: "Task: check the reply", state: 0 },
+      { day: "D5", action: "Email: check-in", state: 0 },
       { day: "D6", action: "Email: comps + offer", state: 0 },
-      { day: "D7", action: "Final call, then nurture", state: 0 },
+      { day: "D7", action: "Email: last note, then nurture", state: 0 },
     ]);
   });
 });

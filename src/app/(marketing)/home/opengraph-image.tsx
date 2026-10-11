@@ -72,7 +72,7 @@ export default function Image() {
             maxWidth: 860,
           }}
         >
-          Lead intake, AI qualification, and automated follow-up — in one place.
+          Lead intake, the queue, and pipeline — in one place.
         </div>
       </div>
     ),

@@ -72,7 +72,7 @@ export function Hero() {
             actions={
               <>
                 <span className="rounded-[5px] border border-[color:var(--mkt-border-subtle)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-text3)]">
-                  Motivation ≥ 70
+                  Stage · Qualified
                 </span>
                 <span className="rounded-[5px] bg-[var(--mkt-accent)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-accent-ink)]">
                   Unworked · 12

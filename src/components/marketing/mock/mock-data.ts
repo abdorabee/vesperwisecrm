@@ -16,7 +16,7 @@ export const MARKETING_HERO_COPY: MarketingHeroCopy = {
   eyebrow: "ACQUISITION CRM / REAL ESTATE",
   title: "Every lead worked. Nothing goes cold.",
   subhead:
-    "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences, and lead queue in one place. Early access available now.",
+    "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences (early), and the lead queue in one place. Early access available now.",
   primaryCta: "Book a demo",
   secondaryCta: "See the workflow",
   note: "No card. Team free for 60 days.",
@@ -28,7 +28,7 @@ export interface MarketingHeroLeadRow {
   address: string;
   source: string;
   stage: string;
-  score: number;
+  owner: string;
   touch: string;
   selected?: boolean;
 }
@@ -39,7 +39,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "4127 Kessler Blvd · Indianapolis, IN",
     source: "PPC",
     stage: "Qualified",
-    score: 92,
+    owner: "Dana Reyes",
     touch: "4m ago",
     selected: true,
   },
@@ -48,7 +48,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "882 Ridgeline Ct · Fort Wayne, IN",
     source: "Cold list",
     stage: "Contacted",
-    score: 78,
+    owner: "Marcus Ju",
     touch: "22m ago",
   },
   {
@@ -56,7 +56,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "15 Halstead Ave · Muncie, IN",
     source: "Referral",
     stage: "Appointment",
-    score: 85,
+    owner: "Dana Reyes",
     touch: "1h ago",
   },
   {
@@ -64,7 +64,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "9040 Sunfield Dr · Kokomo, IN",
     source: "Direct mail",
     stage: "Nurture",
-    score: 54,
+    owner: "Aisha Karim",
     touch: "3h ago",
   },
   {
@@ -72,7 +72,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "231 W Morris St · Indianapolis, IN",
     source: "Inbound",
     stage: "New",
-    score: 71,
+    owner: "Marcus Ju",
     touch: "5h ago",
   },
   {
@@ -80,7 +80,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "77 Ellsworth Rd · Anderson, IN",
     source: "Probate",
     stage: "Contacted",
-    score: 88,
+    owner: "Aisha Karim",
     touch: "6h ago",
   },
   {
@@ -88,51 +88,24 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "3312 Brookville Rd · Terre Haute, IN",
     source: "Cold list",
     stage: "No contact",
-    score: 41,
+    owner: "Unassigned",
     touch: "1d ago",
   },
 ];
 
-export interface MarketingHeroActivityEvent {
-  text: string;
-  time: string;
-  accent: boolean;
+export interface MarketingPipelineCardFields {
+  title: string;
+  contact: string;
+  owner: string;
+  stage: string;
 }
 
-export const MARKETING_HERO_ACTIVITY: MarketingHeroActivityEvent[] = [
-  {
-    text: "Lead added from a cold list",
-    time: "TODAY 09:14",
-    accent: false,
-  },
-  {
-    text: "AI call summary: wants out before probate closes",
-    time: "TODAY 09:41",
-    accent: false,
-  },
-  {
-    text: "Motivation score raised 74 → 92",
-    time: "TODAY 09:41",
-    accent: true,
-  },
-  {
-    text: "Assigned to Dana R. · callback task created",
-    time: "TODAY 09:42",
-    accent: true,
-  },
-];
-
-export interface MarketingLeadIntelStat {
-  label: string;
-  value: string;
-}
-
-export const MARKETING_LEAD_INTEL_STATS: MarketingLeadIntelStat[] = [
-  { label: "EST. VALUE", value: "$214,000" },
-  { label: "EQUITY", value: "68%" },
-  { label: "OWNERSHIP", value: "14 yrs" },
-  { label: "PHONES", value: "3 verified" },
-];
+export const MARKETING_SELECTED_LEAD: MarketingPipelineCardFields = {
+  title: "4127 Kessler Blvd",
+  contact: "Marcus Whitfield",
+  owner: "Dana Reyes",
+  stage: "Qualified",
+};
 
 export const MARKETING_PROOF_LABEL =
   "EARLY ACCESS PROGRAM";
@@ -181,7 +154,7 @@ export const MARKETING_PREMISE_STEPS: MarketingPremiseStep[] = [
     number: "03",
     label: "Close",
     caption:
-      "Email sequences, tasks and pipeline sit on the same record. The next action is never a guess.",
+      "Email sequences (early), tasks, and pipeline sit on the same record. The next action is never a guess.",
   },
 ];
 
@@ -239,22 +212,6 @@ export const MARKETING_FUNNEL_BARS: MarketingFunnelBar[] = Array.from(
   },
 );
 
-export type MarketingScoreTone = "accent" | "strong";
-
-export interface MarketingQualifyScore {
-  label: string;
-  value: string;
-  pct: number;
-  tone: MarketingScoreTone;
-}
-
-export const MARKETING_QUALIFY_SCORES: MarketingQualifyScore[] = [
-  { label: "MOTIVATION", value: "92", pct: 92, tone: "accent" },
-  { label: "TIMELINE", value: "30d", pct: 84, tone: "accent" },
-  { label: "CONDITION", value: "C-", pct: 46, tone: "strong" },
-  { label: "SPREAD", value: "$29k", pct: 62, tone: "strong" },
-];
-
 export const MARKETING_QUALIFY_TAGS: string[] = [
   "probate",
   "inherited",
@@ -270,7 +227,7 @@ export interface MarketingEngageStat {
 }
 
 export const MARKETING_ENGAGE_STATS: MarketingEngageStat[] = [
-  { label: "Email sequences", value: "Live" },
+  { label: "Email sequences", value: "Early" },
   { label: "Contact timeline", value: "Live" },
   { label: "Pipeline stages", value: "Live" },
 ];
@@ -294,11 +251,11 @@ export const MARKETING_WAVEFORM_BARS: MarketingWaveformBar[] = Array.from(
 );
 
 export const MARKETING_UP_NEXT: string[] = [
-  "R. Petrossian · 85",
-  "Estate of H. Calloway · 88",
-  "P. Raghunathan · 71",
-  "T. Lindgren · 54",
-  "W. Nkemdirim · 41",
+  "R. Petrossian · Appointment",
+  "Estate of H. Calloway · Contacted",
+  "P. Raghunathan · New",
+  "T. Lindgren · Nurture",
+  "W. Nkemdirim · No contact",
 ];
 
 export type MarketingSequenceState = 0 | 1 | 2;
@@ -310,13 +267,13 @@ export interface MarketingDaySequenceStep {
 }
 
 export const MARKETING_DAY_SEQUENCE: MarketingDaySequenceStep[] = [
-  { day: "D1", action: "Call + voicemail drop", state: 2 },
-  { day: "D1", action: "SMS: cash offer intro", state: 2 },
+  { day: "D1", action: "Email: intro", state: 2 },
   { day: "D2", action: "Email: process outline", state: 2 },
-  { day: "D3", action: "Call attempt 2", state: 1 },
-  { day: "D5", action: "SMS check-in", state: 0 },
+  { day: "D3", action: "Email: follow-up", state: 1 },
+  { day: "D4", action: "Task: check the reply", state: 0 },
+  { day: "D5", action: "Email: check-in", state: 0 },
   { day: "D6", action: "Email: comps + offer", state: 0 },
-  { day: "D7", action: "Final call, then nurture", state: 0 },
+  { day: "D7", action: "Email: last note, then nurture", state: 0 },
 ];
 
 export type LeadTemperature = "hot" | "warm" | "cold";
@@ -330,8 +287,8 @@ export interface DemoQueueLead {
 
 export const DEMO_QUEUE_LEADS: DemoQueueLead[] = [
   { name: "3412 Larkspur Ave", source: "PPC form", score: 92, temperature: "hot" },
-  { name: "Duplex — Cedar Hills", source: "Cold call", score: 81, temperature: "hot" },
-  { name: "104 Bellamy Ct", source: "SMS reply", score: 64, temperature: "warm" },
+  { name: "Duplex — Cedar Hills", source: "List import", score: 81, temperature: "hot" },
+  { name: "104 Bellamy Ct", source: "Inbound form", score: 64, temperature: "warm" },
   { name: "Vacant lot — Rte 9", source: "List import", score: 47, temperature: "warm" },
   { name: "88 Winslow Dr", source: "Referral", score: 22, temperature: "cold" },
 ];
@@ -370,7 +327,7 @@ export const DEMO_PIPELINE: DemoPipelineColumn[] = [
 ];
 
 export interface DemoSequenceStep {
-  channel: "email" | "sms" | "call";
+  channel: "email";
   label: string;
   timing: string;
   status: "sent" | "scheduled" | "waiting";
@@ -378,10 +335,10 @@ export interface DemoSequenceStep {
 
 export const DEMO_SEQUENCE: DemoSequenceStep[] = [
   { channel: "email", label: "Intro + cash offer range", timing: "Day 0", status: "sent" },
-  { channel: "sms", label: "Quick follow-up text", timing: "Day 1", status: "sent" },
-  { channel: "call", label: "Qualification call", timing: "Day 2", status: "sent" },
+  { channel: "email", label: "Process outline", timing: "Day 1", status: "sent" },
+  { channel: "email", label: "Follow-up", timing: "Day 2", status: "sent" },
   { channel: "email", label: "Comps + timeline", timing: "Day 4", status: "scheduled" },
-  { channel: "sms", label: "Still interested?", timing: "Day 7", status: "waiting" },
+  { channel: "email", label: "Still interested?", timing: "Day 7", status: "waiting" },
 ];
 
 export interface DemoKpi {
@@ -411,24 +368,24 @@ export const DEMO_STAGE_BARS: DemoBar[] = [
 export interface DemoScorecardRow {
   initials: string;
   name: string;
-  dials: number;
+  touches: number;
   deals: number;
 }
 
 export const DEMO_SCORECARD: DemoScorecardRow[] = [
-  { initials: "MK", name: "M. Keller", dials: 148, deals: 6 },
-  { initials: "JR", name: "J. Ruiz", dials: 131, deals: 5 },
-  { initials: "AT", name: "A. Tran", dials: 117, deals: 4 },
-  { initials: "DB", name: "D. Boone", dials: 92, deals: 2 },
+  { initials: "MK", name: "M. Keller", touches: 148, deals: 6 },
+  { initials: "JR", name: "J. Ruiz", touches: 131, deals: 5 },
+  { initials: "AT", name: "A. Tran", touches: 117, deals: 4 },
+  { initials: "DB", name: "D. Boone", touches: 92, deals: 2 },
 ];
 
 export const DEMO_WORDMARKS: string[] = [
   "Apex Homebuyers",
-  "Northline Dials",
+  "Northline Homes",
   "Bluecreek Land Co",
   "Summit Acquisitions",
   "Irongate Realty",
-  "Cascade Callers",
+  "Cascade Holdings",
   "Redrock Offers",
 ];
 
@@ -442,7 +399,7 @@ export interface DemoMetric {
 export const DEMO_METRICS: DemoMetric[] = [
   { value: 12000, suffix: "+", label: "Leads worked through the queue" },
   { value: 38000, suffix: "+", label: "Follow-ups sent automatically" },
-  { value: 9200, suffix: "+", label: "Calls scored and summarized by AI" },
+  { value: 9200, suffix: "+", label: "Leads with an owner and a stage" },
   { value: 40, suffix: "%", label: "Less time on manual data entry" },
 ];
 
@@ -456,21 +413,21 @@ export interface DemoTestimonial {
 export const DEMO_TESTIMONIALS: DemoTestimonial[] = [
   {
     quote:
-      "We used to lose deals because a lead sat untouched for a week. Now every lead has a next action and the sequences run whether we remember or not.",
+      "We used to lose deals because a lead sat untouched for a week. Now every lead has a next action on the record.",
     initials: "AL",
     persona: "Acquisitions Lead",
     detail: "Land-flipping team, 6 seats",
   },
   {
     quote:
-      "The AI call summaries alone pay for it. My closers stopped taking notes and started closing — I read the summary and know exactly where a deal stands.",
+      "The pipeline card is the record. I can see the lead, the contact, the owner, and the stage without opening another tool.",
     initials: "AO",
     persona: "Agency Owner",
     detail: "Cold-calling agency, 14 seats",
   },
   {
     quote:
-      "The TV wall changed the floor. Everyone can see dials, deals, and who's on top — we stopped chasing reports and the numbers went up on their own.",
+      "The pipeline changed the floor. Everyone can see the stage, the owner, and who's next — we stopped chasing reports.",
     initials: "SM",
     persona: "Sales Manager",
     detail: "Wholesaling operation, 9 seats",
@@ -495,7 +452,7 @@ export const DEMO_PRICING_TIERS: DemoPricingTier[] = [
     features: [
       "Lead intake forms + API",
       "Kanban pipeline",
-      "Email sequences",
+      "Email sequences (early)",
       "Mobile PWA",
     ],
   },
@@ -506,9 +463,7 @@ export const DEMO_PRICING_TIERS: DemoPricingTier[] = [
     description: "For acquisition teams that live in the queue all day.",
     features: [
       "Everything in Solo",
-      "AI lead scoring + call summaries",
-      "SMS sequences + workflows",
-      "Scorecards + TV KPI wall",
+      "Workflows and routing",
       "Team roles & permissions",
     ],
     highlighted: true,

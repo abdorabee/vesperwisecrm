@@ -116,7 +116,7 @@ export function MockSearchPanel() {
                 TOTAL LIST 18,402
               </span>
               <span className="font-mono text-[10.5px] leading-none text-[var(--mkt-text3)]">
-                MATCHED 214 · SKIP TRACED 214 · DUPES REMOVED 63
+                MATCHED 214 · DUPES REMOVED 63
               </span>
             </div>
           </div>

@@ -75,7 +75,7 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
       {
         kind: "ACTION",
         title: "Start email sequence",
-        detail: "Intro and qualification",
+        detail: "Email sequences (early)",
         accent: true,
       },
     ]);
@@ -125,11 +125,11 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
     ]);
 
     expect(MARKETING_REP_ROWS).toEqual([
-      { name: "Dana Reyes", dials: "1,942", contacts: "421", appts: "58", contracts: "14", hot: true },
-      { name: "Marcus Ju", dials: "1,708", contacts: "364", appts: "49", contracts: "11", hot: true },
-      { name: "Aisha Karim", dials: "1,455", contacts: "298", appts: "37", contracts: "6" },
-      { name: "Owen Brandt", dials: "1,120", contacts: "204", appts: "22", contracts: "3" },
-      { name: "Nina Sokolov", dials: "864", contacts: "151", appts: "14", contracts: "0" },
+      { name: "Dana Reyes", touches: "1,942", contacts: "421", appts: "58", contracts: "14", hot: true },
+      { name: "Marcus Ju", touches: "1,708", contacts: "364", appts: "49", contracts: "11", hot: true },
+      { name: "Aisha Karim", touches: "1,455", contacts: "298", appts: "37", contracts: "6" },
+      { name: "Owen Brandt", touches: "1,120", contacts: "204", appts: "22", contracts: "3" },
+      { name: "Nina Sokolov", touches: "864", contacts: "151", appts: "14", contracts: "0" },
     ]);
   });
 });

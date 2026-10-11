@@ -10,7 +10,7 @@ const TEMPERATURE_STYLES: Record<LeadTemperature, string> = {
   cold: "bg-cold-subtle text-cold border-[color:var(--cold-border)]",
 };
 
-/** Static lead-queue table with AI score badges. */
+/** Static lead-queue table: name, source, and stage temperature. */
 export function MockLeadQueue() {
   return (
     <div className="flex flex-col bg-background/60 p-4" aria-hidden>
@@ -38,7 +38,7 @@ export function MockLeadQueue() {
                 TEMPERATURE_STYLES[lead.temperature],
               )}
             >
-              AI {lead.score}
+              {lead.temperature}
             </span>
           </div>
         ))}

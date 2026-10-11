@@ -1,6 +1,6 @@
 import { DEMO_SCORECARD } from "@/components/marketing/mock/mock-data";
 
-const maxDials = Math.max(...DEMO_SCORECARD.map((row) => row.dials));
+const maxTouches = Math.max(...DEMO_SCORECARD.map((row) => row.touches));
 
 /** Static team leaderboard: initials avatars + the app's h-2 progress-bar pattern. */
 export function MockScorecard() {
@@ -8,7 +8,7 @@ export function MockScorecard() {
     <div className="flex flex-col gap-2.5 bg-background/60 p-4" aria-hidden>
       <div className="flex items-center justify-between px-1">
         <span className="text-[10px] font-medium text-muted-foreground uppercase">
-          This week&apos;s dials
+          Touches this week
         </span>
         <span className="text-[10px] text-muted-foreground">Deals</span>
       </div>
@@ -26,13 +26,13 @@ export function MockScorecard() {
                 {index === 0 ? `${row.name} 🏆` : row.name}
               </p>
               <span className="text-[10px] text-muted-foreground tabular-nums">
-                {row.dials}
+                {row.touches}
               </span>
             </div>
             <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted">
               <div
                 className="h-2 rounded-full bg-primary"
-                style={{ width: `${(row.dials / maxDials) * 100}%` }}
+                style={{ width: `${(row.touches / maxTouches) * 100}%` }}
               />
             </div>
           </div>

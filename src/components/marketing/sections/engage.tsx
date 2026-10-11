@@ -18,8 +18,9 @@ export function Engage() {
               </h2>
             </div>
             <p className="mt-5 max-w-[38ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
-              Email sequences and callback tasks write to the same timeline.
-              Track every touch on one record so the next action is never a guess.
+              Email sequences (early) and follow-up tasks write to the same
+              timeline. Track every touch on one record so the next action is
+              never a guess.
             </p>
 
             <Stagger className="mt-8 grid border-t border-[color:var(--mkt-border)]">
@@ -42,7 +43,7 @@ export function Engage() {
           <div className="min-w-0">
             <div className="mb-3 flex items-end justify-between">
               <span className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
-                FIG 3.1 — DIALER SESSION + SEQUENCE
+                FIG 3.1 — EMAIL SEQUENCE (EARLY)
               </span>
             </div>
             <MockPowerDial />

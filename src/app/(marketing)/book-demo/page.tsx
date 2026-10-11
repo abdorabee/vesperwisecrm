@@ -8,7 +8,7 @@ const SITE_URL =
 
 const TITLE = "Book a demo — VesperWise CRM";
 const DESCRIPTION =
-  "Pick a weekday slot for a 30-minute walkthrough of intake, the queue, the dialer, and the pipeline. No card required.";
+  "Pick a weekday slot for a 15-minute call: we load 3 to 5 of your sellers into a pipeline live. No card required.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -21,7 +21,7 @@ export default function BookDemoPage() {
   return (
     <MarketingPageShell
       eyebrow="Get started / Book a demo"
-      title="See the system on a live walkthrough."
+      title="A 15-minute call. We load your sellers into a pipeline."
       description={DESCRIPTION}
     >
       <BookDemoCalendar />

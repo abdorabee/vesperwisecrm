@@ -1,7 +1,4 @@
-import {
-  MARKETING_HERO_ROWS,
-  type MarketingHeroLeadRow,
-} from "@/components/marketing/mock/mock-data";
+import { MARKETING_HERO_ROWS } from "@/components/marketing/mock/mock-data";
 import { cn } from "@/lib/utils";
 
 const LEAD_TABLE_COLUMNS =
@@ -11,13 +8,9 @@ const COLUMN_HEADERS = [
   "SELLER / PROPERTY",
   "SOURCE",
   "STAGE",
-  "SCORE",
+  "OWNER",
   "LAST TOUCH",
 ];
-
-function isHighScore(row: MarketingHeroLeadRow): boolean {
-  return row.score >= 85;
-}
 
 export function MockLeadTable() {
   return (
@@ -34,7 +27,7 @@ export function MockLeadTable() {
               key={header}
               className={cn(
                 "truncate font-mono text-[10.5px] font-medium tracking-[0.07em] text-[var(--mkt-text3)]",
-                header === "SCORE" || header === "LAST TOUCH" ? "text-right" : "",
+                header === "OWNER" || header === "LAST TOUCH" ? "text-right" : "",
               )}
             >
               {header}
@@ -43,8 +36,6 @@ export function MockLeadTable() {
         </div>
 
         {MARKETING_HERO_ROWS.map((row) => {
-          const highScore = isHighScore(row);
-
           return (
             <div
               key={`${row.name}-${row.address}`}
@@ -79,24 +70,15 @@ export function MockLeadTable() {
                 <span
                   className={cn(
                     "size-1.5 shrink-0 rounded-full",
-                    highScore ? "bg-[var(--mkt-accent)]" : "bg-[var(--mkt-border-strong)]",
+                    row.selected ? "bg-[var(--mkt-accent)]" : "bg-[var(--mkt-border-strong)]",
                   )}
                 />
                 <span className="truncate">{row.stage}</span>
               </span>
 
-              <div className="flex justify-end">
-                <span
-                  className={cn(
-                    "rounded-[5px] border px-2 py-1 font-mono text-[11.5px] leading-none font-medium tabular-nums",
-                    highScore
-                      ? "border-[color:var(--mkt-accent)] bg-[var(--mkt-accent)] text-[var(--mkt-accent-ink)]"
-                      : "border-[color:var(--mkt-border-subtle)] bg-transparent text-[var(--mkt-text2)]",
-                  )}
-                >
-                  {row.score}
-                </span>
-              </div>
+              <span className="truncate text-right font-sans text-xs text-[var(--mkt-text2)]">
+                {row.owner}
+              </span>
 
               <span className="truncate text-right font-mono text-[11.5px] text-[var(--mkt-text3)]">
                 {row.touch}
