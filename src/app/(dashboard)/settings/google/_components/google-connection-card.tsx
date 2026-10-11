@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { disconnectGoogle, updateDriveFolder } from "@/lib/actions/google";
-import type { Tables } from "@/lib/supabase/types";
+import type { GoogleConnectionSummary } from "@/lib/google/connection";
 
 interface GoogleConnectionCardProps {
-  integration: Tables<"google_integrations"> | null;
+  integration: GoogleConnectionSummary | null;
   configured: boolean;
   connected: boolean;
   error: string | null;
@@ -22,7 +22,7 @@ export function GoogleConnectionCard({
   connected,
   error,
 }: GoogleConnectionCardProps) {
-  const [folderId, setFolderId] = useState(integration?.drive_folder_id ?? "");
+  const [folderId, setFolderId] = useState(integration?.driveFolderId ?? "");
   const [saving, setSaving] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
 
@@ -81,9 +81,9 @@ export function GoogleConnectionCard({
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
         <Badge className="w-fit">Connected</Badge>
-        {integration.connected_email && (
+        {integration.connectedEmail && (
           <span className="text-sm text-muted-foreground">
-            as {integration.connected_email}
+            as {integration.connectedEmail}
           </span>
         )}
       </div>

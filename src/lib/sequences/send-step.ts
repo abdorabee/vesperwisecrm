@@ -6,6 +6,23 @@ import type { Database } from "@/lib/supabase/types";
 
 interface SendDueStepResult {
   completed: boolean;
+  skipped?: boolean;
+}
+
+async function stopMismatchedEnrollment(
+  supabase: SupabaseClient<Database>,
+  enrollmentId: string,
+  accountId: string,
+): Promise<void> {
+  await supabase
+    .from("lead_sequence_enrollments")
+    .update({
+      status: "cancelled",
+      completed_at: new Date().toISOString(),
+      next_step_due_at: null,
+    })
+    .eq("id", enrollmentId)
+    .eq("account_id", accountId);
 }
 
 // Self-contained: derives account/lead context from the enrollment row
@@ -28,37 +45,55 @@ export async function sendDueStep(
     throw new Error(enrollmentError?.message ?? "Enrollment not found");
   }
 
+  const stop = () =>
+    stopMismatchedEnrollment(supabase, enrollmentId, enrollment.account_id);
+
   const { data: step, error: stepError } = await supabase
     .from("sequence_steps")
     .select("*")
     .eq("sequence_id", enrollment.sequence_id)
+    .eq("account_id", enrollment.account_id)
     .eq("step_number", enrollment.current_step_number)
-    .single();
+    .maybeSingle();
 
-  if (stepError || !step) {
-    throw new Error(stepError?.message ?? "Step not found");
+  if (stepError) {
+    throw new Error(stepError.message);
+  }
+  if (!step || step.account_id !== enrollment.account_id) {
+    await stop();
+    return { completed: true, skipped: true };
   }
 
   const { data: sequence, error: sequenceError } = await supabase
     .from("sequences")
-    .select("is_marketing")
+    .select("is_marketing, account_id")
     .eq("id", enrollment.sequence_id)
-    .single();
+    .eq("account_id", enrollment.account_id)
+    .maybeSingle();
 
-  if (sequenceError || !sequence) {
-    throw new Error(sequenceError?.message ?? "Sequence not found");
+  if (sequenceError) {
+    throw new Error(sequenceError.message);
+  }
+  if (!sequence || sequence.account_id !== enrollment.account_id) {
+    await stop();
+    return { completed: true, skipped: true };
   }
 
   const { data: lead, error: leadError } = await supabase
     .from("leads")
     .select(
-      "contact:contact_id(id, first_name, last_name, email, phone, email_opted_out_at)",
+      "account_id, contact:contact_id(id, first_name, last_name, email, phone, email_opted_out_at)",
     )
     .eq("id", enrollment.lead_id)
-    .single();
+    .eq("account_id", enrollment.account_id)
+    .maybeSingle();
 
-  if (leadError || !lead) {
-    throw new Error(leadError?.message ?? "Lead not found");
+  if (leadError) {
+    throw new Error(leadError.message);
+  }
+  if (!lead || lead.account_id !== enrollment.account_id) {
+    await stop();
+    return { completed: true, skipped: true };
   }
 
   const contact = Array.isArray(lead.contact) ? lead.contact[0] : lead.contact;

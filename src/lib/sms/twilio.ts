@@ -1,3 +1,5 @@
+import "server-only";
+
 interface SendSmsInput {
   to: string;
   body: string;

@@ -46,9 +46,6 @@ export async function processInboundEmail(
 
   if (!token) {
     return quarantine("unknown_token", {
-      to: event.to,
-      received_for: event.received_for,
-      from: event.from,
       email_id: event.email_id,
     });
   }
@@ -57,7 +54,6 @@ export async function processInboundEmail(
   if (!resolved) {
     return quarantine("invalid_or_expired_token", {
       token: redactToken(token),
-      from: event.from,
       email_id: event.email_id,
     });
   }
@@ -66,7 +62,6 @@ export async function processInboundEmail(
   if (!settings?.capture_replies_enabled) {
     return quarantine("capture_disabled", {
       account_id: resolved.accountId,
-      from: event.from,
       email_id: event.email_id,
     });
   }

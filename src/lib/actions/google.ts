@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import {
-  requireAccountId,
   requireAdminAccountId,
   requireUserId,
 } from "@/lib/supabase/account";
@@ -15,7 +14,7 @@ import { getLeadDetail } from "@/lib/queries/leads";
 export async function generateLeadReport(
   leadId: string,
 ): Promise<{ url: string }> {
-  const accountId = await requireAccountId();
+  const accountId = await requireAdminAccountId();
   await requireWritableBilling(accountId);
   const userId = await requireUserId();
   const supabase = await createClient();
@@ -27,20 +26,25 @@ export async function generateLeadReport(
       .from("clients")
       .select("drive_folder_id")
       .eq("id", lead.client_id)
+      .eq("account_id", accountId)
       .maybeSingle();
     clientFolderId = client?.drive_folder_id ?? null;
   }
 
   const url = await generatePropertyReportDoc(accountId, lead, clientFolderId);
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("leads")
     .update({ google_doc_url: url })
     .eq("id", leadId)
-    .eq("account_id", accountId);
+    .eq("account_id", accountId)
+    .select("id");
 
   if (error) {
     throw new Error(error.message);
+  }
+  if (!updated?.length) {
+    throw new Error("Lead not found");
   }
 
   await supabase.from("activities").insert({

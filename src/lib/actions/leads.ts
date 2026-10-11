@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAccountId, requireUserId } from "@/lib/supabase/account";
 import { requireBillingCapability } from "@/lib/billing/access";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
+import { requireRows } from "@/lib/supabase/require-rows";
 import { createLeadRecord } from "@/lib/leads/create-lead";
 import {
   addLeadNoteSchema,
@@ -351,7 +352,8 @@ export async function updateLeadStage(
     .from("leads")
     .select("pipeline_stage_id, pipeline_stages:pipeline_stage_id(name)")
     .eq("id", leadId)
-    .single();
+    .eq("account_id", accountId)
+    .maybeSingle();
 
   if (leadError || !lead) {
     throw new Error(leadError?.message ?? "Lead not found");
@@ -361,7 +363,8 @@ export async function updateLeadStage(
     .from("pipeline_stages")
     .select("name, is_won, is_lost")
     .eq("id", newStageId)
-    .single();
+    .eq("account_id", accountId)
+    .maybeSingle();
 
   if (stageError || !newStage) {
     throw new Error(stageError?.message ?? "Stage not found");
@@ -369,14 +372,13 @@ export async function updateLeadStage(
 
   const status = newStage.is_won ? "won" : newStage.is_lost ? "lost" : "open";
 
-  const { error: updateError } = await supabase
+  const { data: updated, error: updateError } = await supabase
     .from("leads")
     .update({ pipeline_stage_id: newStageId, status })
-    .eq("id", leadId);
-
-  if (updateError) {
-    throw new Error(updateError.message);
-  }
+    .eq("id", leadId)
+    .eq("account_id", accountId)
+    .select("id");
+  requireRows(updated, updateError, "Lead not found");
 
   const fromStageName = Array.isArray(lead.pipeline_stages)
     ? lead.pipeline_stages[0]?.name

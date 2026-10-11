@@ -1,3 +1,5 @@
+import "server-only";
+
 import { getResendClient } from "@/lib/resend/client";
 import { escapeHtml, sanitizeEmailHeader } from "@/lib/email/escape-html";
 

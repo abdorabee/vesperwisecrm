@@ -12,6 +12,7 @@ import {
   requireUserId,
 } from "@/lib/supabase/account";
 import { requireBillingCapability } from "@/lib/billing/access";
+import { requireRows } from "@/lib/supabase/require-rows";
 import {
   cancelCallSchema,
   clearDoNotCallSchema,
@@ -210,9 +211,32 @@ export async function saveDialerQueue(input: unknown): Promise<{ queueId: string
     retry_delay_seconds: data.retryDelaySeconds,
     updated_at: new Date().toISOString(),
   };
+  if (data.leadGroupId) {
+    const { data: group, error: groupError } = await supabase
+      .from("lead_groups")
+      .select("id")
+      .eq("id", data.leadGroupId)
+      .eq("account_id", accountId)
+      .maybeSingle();
+    if (groupError || !group) throw new Error(groupError?.message ?? "Routing group not found");
+  }
+  if (ownerUserId) {
+    const { data: owner, error: ownerError } = await supabase
+      .from("account_members")
+      .select("user_id")
+      .eq("account_id", accountId)
+      .eq("user_id", ownerUserId)
+      .maybeSingle();
+    if (ownerError || !owner) throw new Error(ownerError?.message ?? "Queue owner is not in this workspace");
+  }
   if (data.id) {
-    const { error } = await supabase.from("dialer_queues").update(values).eq("id", data.id);
-    if (error) throw new Error(error.message);
+    const { data: updated, error } = await supabase
+      .from("dialer_queues")
+      .update(values)
+      .eq("id", data.id)
+      .eq("account_id", accountId)
+      .select("id");
+    requireRows(updated, error, "Queue not found");
     refreshDialerPaths();
     return { queueId: data.id };
   }
@@ -234,12 +258,13 @@ export async function setDialerQueueStatus(
   const accountId = await requireAccountId();
   await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("dialer_queues")
     .update({ status: data.status, updated_at: new Date().toISOString() })
     .eq("id", data.queueId)
-    .eq("account_id", accountId);
-  if (error) throw new Error(error.message);
+    .eq("account_id", accountId)
+    .select("id");
+  requireRows(updated, error, "Queue not found");
   refreshDialerPaths();
 }
 
@@ -248,6 +273,13 @@ export async function addDialerQueueItem(input: unknown): Promise<void> {
   const accountId = await requireAccountId();
   await requireBillingCapability(accountId, "dialer");
   const supabase = await createClient();
+  const { data: queue, error: queueError } = await supabase
+    .from("dialer_queues")
+    .select("id")
+    .eq("id", data.queueId)
+    .eq("account_id", accountId)
+    .maybeSingle();
+  if (queueError || !queue) throw new Error(queueError?.message ?? "Queue not found");
   const { data: lead, error: leadError } = await supabase
     .from("leads")
     .select("id, contact_id")
@@ -260,6 +292,7 @@ export async function addDialerQueueItem(input: unknown): Promise<void> {
     .from("dialer_queue_items")
     .select("position")
     .eq("queue_id", data.queueId)
+    .eq("account_id", accountId)
     .order("position", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -281,7 +314,7 @@ export async function cancelDialerQueueItem(itemId: string): Promise<void> {
   const userId = await requireUserId();
   const supabase = await createClient();
   const now = new Date().toISOString();
-  const { error } = await supabase
+  const { data: cancelled, error } = await supabase
     .from("dialer_queue_items")
     .update({
       status: "cancelled",
@@ -291,8 +324,9 @@ export async function cancelDialerQueueItem(itemId: string): Promise<void> {
     })
     .eq("id", id)
     .eq("account_id", accountId)
-    .eq("status", "queued");
-  if (error) throw new Error(error.message);
+    .eq("status", "queued")
+    .select("id");
+  requireRows(cancelled, error, "Queue item not found");
   refreshDialerPaths();
 }
 
@@ -331,8 +365,13 @@ export async function saveCallDisposition(input: unknown): Promise<{ id: string 
     updated_at: new Date().toISOString(),
   };
   if (data.id) {
-    const { error } = await supabase.from("call_dispositions").update(values).eq("id", data.id);
-    if (error) throw new Error(error.message);
+    const { data: updated, error } = await supabase
+      .from("call_dispositions")
+      .update(values)
+      .eq("id", data.id)
+      .eq("account_id", accountId)
+      .select("id");
+    requireRows(updated, error, "Disposition not found");
     return { id: data.id };
   }
   const { data: row, error } = await supabase

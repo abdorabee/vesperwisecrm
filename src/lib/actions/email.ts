@@ -24,7 +24,8 @@ export async function sendLeadEmail(
     .from("leads")
     .select("contact:contact_id(email)")
     .eq("id", leadId)
-    .single();
+    .eq("account_id", accountId)
+    .maybeSingle();
 
   if (leadError || !lead) {
     throw new Error(leadError?.message ?? "Lead not found");

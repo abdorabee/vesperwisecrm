@@ -1,3 +1,5 @@
+import "server-only";
+
 export type SmsLogEvent = "inbound" | "webhook_error";
 
 export interface SmsLogPayload {

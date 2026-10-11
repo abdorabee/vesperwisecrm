@@ -15,6 +15,7 @@ import {
   memberSenderIdentitySchema,
   type MemberSenderIdentityInput,
 } from "@/lib/validations/account-email";
+import { hashInviteAuthToken } from "@/lib/auth/invite-token";
 import {
   buildVerificationLink,
   canSendBrandedAuthEmail,
@@ -98,77 +99,54 @@ export async function inviteTeamMember(
     ? `${siteUrl}/auth/callback`
     : `https://${siteUrl}/auth/callback`;
 
-  // The signup trigger grants membership only from this server-issued
-  // invite row -- signup metadata is never trusted for membership.
-  const { error: inviteRecordError } = await serviceRole
+  if (!canSendBrandedAuthEmail()) {
+    throw new Error("Invite email is not configured.");
+  }
+
+  const { data: inviteRow, error: inviteRecordError } = await serviceRole
     .from("invites")
     .insert({
       account_id: accountId,
       email: data.email,
       role: data.role,
       invited_by: invitedBy,
-    });
+    })
+    .select("id")
+    .single();
 
-  if (inviteRecordError) {
-    throw new Error(inviteRecordError.message);
+  if (inviteRecordError || !inviteRow) {
+    throw new Error(inviteRecordError?.message ?? "Could not create invite");
   }
 
-  const inviteMetadata = {
-    account_name: account.name,
-  };
-
-  const { data: invited, error: inviteError } = canSendBrandedAuthEmail()
-    ? await serviceRole.auth.admin.generateLink({
-        type: "invite",
-        email: data.email,
-        options: {
-          redirectTo,
-          data: inviteMetadata,
-        },
-      })
-    : await serviceRole.auth.admin.inviteUserByEmail(data.email, {
+  const { data: invited, error: inviteError } =
+    await serviceRole.auth.admin.generateLink({
+      type: "invite",
+      email: data.email,
+      options: {
         redirectTo,
-        data: inviteMetadata,
-      });
-
-  if (inviteError) {
-    throw new Error(inviteError.message);
-  }
-
-  const invitedUserId = invited.user?.id;
-  if (!invitedUserId) {
-    throw new Error("Invite did not return a user");
-  }
-
-  const brandedTokenHash =
-    canSendBrandedAuthEmail() ? getGeneratedTokenHash(invited) : null;
-
-  const { error: memberError } = await serviceRole
-    .from("account_members")
-    .upsert(
-      {
-        account_id: accountId,
-        user_id: invitedUserId,
-        role: data.role,
+        data: { account_name: account.name },
       },
-      { onConflict: "account_id,user_id" },
-    );
-
-  if (memberError) {
-    throw new Error(memberError.message);
-  }
-
-  if (canSendBrandedAuthEmail()) {
-    if (!brandedTokenHash) {
-      throw new Error("Invite did not return a token hash");
-    }
-
-    await sendTeamInvitationEmail({
-      to: data.email,
-      actionLink: buildVerificationLink(redirectTo, brandedTokenHash, "invite"),
-      accountName: account.name,
     });
+
+  const tokenHash = getGeneratedTokenHash(invited);
+  if (inviteError || !tokenHash) {
+    await serviceRole.from("invites").delete().eq("id", inviteRow.id);
+    throw new Error(inviteError?.message ?? "Invite did not return a token hash");
   }
+
+  const { error: bindError } = await serviceRole
+    .from("invites")
+    .update({ auth_token_hash: hashInviteAuthToken(tokenHash) })
+    .eq("id", inviteRow.id);
+  if (bindError) {
+    throw new Error(bindError.message);
+  }
+
+  await sendTeamInvitationEmail({
+    to: data.email,
+    actionLink: buildVerificationLink(redirectTo, tokenHash, "invite"),
+    accountName: account.name,
+  });
 
   revalidatePath("/team");
   revalidatePath("/settings/members");

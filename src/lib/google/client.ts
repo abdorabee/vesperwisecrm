@@ -1,5 +1,11 @@
 import { google } from "googleapis";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
+import { requireAdminAccountId } from "@/lib/supabase/account";
+import {
+  decryptGoogleToken,
+  encryptGoogleToken,
+  isEncryptedGoogleToken,
+} from "@/lib/google/token-crypto";
 import type { Tables } from "@/lib/supabase/types";
 
 const SCOPES = [
@@ -85,9 +91,47 @@ export interface AuthorizedGoogleClient {
   integration: GoogleIntegration;
 }
 
+async function persistEncryptedGoogleTokens(
+  accountId: string,
+  accessToken: string,
+  refreshToken: string,
+): Promise<{ accessToken: string; refreshToken: string }> {
+  const nextAccess = isEncryptedGoogleToken(accessToken)
+    ? accessToken
+    : encryptGoogleToken(accessToken);
+  const nextRefresh = isEncryptedGoogleToken(refreshToken)
+    ? refreshToken
+    : encryptGoogleToken(refreshToken);
+
+  if (nextAccess === accessToken && nextRefresh === refreshToken) {
+    return { accessToken: nextAccess, refreshToken: nextRefresh };
+  }
+
+  const supabase = createServiceRoleClient();
+  const { error } = await supabase
+    .from("google_integrations")
+    .update({
+      access_token: nextAccess,
+      refresh_token: nextRefresh,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("account_id", accountId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return { accessToken: nextAccess, refreshToken: nextRefresh };
+}
+
 export async function getAuthorizedGoogleClient(
   accountId: string,
 ): Promise<AuthorizedGoogleClient> {
+  const adminAccountId = await requireAdminAccountId();
+  if (adminAccountId !== accountId) {
+    throw new Error("Admin access required");
+  }
+
   const supabase = createServiceRoleClient();
   const { data: integration, error } = await supabase
     .from("google_integrations")
@@ -104,10 +148,18 @@ export async function getAuthorizedGoogleClient(
     );
   }
 
+  const stored = await persistEncryptedGoogleTokens(
+    accountId,
+    integration.access_token,
+    integration.refresh_token,
+  );
+  const accessToken = decryptGoogleToken(stored.accessToken);
+  const refreshToken = decryptGoogleToken(stored.refreshToken);
+
   const client = createOAuthClient();
   client.setCredentials({
-    access_token: integration.access_token,
-    refresh_token: integration.refresh_token,
+    access_token: accessToken,
+    refresh_token: refreshToken,
     expiry_date: new Date(integration.token_expires_at).getTime(),
   });
 
@@ -119,7 +171,7 @@ export async function getAuthorizedGoogleClient(
     void supabase
       .from("google_integrations")
       .update({
-        access_token: tokens.access_token,
+        access_token: encryptGoogleToken(tokens.access_token),
         token_expires_at: tokens.expiry_date
           ? new Date(tokens.expiry_date).toISOString()
           : integration.token_expires_at,
@@ -128,5 +180,12 @@ export async function getAuthorizedGoogleClient(
       .eq("account_id", accountId);
   });
 
-  return { client, integration };
+  return {
+    client,
+    integration: {
+      ...integration,
+      access_token: stored.accessToken,
+      refresh_token: stored.refreshToken,
+    },
+  };
 }

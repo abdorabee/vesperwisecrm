@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAccountId } from "@/lib/supabase/account";
 import { requireBillingCapability } from "@/lib/billing/access";
 import { sequenceSchema, type SequenceInput } from "@/lib/validations/sequence";
+import { requireRows } from "@/lib/supabase/require-rows";
 
 export async function saveSequence(
   input: SequenceInput,
@@ -18,23 +19,23 @@ export async function saveSequence(
   let id = sequenceId;
 
   if (id) {
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("sequences")
       .update({
         name: data.name,
         description: data.description || null,
         is_marketing: data.isMarketing ?? false,
       })
-      .eq("id", id);
-
-    if (error) {
-      throw new Error(error.message);
-    }
+      .eq("id", id)
+      .eq("account_id", accountId)
+      .select("id");
+    requireRows(updated, error, "Sequence not found");
 
     const { error: deleteError } = await supabase
       .from("sequence_steps")
       .delete()
-      .eq("sequence_id", id);
+      .eq("sequence_id", id)
+      .eq("account_id", accountId);
 
     if (deleteError) {
       throw new Error(deleteError.message);

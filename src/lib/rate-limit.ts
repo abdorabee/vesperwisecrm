@@ -14,6 +14,8 @@ export interface RateLimitRule {
   identifier: string;
   limit: number;
   windowSeconds: number;
+  /** Signup, marketing mail, and intake deny the request when the limiter errors. */
+  failClosed?: boolean;
 }
 
 function bucketKey(scope: string, identifier: string): string {
@@ -23,16 +25,16 @@ function bucketKey(scope: string, identifier: string): string {
 }
 
 /**
- * Returns true when the caller is within budget. Fails **open** on
- * infrastructure error: a database blip should degrade throughput protection,
- * not take signup and lead intake offline. Every caller still enforces its own
- * authentication, so an open failure never grants access.
+ * Returns true when the caller is within budget. Paths that send mail or
+ * accept a public write pass `failClosed` so a limiter error denies the call.
+ * Other callers still fail open: a database blip should not take AI offline.
  */
 export async function consumeRateLimit({
   scope,
   identifier,
   limit,
   windowSeconds,
+  failClosed = false,
 }: RateLimitRule): Promise<boolean> {
   try {
     const supabase = createServiceRoleClient();
@@ -43,21 +45,28 @@ export async function consumeRateLimit({
     });
 
     if (error) {
-      return true;
+      return !failClosed;
     }
     return data !== false;
   } catch {
-    return true;
+    return !failClosed;
   }
 }
 
-// Best-effort client address from proxy headers. Vercel sets x-forwarded-for;
-// the leftmost entry is the client, the rest are proxies.
-export function clientAddress(request: Request): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) {
-    const first = forwarded.split(",")[0]?.trim();
+// Platform-asserted client IP. `x-vercel-forwarded-for` is set by the edge
+// and is not the caller-supplied `x-forwarded-for` list. `x-real-ip` is the
+// fallback when that header is absent (local and non-Vercel proxies).
+export function platformClientIp(headers: Headers): string {
+  const vercel = headers.get("x-vercel-forwarded-for");
+  if (vercel) {
+    const first = vercel.split(",")[0]?.trim();
     if (first) return first;
   }
-  return request.headers.get("x-real-ip") ?? "unknown";
+  const realIp = headers.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+  return "unknown";
+}
+
+export function clientAddress(request: Request): string {
+  return platformClientIp(request.headers);
 }

@@ -86,6 +86,23 @@ describe("Polar webhook signature verification", () => {
     });
   });
 
+  it("rejects an empty secret instead of accepting the body", () => {
+    expect(verifyPolarWebhookEvent(customerDeleted, signedFixture(customerDeleted).headers, "")).toEqual({
+      ok: false,
+      reason: "invalid_signature",
+    });
+  });
+
+  it("rejects an unsigned body instead of treating it as success", () => {
+    expect(
+      verifyPolarWebhookEvent(customerDeleted, {
+        "webhook-id": "msg_unsigned",
+        "webhook-timestamp": String(Math.floor(Date.now() / 1000)),
+        "webhook-signature": "v1,not-a-signature",
+      }, secret),
+    ).toEqual({ ok: false, reason: "invalid_signature" });
+  });
+
   it("still rejects invalid signatures", () => {
     const signed = signedFixture(customerDeleted);
     expect(

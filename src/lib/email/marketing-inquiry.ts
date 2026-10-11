@@ -1,3 +1,5 @@
+import "server-only";
+
 import { escapeHtml, sanitizeEmailHeader } from "@/lib/email/escape-html";
 import { getResendClient } from "@/lib/resend/client";
 import { formatDemoDate, formatTimeLabel, parseDateKey } from "@/lib/marketing/demo-slots";
@@ -7,7 +9,6 @@ import type {
 } from "@/lib/validations/marketing-inquiry";
 
 const DEFAULT_INQUIRY_FROM = "onboarding@resend.dev";
-const DEFAULT_INQUIRY_INBOX = "abdorabee1134@gmail.com";
 
 function inquiryFromAddress(): string {
   const from = process.env.RESEND_FROM_EMAIL || DEFAULT_INQUIRY_FROM;
@@ -15,7 +16,11 @@ function inquiryFromAddress(): string {
 }
 
 function inquiryInbox(): string {
-  return process.env.DEMO_INBOX_EMAIL || DEFAULT_INQUIRY_INBOX;
+  const inbox = process.env.DEMO_INBOX_EMAIL?.trim();
+  if (!inbox) {
+    throw new Error("DEMO_INBOX_EMAIL is not configured");
+  }
+  return inbox;
 }
 
 export function canSendInquiryEmail(): boolean {

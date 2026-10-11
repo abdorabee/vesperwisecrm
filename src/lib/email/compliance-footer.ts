@@ -1,3 +1,5 @@
+import "server-only";
+
 import { createHmac, timingSafeEqual } from "crypto";
 
 const TOKEN_TTL_MS = 365 * 24 * 60 * 60 * 1000;

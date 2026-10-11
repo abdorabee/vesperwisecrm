@@ -42,8 +42,10 @@ async function processDueSequenceSteps(
       continue;
     }
     try {
-      await sendDueStep(supabase, enrollment.id, null);
-      sent += 1;
+      const result = await sendDueStep(supabase, enrollment.id, null);
+      if (!result.skipped) {
+        sent += 1;
+      }
     } catch (error) {
       failed += 1;
       await supabase.from("activities").insert({

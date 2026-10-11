@@ -3,7 +3,11 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
-import { consumeRateLimit } from "@/lib/rate-limit";
+import { consumeRateLimit, platformClientIp } from "@/lib/rate-limit";
+import {
+  getSessionMembership,
+  rememberActiveAccount,
+} from "@/lib/supabase/account";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { resolveSafeRedirect } from "@/lib/auth/safe-redirect";
 import {
@@ -29,6 +33,7 @@ async function recordSignupAttestations(userId: string): Promise<void> {
     .select("account_id")
     .eq("user_id", userId)
     .eq("role", "owner")
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -69,6 +74,11 @@ export async function signIn(formData: FormData): Promise<void> {
     );
   }
 
+  const membership = await getSessionMembership();
+  if (membership) {
+    await rememberActiveAccount(membership.accountId);
+  }
+
   redirect(safeNext);
 }
 
@@ -92,9 +102,10 @@ export async function signUp(formData: FormData): Promise<void> {
   // that is a free bulk-mail primitive attached to our sending domain.
   const withinBudget = await consumeRateLimit({
     scope: "signup",
-    identifier: (await headers()).get("x-forwarded-for") ?? "unknown",
+    identifier: platformClientIp(await headers()),
     limit: SIGNUPS_PER_HOUR,
     windowSeconds: 3600,
+    failClosed: true,
   });
   if (!withinBudget) {
     redirect(

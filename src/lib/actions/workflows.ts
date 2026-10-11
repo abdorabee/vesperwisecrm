@@ -10,6 +10,7 @@ import {
   type WorkflowInput,
 } from "@/lib/validations/workflow";
 import type { Json } from "@/lib/supabase/types";
+import { requireRows } from "@/lib/supabase/require-rows";
 
 function buildActionConfig(
   action: WorkflowActionInput,
@@ -56,10 +57,68 @@ export async function saveWorkflow(
     triggerConfig.hours = Number(data.triggerHours);
   }
 
+  if (data.triggerStageId) {
+    const { data: stage } = await supabase
+      .from("pipeline_stages")
+      .select("id")
+      .eq("id", data.triggerStageId)
+      .eq("account_id", accountId)
+      .maybeSingle();
+    if (!stage) throw new Error("Stage not found");
+  }
+  if (data.triggerTagId) {
+    const { data: tag } = await supabase
+      .from("tags")
+      .select("id")
+      .eq("id", data.triggerTagId)
+      .eq("account_id", accountId)
+      .maybeSingle();
+    if (!tag) throw new Error("Tag not found");
+  }
+
+  for (const action of data.actions) {
+    if (action.sequenceId) {
+      const { data: sequence } = await supabase
+        .from("sequences")
+        .select("id")
+        .eq("id", action.sequenceId)
+        .eq("account_id", accountId)
+        .maybeSingle();
+      if (!sequence) throw new Error("Sequence not found");
+    }
+    if (action.tagId) {
+      const { data: tag } = await supabase
+        .from("tags")
+        .select("id")
+        .eq("id", action.tagId)
+        .eq("account_id", accountId)
+        .maybeSingle();
+      if (!tag) throw new Error("Tag not found");
+    }
+    if (action.stageId) {
+      const { data: stage } = await supabase
+        .from("pipeline_stages")
+        .select("id")
+        .eq("id", action.stageId)
+        .eq("account_id", accountId)
+        .maybeSingle();
+      if (!stage) throw new Error("Stage not found");
+    }
+    if (action.groupId) {
+      const { data: group } = await supabase
+        .from("lead_groups")
+        .select("id")
+        .eq("id", action.groupId)
+        .eq("account_id", accountId)
+        .maybeSingle();
+      if (!group) throw new Error("Routing group not found");
+    }
+  }
+
   let id = workflowId;
 
   if (id) {
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("workflows")
       .update({
         name: data.name,
@@ -67,16 +126,16 @@ export async function saveWorkflow(
         trigger_config: triggerConfig,
         is_active: data.isActive,
       })
-      .eq("id", id);
-
-    if (error) {
-      throw new Error(error.message);
-    }
+      .eq("id", id)
+      .eq("account_id", accountId)
+      .select("id");
+    requireRows(updated, error, "Workflow not found");
 
     const { error: deleteError } = await supabase
       .from("workflow_actions")
       .delete()
-      .eq("workflow_id", id);
+      .eq("workflow_id", id)
+      .eq("account_id", accountId);
 
     if (deleteError) {
       throw new Error(deleteError.message);
@@ -127,15 +186,13 @@ export async function deleteWorkflow(workflowId: string): Promise<void> {
   await requireBillingCapability(accountId, "workflows");
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { data: deleted, error } = await supabase
     .from("workflows")
     .delete()
     .eq("id", workflowId)
-    .eq("account_id", accountId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
+    .eq("account_id", accountId)
+    .select("id");
+  requireRows(deleted, error, "Workflow not found");
 
   revalidatePath("/workflows");
 }
@@ -148,15 +205,13 @@ export async function toggleWorkflowActive(
   await requireBillingCapability(accountId, "workflows");
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("workflows")
     .update({ is_active: isActive })
     .eq("id", workflowId)
-    .eq("account_id", accountId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
+    .eq("account_id", accountId)
+    .select("id");
+  requireRows(updated, error, "Workflow not found");
 
   revalidatePath("/workflows");
 }

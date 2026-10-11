@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { resolveSafeRedirect } from "@/lib/auth/safe-redirect";
+import { redeemAcceptedInvite } from "@/lib/auth/redeem-invite";
+import {
+  getSessionMembership,
+  rememberActiveAccount,
+} from "@/lib/supabase/account";
 
 const ALLOWED_OTP_TYPES: readonly EmailOtpType[] = [
   "signup",
@@ -30,19 +35,34 @@ export async function GET(request: Request): Promise<NextResponse> {
   const next = resolveSafeRedirect(searchParams.get("next"), origin);
   const supabase = await createClient();
 
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) {
-      return NextResponse.redirect(new URL(next, origin));
+  // A PKCE `code` is also how OAuth and other logins return. Only an invite
+  // OTP (token hash + type=invite) is the person accepting that invite.
+  const inviteAcceptance = !code && Boolean(tokenHash) && otpType === "invite";
+  const established = code
+    ? !(await supabase.auth.exchangeCodeForSession(code)).error
+    : tokenHash && otpType
+      ? !(
+          await supabase.auth.verifyOtp({
+            type: otpType,
+            token_hash: tokenHash,
+          })
+        ).error
+      : false;
+
+  if (established) {
+    const joinedAccountId =
+      inviteAcceptance && tokenHash
+        ? await redeemAcceptedInvite(tokenHash)
+        : null;
+    if (joinedAccountId) {
+      await rememberActiveAccount(joinedAccountId);
+    } else {
+      const membership = await getSessionMembership();
+      if (membership) {
+        await rememberActiveAccount(membership.accountId);
+      }
     }
-  } else if (tokenHash && otpType) {
-    const { error } = await supabase.auth.verifyOtp({
-      type: otpType,
-      token_hash: tokenHash,
-    });
-    if (!error) {
-      return NextResponse.redirect(new URL(next, origin));
-    }
+    return NextResponse.redirect(new URL(next, origin));
   }
 
   return NextResponse.redirect(

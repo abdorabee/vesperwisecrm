@@ -4,6 +4,7 @@ import { resolveInboundSmsTenant } from "@/lib/sms/resolve-tenant";
 
 export type InboundSmsResult =
   | { status: "processed"; activityId: string }
+  | { status: "duplicate" }
   | { status: "quarantined"; reason: string };
 
 export interface InboundSmsEventData {
@@ -83,7 +84,6 @@ export async function processInboundSms(
 
   if (contactError) {
     return quarantine("contact_lookup_failed", {
-      from: event.from,
       twilio_message_sid: event.messageSid,
       error: contactError.message,
     });
@@ -101,8 +101,6 @@ export async function processInboundSms(
 
   if (resolution.status === "quarantined") {
     return quarantine(resolution.reason, {
-      from: event.from,
-      to: event.to,
       twilio_message_sid: event.messageSid,
     });
   }
@@ -118,7 +116,6 @@ export async function processInboundSms(
 
   if (leadError) {
     return quarantine("lead_lookup_failed", {
-      from: event.from,
       twilio_message_sid: event.messageSid,
       error: leadError.message,
     });
@@ -126,8 +123,8 @@ export async function processInboundSms(
 
   if (!leads || leads.length === 0) {
     return quarantine("no_lead_for_contact", {
-      from: event.from,
       twilio_message_sid: event.messageSid,
+      account_id: resolution.accountId,
     });
   }
 
@@ -154,10 +151,21 @@ export async function processInboundSms(
     .select("id")
     .single();
 
+  if (insertError?.code === "23505") {
+    logSmsEvent({
+      event: "inbound",
+      reason: "duplicate_message_sid",
+      status: "duplicate",
+      twilio_message_sid: event.messageSid,
+      account_id: lead.account_id,
+    });
+    return { status: "duplicate" };
+  }
+
   if (insertError || !activity) {
     return quarantine("insert_failed", {
-      from: event.from,
       twilio_message_sid: event.messageSid,
+      account_id: lead.account_id,
       error: insertError?.message,
     });
   }

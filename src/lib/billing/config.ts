@@ -1,3 +1,5 @@
+import "server-only";
+
 import type { BillingPlan } from "@/lib/billing/entitlements";
 
 export type BillingMode = "sandbox" | "production";

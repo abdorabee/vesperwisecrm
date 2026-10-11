@@ -1200,6 +1200,7 @@ export type Database = {
           invited_by: string | null
           redeemed_at: string | null
           role: string
+          auth_token_hash: string | null
         }
         Insert: {
           account_id: string
@@ -1211,6 +1212,7 @@ export type Database = {
           invited_by?: string | null
           redeemed_at?: string | null
           role: string
+          auth_token_hash?: string | null
         }
         Update: {
           account_id?: string
@@ -1222,6 +1224,7 @@ export type Database = {
           invited_by?: string | null
           redeemed_at?: string | null
           role?: string
+          auth_token_hash?: string | null
         }
         Relationships: [
           {
@@ -1370,7 +1373,7 @@ export type Database = {
           id: string
           name: string
           revoked_at: string | null
-          token: string
+          token_hash: string
         }
         Insert: {
           account_id: string
@@ -1378,7 +1381,7 @@ export type Database = {
           id?: string
           name: string
           revoked_at?: string | null
-          token: string
+          token_hash: string
         }
         Update: {
           account_id?: string
@@ -1386,7 +1389,7 @@ export type Database = {
           id?: string
           name?: string
           revoked_at?: string | null
-          token?: string
+          token_hash?: string
         }
         Relationships: [
           {

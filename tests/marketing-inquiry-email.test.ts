@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
+vi.mock("server-only", () => ({}));
+
 const send = vi.hoisted(() => vi.fn());
 
 vi.mock("@/lib/resend/client", () => ({
@@ -57,20 +59,15 @@ describe("demo and contact inquiry email", () => {
     expect(send).not.toHaveBeenCalled();
   });
 
-  test("uses production From and inbox defaults when only the API key is set", async () => {
+  test("requires DEMO_INBOX_EMAIL even when the API key is set", async () => {
     process.env.RESEND_API_KEY = "re_test";
     send.mockResolvedValue({ error: null });
 
     expect(canSendInquiryEmail()).toBe(true);
-    await sendDemoBookingEmail(booking);
-
-    expect(send).toHaveBeenCalledWith(
-      expect.objectContaining({
-        from: "VesperWise <onboarding@resend.dev>",
-        to: "abdorabee1134@gmail.com",
-        replyTo: "jordan@example.com",
-      }),
+    await expect(sendDemoBookingEmail(booking)).rejects.toThrow(
+      "DEMO_INBOX_EMAIL is not configured",
     );
+    expect(send).not.toHaveBeenCalled();
   });
 
   test("sends a demo request to DEMO_INBOX_EMAIL", async () => {
