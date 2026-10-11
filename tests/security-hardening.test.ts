@@ -71,6 +71,22 @@ describe("M-1: auth callback redirect validation", () => {
     expect(resolveSafeRedirect(null, origin)).toBe("/pipeline");
     expect(resolveSafeRedirect("http://[", origin)).toBe("/pipeline");
   });
+
+  test("rejects a path that becomes protocol-relative after parsing", () => {
+    const result = resolveSafeRedirect("/.//evil.com", origin);
+
+    expect(result).toBe("/pipeline");
+    expect(new URL(result, origin).origin).toBe(origin);
+    expect(result.startsWith("//")).toBe(false);
+    expect(result.includes("\\")).toBe(false);
+  });
+
+  test("re-parses a safe path and keeps the same origin", () => {
+    const result = resolveSafeRedirect("/leads/abc?tab=notes#top", origin);
+
+    expect(result).toBe("/leads/abc?tab=notes#top");
+    expect(new URL(result, origin).origin).toBe(origin);
+  });
 });
 
 describe("H-2: inbound SMS tenant resolution", () => {

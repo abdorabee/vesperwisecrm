@@ -1,3 +1,5 @@
+import "server-only";
+
 import { timingSafeEqual } from "crypto";
 
 // Shared bearer check for the scheduled routes. Fails closed when CRON_SECRET

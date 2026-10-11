@@ -159,32 +159,10 @@ export async function inviteClientUser(
     throw new Error(inviteError.message);
   }
 
-  const invitedUserId = invited.user?.id;
-  if (!invitedUserId) {
-    throw new Error("Invite did not return a user");
-  }
-
-  const brandedTokenHash = canSendBrandedAuthEmail()
-    ? getGeneratedTokenHash(invited)
-    : null;
-
-  const { error: memberError } = await serviceRole
-    .from("account_members")
-    .upsert(
-      {
-        account_id: accountId,
-        user_id: invitedUserId,
-        role: "client",
-        client_id: clientId,
-      },
-      { onConflict: "account_id,user_id" },
-    );
-
-  if (memberError) {
-    throw new Error(memberError.message);
-  }
-
+  // Membership is inserted when the invite link is accepted, not because
+  // an auth user with this email already exists.
   if (canSendBrandedAuthEmail()) {
+    const brandedTokenHash = getGeneratedTokenHash(invited);
     if (!brandedTokenHash) {
       throw new Error("Invite did not return a token hash");
     }
@@ -207,7 +185,19 @@ export async function assignLeadToClient(
   await requireWritableBilling(accountId);
   const supabase = await createClient();
 
-  const { error } = await supabase
+  if (clientId) {
+    const { data: client, error: clientError } = await supabase
+      .from("clients")
+      .select("id")
+      .eq("id", clientId)
+      .eq("account_id", accountId)
+      .maybeSingle();
+    if (clientError || !client) {
+      throw new Error(clientError?.message ?? "Client not found");
+    }
+  }
+
+  const { data: updated, error } = await supabase
     .from("leads")
     .update({
       client_id: clientId,
@@ -215,10 +205,14 @@ export async function assignLeadToClient(
       client_decided_at: null,
     })
     .eq("id", leadId)
-    .eq("account_id", accountId);
+    .eq("account_id", accountId)
+    .select("id");
 
   if (error) {
     throw new Error(error.message);
+  }
+  if (!updated?.length) {
+    throw new Error("Lead not found");
   }
 
   await supabase.from("activities").insert({

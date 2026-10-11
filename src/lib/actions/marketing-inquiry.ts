@@ -6,7 +6,7 @@ import {
   sendContactInquiryEmail,
   sendDemoBookingEmail,
 } from "@/lib/email/marketing-inquiry";
-import { consumeRateLimit } from "@/lib/rate-limit";
+import { consumeRateLimit, platformClientIp } from "@/lib/rate-limit";
 import {
   parseContactInquiry,
   parseDemoBooking,
@@ -19,9 +19,10 @@ export type MarketingInquiryResult =
 async function withinInquiryBudget(): Promise<boolean> {
   return consumeRateLimit({
     scope: "marketing-inquiry",
-    identifier: (await headers()).get("x-forwarded-for") ?? "unknown",
+    identifier: platformClientIp(await headers()),
     limit: 8,
     windowSeconds: 3600,
+    failClosed: true,
   });
 }
 

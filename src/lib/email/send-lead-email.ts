@@ -94,9 +94,11 @@ export async function sendLeadFacingEmail(params: {
     ...(memberIdentity?.fromDisplayName
       ? { sender_display: memberIdentity.fromDisplayName }
       : {}),
-    ...(routing.replyTo ? { reply_to: routing.replyTo } : {}),
+    ...(routing.replyTo &&
+    !(routing.replyToken && routing.replyTo.includes(routing.replyToken))
+      ? { reply_to: routing.replyTo }
+      : {}),
     ...(routing.threadId ? { thread_id: routing.threadId } : {}),
-    ...(routing.replyToken ? { outbound_token: routing.replyToken } : {}),
     ...(isMarketing ? { is_marketing: true } : {}),
   };
 

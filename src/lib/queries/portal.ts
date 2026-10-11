@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import { requireClientContext } from "@/lib/supabase/account";
+import { getSessionMembership, requireClientContext } from "@/lib/supabase/account";
 import type { Tables } from "@/lib/supabase/types";
 
 export interface PortalLead extends Tables<"leads"> {
@@ -67,12 +67,25 @@ export async function getPortalLeadDetail(leadId: string): Promise<PortalLead> {
 export async function getLeadClientComments(
   leadId: string,
 ): Promise<Tables<"lead_client_comments">[]> {
+  const membership = await getSessionMembership();
+  if (!membership) {
+    throw new Error("Unauthorized");
+  }
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("lead_client_comments")
     .select("*")
     .eq("lead_id", leadId)
+    .eq("account_id", membership.accountId);
+  if (membership.role === "client") {
+    if (!membership.clientId) {
+      throw new Error("Client portal access required");
+    }
+    query = query.eq("client_id", membership.clientId);
+  }
+
+  const { data, error } = await query
     .order("created_at", { ascending: true });
 
   if (error) {

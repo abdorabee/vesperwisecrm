@@ -22,7 +22,7 @@ export default async function IntegrationsSettingsPage() {
       <SettingsSection title="Connected services" description="Only integrations supported by the current product appear here.">
         <div className="space-y-3">
           <Link href="/settings/email"><ConnectionStatus connected={isAccountEmailReady(email)} label="Resend email" detail={email?.sending_domain ?? "Set up a verified sending domain"} /></Link>
-          <Link href="/settings/google"><ConnectionStatus connected={Boolean(google) && isGoogleConfigured()} label="Google Docs and Drive" detail={google?.connected_email ?? (isGoogleConfigured() ? "Ready to connect" : "OAuth environment variables are not configured")} /></Link>
+          <Link href="/settings/google"><ConnectionStatus connected={Boolean(google) && isGoogleConfigured()} label="Google Docs and Drive" detail={google?.connectedEmail ?? (isGoogleConfigured() ? "Ready to connect" : "OAuth environment variables are not configured")} /></Link>
           {billingCapabilities.includes("dialer") ? (
             <Link href="/settings/calling"><ConnectionStatus connected={twilio.connected && twilio.status === "active"} label="Twilio calling" detail={twilio.fromNumber ?? "Connect your workspace-owned Twilio account"} /></Link>
           ) : null}

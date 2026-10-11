@@ -1370,7 +1370,7 @@ export type Database = {
           id: string
           name: string
           revoked_at: string | null
-          token: string
+          token_hash: string
         }
         Insert: {
           account_id: string
@@ -1378,7 +1378,7 @@ export type Database = {
           id?: string
           name: string
           revoked_at?: string | null
-          token: string
+          token_hash: string
         }
         Update: {
           account_id?: string
@@ -1386,7 +1386,7 @@ export type Database = {
           id?: string
           name?: string
           revoked_at?: string | null
-          token?: string
+          token_hash?: string
         }
         Relationships: [
           {

@@ -8,6 +8,7 @@ import {
 } from "@/lib/supabase/account";
 import { requireBillingCapability } from "@/lib/billing/access";
 import { groupSchema, type GroupInput } from "@/lib/validations/group";
+import { requireRows } from "@/lib/supabase/require-rows";
 
 export async function saveGroup(
   input: GroupInput,
@@ -18,22 +19,37 @@ export async function saveGroup(
   await requireBillingCapability(accountId, "routing");
   const supabase = await createClient();
 
+  if (data.members.length > 0) {
+    const userIds = [...new Set(data.members.map((member) => member.userId))];
+    const { data: accountMembers, error: membersLookupError } = await supabase
+      .from("account_members")
+      .select("user_id")
+      .eq("account_id", accountId)
+      .in("user_id", userIds);
+    if (membersLookupError) {
+      throw new Error(membersLookupError.message);
+    }
+    if ((accountMembers?.length ?? 0) !== userIds.length) {
+      throw new Error("A routing group member is not in this workspace");
+    }
+  }
+
   let id = groupId;
 
   if (id) {
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from("lead_groups")
       .update({ name: data.name })
-      .eq("id", id);
-
-    if (error) {
-      throw new Error(error.message);
-    }
+      .eq("id", id)
+      .eq("account_id", accountId)
+      .select("id");
+    requireRows(updated, error, "Routing group not found");
 
     const { error: deleteError } = await supabase
       .from("lead_group_members")
       .delete()
-      .eq("group_id", id);
+      .eq("group_id", id)
+      .eq("account_id", accountId);
 
     if (deleteError) {
       throw new Error(deleteError.message);
@@ -79,15 +95,13 @@ export async function deleteGroup(groupId: string): Promise<void> {
   await requireBillingCapability(accountId, "routing");
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { data: deleted, error } = await supabase
     .from("lead_groups")
     .delete()
     .eq("id", groupId)
-    .eq("account_id", accountId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
+    .eq("account_id", accountId)
+    .select("id");
+  requireRows(deleted, error, "Routing group not found");
 
   revalidatePath("/team/groups");
   revalidatePath("/settings/routing");
@@ -100,6 +114,24 @@ export async function assignLeadToGroup(
   const accountId = await requireAccountId();
   await requireBillingCapability(accountId, "routing");
   const supabase = await createClient();
+
+  const { data: lead, error: leadError } = await supabase
+    .from("leads")
+    .select("id")
+    .eq("id", leadId)
+    .eq("account_id", accountId)
+    .maybeSingle();
+  const { data: group, error: groupError } = await supabase
+    .from("lead_groups")
+    .select("id")
+    .eq("id", groupId)
+    .eq("account_id", accountId)
+    .maybeSingle();
+  if (leadError || groupError || !lead || !group) {
+    throw new Error(
+      leadError?.message ?? groupError?.message ?? "Lead or routing group not found",
+    );
+  }
 
   const { data, error } = await supabase.rpc("assign_lead_round_robin", {
     p_lead_id: leadId,
@@ -132,7 +164,11 @@ export async function manualAssignLead(
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (member?.max_open_leads != null) {
+    if (!member) {
+      throw new Error("Team member not found");
+    }
+
+    if (member.max_open_leads != null) {
       const { count } = await supabase
         .from("leads")
         .select("*", { count: "exact", head: true })
@@ -152,15 +188,13 @@ export async function manualAssignLead(
   // themselves to gain visibility they were denied.
   await requireAdminAccountId();
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from("leads")
     .update({ owner_user_id: userId })
     .eq("id", leadId)
-    .eq("account_id", accountId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
+    .eq("account_id", accountId)
+    .select("id");
+  requireRows(updated, error, "Lead not found");
 
   await supabase.from("activities").insert({
     account_id: accountId,

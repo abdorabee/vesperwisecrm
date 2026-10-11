@@ -15,20 +15,34 @@ export async function enrollLeadInSequence(
   const userId = await requireUserId();
   const supabase = await createClient();
 
+  const { data: lead, error: leadError } = await supabase
+    .from("leads")
+    .select("id")
+    .eq("id", leadId)
+    .eq("account_id", accountId)
+    .is("deleted_at", null)
+    .maybeSingle();
+
   const { data: sequence, error: sequenceError } = await supabase
     .from("sequences")
     .select("name")
     .eq("id", sequenceId)
-    .single();
+    .eq("account_id", accountId)
+    .maybeSingle();
 
-  if (sequenceError || !sequence) {
-    throw new Error(sequenceError?.message ?? "Sequence not found");
+  if (leadError || sequenceError || !lead || !sequence) {
+    throw new Error(
+      leadError?.message ??
+        sequenceError?.message ??
+        "Lead and sequence must belong to this workspace",
+    );
   }
 
   const { data: firstStep } = await supabase
     .from("sequence_steps")
     .select("delay_days")
     .eq("sequence_id", sequenceId)
+    .eq("account_id", accountId)
     .eq("step_number", 1)
     .maybeSingle();
 
@@ -73,7 +87,12 @@ export async function sendCurrentStep(enrollmentId: string): Promise<void> {
     .from("lead_sequence_enrollments")
     .select("lead_id")
     .eq("id", enrollmentId)
-    .single();
+    .eq("account_id", accountId)
+    .maybeSingle();
+
+  if (!enrollment) {
+    throw new Error("Enrollment not found");
+  }
 
   await sendDueStep(supabase, enrollmentId, user?.id ?? null);
 

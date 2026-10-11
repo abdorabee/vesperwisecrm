@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -33,12 +32,6 @@ function appUrl(): string {
     process.env.VERCEL_PROJECT_PRODUCTION_URL ??
     "http://localhost:3000";
   return configured.startsWith("http") ? configured : `https://${configured}`;
-}
-
-async function requestOrigin(): Promise<string> {
-  const requestHeaders = await headers();
-  const origin = requestHeaders.get("origin");
-  return origin?.startsWith("http") ? origin : appUrl();
 }
 
 function assertSeatCapacity(
@@ -122,7 +115,7 @@ export async function createBillingCheckout(
       return { ok: false, error: accountError?.message ?? "Account not found" };
     }
 
-    const origin = await requestOrigin();
+    const origin = appUrl();
     const checkout = await createPolarCheckout({
       accountId,
       plan,
@@ -152,7 +145,7 @@ export async function createCustomerPortalSession(): Promise<
       supabase.auth.getUser(),
     ]);
 
-    const origin = await requestOrigin();
+    const origin = appUrl();
     const session = await createPolarCustomerPortalSession({
       accountId,
       polarCustomerId: state.polarCustomerId,

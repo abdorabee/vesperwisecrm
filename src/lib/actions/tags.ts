@@ -7,6 +7,7 @@ import { requireWritableBilling } from "@/lib/billing/access";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
 import { createTagSchema } from "@/lib/validations/tag";
 import type { Tables } from "@/lib/supabase/types";
+import { requireRows } from "@/lib/supabase/require-rows";
 
 export async function createTag(
   name: string,
@@ -51,13 +52,27 @@ export async function addTagToLead(
   const userId = await requireUserId();
   const supabase = await createClient();
 
-  const { error } = await supabase
-    .from("lead_tags")
-    .insert({ account_id: accountId, lead_id: leadId, tag_id: tagId });
-
-  if (error) {
-    throw new Error(error.message);
+  const { data: lead, error: leadError } = await supabase
+    .from("leads")
+    .select("id")
+    .eq("id", leadId)
+    .eq("account_id", accountId)
+    .maybeSingle();
+  const { data: tag, error: tagError } = await supabase
+    .from("tags")
+    .select("id")
+    .eq("id", tagId)
+    .eq("account_id", accountId)
+    .maybeSingle();
+  if (leadError || tagError || !lead || !tag) {
+    throw new Error(leadError?.message ?? tagError?.message ?? "Lead or tag not found");
   }
+
+  const { data: inserted, error } = await supabase
+    .from("lead_tags")
+    .insert({ account_id: accountId, lead_id: leadId, tag_id: tagId })
+    .select("lead_id");
+  requireRows(inserted, error, "Could not add tag");
 
   await supabase.from("activities").insert({
     account_id: accountId,
@@ -86,15 +101,14 @@ export async function removeTagFromLead(
   const userId = await requireUserId();
   const supabase = await createClient();
 
-  const { error } = await supabase
+  const { data: removed, error } = await supabase
     .from("lead_tags")
     .delete()
     .eq("lead_id", leadId)
-    .eq("tag_id", tagId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
+    .eq("tag_id", tagId)
+    .eq("account_id", accountId)
+    .select("lead_id");
+  requireRows(removed, error, "Tag not found on this lead");
 
   await supabase.from("activities").insert({
     account_id: accountId,

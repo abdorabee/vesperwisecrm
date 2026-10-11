@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { clientAddress, consumeRateLimit } from "@/lib/rate-limit";
+import { hashIntakeToken, isWellFormedIntakeToken } from "@/lib/leads/intake-token";
 
 const INTAKE_REQUESTS_PER_MINUTE = 60;
 import { createLeadRecord } from "@/lib/leads/create-lead";
@@ -83,6 +84,7 @@ async function ingestCallSummary(
 
 interface AuthResult {
   authorized: boolean;
+  limited?: boolean;
   sourceName?: string;
 }
 
@@ -92,19 +94,31 @@ async function authorize(
   accountId: string,
 ): Promise<AuthResult> {
   const header = request.headers.get("authorization");
-  const token = header?.startsWith("Bearer ") ? header.slice(7) : null;
+  const token = header?.startsWith("Bearer ") ? header.slice(7).trim() : "";
 
-  if (!token) {
+  if (!isWellFormedIntakeToken(token)) {
     return { authorized: false };
+  }
+
+  const tokenHash = hashIntakeToken(token);
+  const withinTokenBudget = await consumeRateLimit({
+    scope: "leads-intake-token",
+    identifier: tokenHash,
+    limit: INTAKE_REQUESTS_PER_MINUTE,
+    windowSeconds: 60,
+    failClosed: true,
+  });
+  if (!withinTokenBudget) {
+    return { authorized: false, limited: true };
   }
 
   // Per-source tokens only: they are account-scoped and individually
   // revocable, unlike the retired global LEAD_INTAKE_SECRET which
-  // authorized intake into any account.
+  // authorized intake into any account. Only the hash is stored.
   const { data: source } = await supabase
     .from("lead_intake_sources")
     .select("name, account_id, revoked_at")
-    .eq("token", token)
+    .eq("token_hash", tokenHash)
     .maybeSingle();
 
   if (!source || source.revoked_at || source.account_id !== accountId) {
@@ -122,6 +136,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     identifier: clientAddress(request),
     limit: INTAKE_REQUESTS_PER_MINUTE,
     windowSeconds: 60,
+    failClosed: true,
   });
   if (!withinBudget) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
@@ -143,6 +158,9 @@ export async function POST(request: Request): Promise<NextResponse> {
       ? String((payload as { accountId: unknown }).accountId ?? "")
       : "";
   const auth = await authorize(request, supabase, claimedAccountId);
+  if (auth.limited) {
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+  }
   if (!auth.authorized) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

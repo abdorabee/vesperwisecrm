@@ -23,7 +23,8 @@ export async function runWorkflowAction(
         .from("leads")
         .select("contact:contact_id(first_name, last_name)")
         .eq("id", leadId)
-        .single();
+        .eq("account_id", accountId)
+        .maybeSingle();
 
       const contact = Array.isArray(lead?.contact)
         ? lead.contact[0]
@@ -53,11 +54,25 @@ export async function runWorkflowAction(
         throw new Error("Workflow action is missing a tag");
       }
 
+      const { data: lead } = await supabase
+        .from("leads")
+        .select("id")
+        .eq("id", leadId)
+        .eq("account_id", accountId)
+        .maybeSingle();
+      if (!lead) {
+        throw new Error("Lead not found");
+      }
+
       const { data: tag } = await supabase
         .from("tags")
         .select("name")
         .eq("id", tagId)
-        .single();
+        .eq("account_id", accountId)
+        .maybeSingle();
+      if (!tag) {
+        throw new Error("Tag not found");
+      }
 
       const { error: insertError } = await supabase
         .from("lead_tags")
@@ -93,7 +108,8 @@ export async function runWorkflowAction(
         .from("pipeline_stages")
         .select("name, is_won, is_lost")
         .eq("id", stageId)
-        .single();
+        .eq("account_id", accountId)
+        .maybeSingle();
 
       if (!stage) {
         throw new Error("Target stage not found");
@@ -101,13 +117,18 @@ export async function runWorkflowAction(
 
       const status = stage.is_won ? "won" : stage.is_lost ? "lost" : "open";
 
-      const { error: updateError } = await supabase
+      const { data: updated, error: updateError } = await supabase
         .from("leads")
         .update({ pipeline_stage_id: stageId, status })
-        .eq("id", leadId);
+        .eq("id", leadId)
+        .eq("account_id", accountId)
+        .select("id");
 
       if (updateError) {
         throw new Error(updateError.message);
+      }
+      if (!updated?.length) {
+        throw new Error("Lead not found");
       }
 
       await supabase.from("activities").insert({

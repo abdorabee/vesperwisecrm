@@ -135,30 +135,10 @@ export async function inviteTeamMember(
     throw new Error(inviteError.message);
   }
 
-  const invitedUserId = invited.user?.id;
-  if (!invitedUserId) {
-    throw new Error("Invite did not return a user");
-  }
-
-  const brandedTokenHash =
-    canSendBrandedAuthEmail() ? getGeneratedTokenHash(invited) : null;
-
-  const { error: memberError } = await serviceRole
-    .from("account_members")
-    .upsert(
-      {
-        account_id: accountId,
-        user_id: invitedUserId,
-        role: data.role,
-      },
-      { onConflict: "account_id,user_id" },
-    );
-
-  if (memberError) {
-    throw new Error(memberError.message);
-  }
-
+  // Membership is inserted when the invite link is accepted, not because
+  // an auth user with this email already exists.
   if (canSendBrandedAuthEmail()) {
+    const brandedTokenHash = getGeneratedTokenHash(invited);
     if (!brandedTokenHash) {
       throw new Error("Invite did not return a token hash");
     }

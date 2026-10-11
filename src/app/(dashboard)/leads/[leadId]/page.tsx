@@ -129,10 +129,12 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
               <CardTitle className="text-base">Property & Contract</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              <GenerateReportButton
-                leadId={lead.id}
-                existingDocUrl={lead.google_doc_url}
-              />
+              {isAdmin ? (
+                <GenerateReportButton
+                  leadId={lead.id}
+                  existingDocUrl={lead.google_doc_url}
+                />
+              ) : null}
               <PropertyPanel leadId={lead.id} property={lead.property} />
             </CardContent>
           </Card>

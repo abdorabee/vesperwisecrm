@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { requireAdminAccountId, requireUserId } from "@/lib/supabase/account";
 import { exchangeGoogleCode, isGoogleConfigured } from "@/lib/google/client";
+import { encryptGoogleToken } from "@/lib/google/token-crypto";
 import { GOOGLE_OAUTH_STATE_COOKIE } from "@/lib/google/oauth-state";
 
 export async function GET(request: Request): Promise<NextResponse> {
@@ -45,8 +46,8 @@ export async function GET(request: Request): Promise<NextResponse> {
     const { error } = await supabase.from("google_integrations").upsert(
       {
         account_id: accountId,
-        access_token: tokens.accessToken,
-        refresh_token: tokens.refreshToken,
+        access_token: encryptGoogleToken(tokens.accessToken),
+        refresh_token: encryptGoogleToken(tokens.refreshToken),
         token_expires_at: tokens.expiresAt.toISOString(),
         connected_email: tokens.email,
         connected_by_user_id: userId,

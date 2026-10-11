@@ -21,6 +21,7 @@ import type { Tables } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
+import { sanitizeHtml, stripHtmlTags } from "@/lib/email/sanitize-html";
 
 function getPayload(activity: Tables<"activities">): Record<string, unknown> {
   return activity.payload as Record<string, unknown>;
@@ -232,9 +233,11 @@ function EmailBody({ activity }: { activity: Tables<"activities"> }) {
       ? payload.note
       : null;
 
-  const preview = snippet ?? bodyText ?? note;
-  const fullText = bodyText ?? note;
-  const hasExpandable = Boolean(fullText || bodyHtml);
+  const sanitizedHtml = sanitizeHtml(bodyHtml);
+  const plainFromHtml = bodyHtml ? stripHtmlTags(bodyHtml) : "";
+  const fullText = bodyText ?? (plainFromHtml || null) ?? note;
+  const preview = snippet ?? fullText;
+  const hasExpandable = Boolean(fullText || sanitizedHtml);
   const isReceived = activity.type === "email_received";
 
   if (!preview && !hasExpandable) {
@@ -250,10 +253,13 @@ function EmailBody({ activity }: { activity: Tables<"activities"> }) {
     <div className="mt-2">
       {!expanded && preview && <p className={previewBoxClass}>{preview}</p>}
       {expanded && fullText && <p className={previewBoxClass}>{fullText}</p>}
-      {expanded && bodyHtml && (
-        <div
-          className={cn(previewBoxClass, "email-body-content")}
-          dangerouslySetInnerHTML={{ __html: bodyHtml }}
+      {expanded && sanitizedHtml && (
+        <iframe
+          title="Email preview"
+          sandbox=""
+          referrerPolicy="no-referrer"
+          srcDoc={sanitizedHtml}
+          className="mt-2 h-48 w-full rounded-lg border bg-white"
         />
       )}
       {hasExpandable && (

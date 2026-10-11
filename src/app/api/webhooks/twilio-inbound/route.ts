@@ -6,6 +6,18 @@ import { verifyTwilioSignature } from "@/lib/sms/verify-signature";
 
 const EMPTY_TWIML = '<?xml version="1.0" encoding="UTF-8"?><Response></Response>';
 
+function inboundSmsWebhookUrl(request: Request): string {
+  const configured = process.env.TWILIO_WEBHOOK_URL?.trim();
+  if (configured) return configured;
+  const site = process.env.NEXT_PUBLIC_SITE_URL?.trim().replace(/\/$/, "");
+  if (site) {
+    const incoming = new URL(request.url);
+    const origin = site.startsWith("http") ? site : `https://${site}`;
+    return `${origin}${incoming.pathname}${incoming.search}`;
+  }
+  return request.url;
+}
+
 function twimlResponse(): NextResponse {
   return new NextResponse(EMPTY_TWIML, {
     status: 200,
@@ -30,9 +42,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
   });
 
-  // Twilio signs the exact public URL it POSTs to. Behind proxies that
-  // rewrite the URL, set TWILIO_WEBHOOK_URL to the URL configured in Twilio.
-  const webhookUrl = process.env.TWILIO_WEBHOOK_URL ?? request.url;
+  // Twilio signs the public URL. Prefer TWILIO_WEBHOOK_URL, then the
+  // configured site origin, and only then the request URL.
+  const webhookUrl = inboundSmsWebhookUrl(request);
   const signature = request.headers.get("x-twilio-signature") ?? "";
 
   if (

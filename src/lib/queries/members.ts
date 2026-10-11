@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { requireAccountId } from "@/lib/supabase/account";
+import { getSessionMembership, requireAccountId } from "@/lib/supabase/account";
 
 export interface MemberProfile {
   userId: string;
@@ -110,30 +110,15 @@ export async function getPendingInvites(): Promise<PendingInvite[]> {
 }
 
 export async function getCurrentMembership(): Promise<CurrentMembership | null> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return null;
-  }
-
-  const { data, error } = await supabase
-    .from("account_members")
-    .select("account_id, role, onboarding_tour_completed_at")
-    .eq("user_id", user.id)
-    .limit(1)
-    .maybeSingle();
-
-  if (error || !data) {
+  const membership = await getSessionMembership();
+  if (!membership) {
     return null;
   }
 
   return {
-    accountId: data.account_id,
-    role: data.role,
-    onboardingTourCompletedAt: data.onboarding_tour_completed_at,
+    accountId: membership.accountId,
+    role: membership.role,
+    onboardingTourCompletedAt: membership.onboardingTourCompletedAt,
   };
 }
 
