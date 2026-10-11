@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { qualifyLead, rejectLead, requestLeadInfo } from "@/lib/actions/qualification";
+import { MotivationScore } from "@/components/motivation-score";
+import { filterByMotivationScore } from "@/lib/leads/motivation-filter";
 import type { SubmittedLead } from "@/lib/queries/qualification";
 import type { GroupWithMembers } from "@/lib/queries/groups";
 import { ClickToCallButton } from "@/components/dialer/click-to-call-button";
@@ -120,6 +122,7 @@ function QueueRow({ lead, groups }: QueueRowProps) {
             </p>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-1">
+            <MotivationScore score={lead.motivation_score} showEmpty />
             {overdue && (
               <Badge variant="destructive" className="gap-1">
                 <AlertTriangle className="size-3" />
@@ -222,6 +225,8 @@ interface QueueListProps {
 }
 
 export function QueueList({ leads, groups }: QueueListProps) {
+  const [hotOnly, setHotOnly] = useState(false);
+
   if (leads.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
@@ -230,11 +235,33 @@ export function QueueList({ leads, groups }: QueueListProps) {
     );
   }
 
+  const visible = filterByMotivationScore(leads, hotOnly);
+
   return (
     <div className="flex flex-col gap-4">
-      {leads.map((lead) => (
-        <QueueRow key={lead.id} lead={lead} groups={groups} />
-      ))}
+      <div className="flex items-center justify-between gap-3">
+        <Button
+          type="button"
+          size="sm"
+          variant={hotOnly ? "default" : "outline"}
+          aria-pressed={hotOnly}
+          onClick={() => setHotOnly((current) => !current)}
+        >
+          70 and above
+        </Button>
+        <span className="text-xs text-muted-foreground tabular-nums">
+          {visible.length} of {leads.length}
+        </span>
+      </div>
+      {visible.length === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          No submitted leads with a motivation score of 70 or above.
+        </p>
+      ) : (
+        visible.map((lead) => (
+          <QueueRow key={lead.id} lead={lead} groups={groups} />
+        ))
+      )}
     </div>
   );
 }

@@ -43,9 +43,12 @@ export async function scoreLeadAction(
   leadId: string,
 ): Promise<LeadScoreResult> {
   const accountId = await requireAiBudget("ai-score-lead");
+  const userId = await requireUserId();
   const supabase = await createClient();
-  const result = await scoreAndStoreLead(supabase, accountId, leadId);
+  const result = await scoreAndStoreLead(supabase, accountId, leadId, userId);
 
   revalidatePath(`/leads/${leadId}`);
+  revalidatePath("/pipeline");
+  revalidatePath("/queue");
   return result;
 }

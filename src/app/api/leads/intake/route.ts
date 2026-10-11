@@ -8,6 +8,7 @@ import { createLeadRecord } from "@/lib/leads/create-lead";
 import { intakeLeadSchema } from "@/lib/validations/lead";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
 import { isAiConfigured } from "@/lib/ai/client";
+import { rescoreLeadQuietly } from "@/lib/ai/score-on-create";
 import { parseCallNotes } from "@/lib/ai/parse-call-notes";
 import { extractedFieldsToPropertyUpdate } from "@/lib/ai/apply-extracted-fields";
 import type { TablesUpdate } from "@/lib/supabase/types";
@@ -34,52 +35,56 @@ async function ingestCallSummary(
     },
   });
 
-  if (!isAiConfigured()) {
-    return;
-  }
+  if (isAiConfigured()) {
+    try {
+      const extracted = await parseCallNotes(callSummary);
+      const update = extractedFieldsToPropertyUpdate(extracted);
+      if (Object.keys(update).length > 0) {
+        const { data: existing } = await supabase
+          .from("lead_properties")
+          .select("*")
+          .eq("lead_id", leadId)
+          .maybeSingle();
 
-  try {
-    const extracted = await parseCallNotes(callSummary);
-    const update = extractedFieldsToPropertyUpdate(extracted);
-    if (Object.keys(update).length === 0) {
-      return;
-    }
-
-    const { data: existing } = await supabase
-      .from("lead_properties")
-      .select("*")
-      .eq("lead_id", leadId)
-      .maybeSingle();
-
-    if (!existing) {
-      await supabase.from("lead_properties").insert({
-        account_id: accountId,
-        lead_id: leadId,
-        ...update,
-      });
-      return;
-    }
-
-    // Only fill gaps — webhook payload fields win over AI extraction.
-    const gapFill: TablesUpdate<"lead_properties"> = {};
-    for (const [column, value] of Object.entries(update)) {
-      if (existing[column as keyof typeof existing] == null) {
-        (gapFill as Record<string, unknown>)[column] = value;
+        if (!existing) {
+          await supabase.from("lead_properties").insert({
+            account_id: accountId,
+            lead_id: leadId,
+            ...update,
+          });
+        } else {
+          // Only fill gaps — webhook payload fields win over AI extraction.
+          const gapFill: TablesUpdate<"lead_properties"> = {};
+          for (const [column, value] of Object.entries(update)) {
+            if (existing[column as keyof typeof existing] == null) {
+              (gapFill as Record<string, unknown>)[column] = value;
+            }
+          }
+          if (Object.keys(gapFill).length > 0) {
+            await supabase
+              .from("lead_properties")
+              .update(gapFill)
+              .eq("id", existing.id);
+          }
+        }
       }
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          scope: "intake",
+          event: "call_summary_parse_failed",
+          lead_id: leadId,
+          error: error instanceof Error ? error.message : "Unknown error",
+        }),
+      );
     }
-    if (Object.keys(gapFill).length > 0) {
-      await supabase.from("lead_properties").update(gapFill).eq("id", existing.id);
-    }
-  } catch (error) {
-    console.error(
-      JSON.stringify({
-        scope: "intake",
-        event: "call_summary_parse_failed",
-        lead_id: leadId,
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-    );
   }
+
+  await rescoreLeadQuietly(supabase, {
+    accountId,
+    leadId,
+    reason: "parsed_call",
+  });
 }
 
 interface AuthResult {

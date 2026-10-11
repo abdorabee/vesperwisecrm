@@ -4,12 +4,34 @@ import { getAnthropicClient } from "@/lib/ai/client";
 
 const scoreResultSchema = z.object({
   score: z.number().int().min(0).max(100),
+  motivation_score: z.number().int().min(0).max(100),
   summary: z.string().min(1),
   positives: z.array(z.string()).default([]),
   risks: z.array(z.string()).default([]),
 });
 
-export type LeadScoreResult = z.infer<typeof scoreResultSchema>;
+export interface LeadScoreResult {
+  score: number;
+  motivationScore: number;
+  summary: string;
+  positives: string[];
+  risks: string[];
+}
+
+export function parseLeadScore(input: unknown): LeadScoreResult {
+  const parsed = scoreResultSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new Error("AI scoring returned an unexpected shape");
+  }
+
+  return {
+    score: parsed.data.score,
+    motivationScore: parsed.data.motivation_score,
+    summary: parsed.data.summary,
+    positives: parsed.data.positives,
+    risks: parsed.data.risks,
+  };
+}
 
 export interface LeadScoringInput {
   title: string;
@@ -23,21 +45,26 @@ export interface LeadScoringInput {
 
 const SCORE_TOOL_NAME = "score_lead";
 
-const SCORE_TOOL = {
+export const leadScoreTool = {
   name: SCORE_TOOL_NAME,
   description:
-    "Score a real estate acquisition lead's likelihood to close based on seller intake data and CRM activity history.",
+    "Score a real estate acquisition lead. Return likelihood to close and a separate seller motivation score.",
   input_schema: {
     type: "object" as const,
     properties: {
       score: {
         type: "integer",
         description:
-          "Likelihood to close, 0-100. 70+ = hot (motivated seller, clear timeline, engaged), 40-69 = warm, below 40 = cold or stale.",
+          "Likelihood to close, 0-100. 70+ = hot, 40-69 = warm, below 40 = cold or stale. Weigh motivation, timeline, price, condition, and recent engagement. This is not the motivation score.",
+      },
+      motivation_score: {
+        type: "integer",
+        description:
+          "Seller motivation only, 0-100. 70+ means the seller has a clear reason to sell and an urgent timeline. Use the stated reason and timeline, not price, condition, or CRM activity.",
       },
       summary: {
         type: "string",
-        description: "One or two sentences explaining the score.",
+        description: "One or two sentences explaining the scores.",
       },
       positives: {
         type: "array",
@@ -50,7 +77,7 @@ const SCORE_TOOL = {
         description: "Short factors that lower the score, e.g. 'No activity in 12 days'.",
       },
     },
-    required: ["score", "summary", "positives", "risks"],
+    required: ["score", "motivation_score", "summary", "positives", "risks"],
   },
 };
 
@@ -62,12 +89,16 @@ export async function scoreLead(
   const message = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 1024,
-    tools: [SCORE_TOOL],
+    tools: [leadScoreTool],
     tool_choice: { type: "tool", name: SCORE_TOOL_NAME },
     messages: [
       {
         role: "user",
-        content: `Score this real estate acquisition lead's likelihood to close. Weigh seller motivation, timeline urgency, price expectations, property condition, and how engaged the conversation has been (recent activity beats stale leads).
+        content: `Score this real estate acquisition lead with two different numbers.
+
+score is likelihood to close, 0-100. Weigh seller motivation, timeline urgency, price expectations, property condition, and how engaged the conversation has been (recent activity beats stale leads).
+
+motivation_score is seller motivation only, 0-100. Use the seller's stated reason for selling and how soon they need to close. Leave price, condition, and CRM activity out of motivation_score.
 
 Lead data (JSON):
 ${JSON.stringify(input, null, 2)}`,
@@ -83,10 +114,5 @@ ${JSON.stringify(input, null, 2)}`,
     throw new Error("AI scoring did not return structured data");
   }
 
-  const parsed = scoreResultSchema.safeParse(toolUse.input);
-  if (!parsed.success) {
-    throw new Error("AI scoring returned an unexpected shape");
-  }
-
-  return parsed.data;
+  return parseLeadScore(toolUse.input);
 }

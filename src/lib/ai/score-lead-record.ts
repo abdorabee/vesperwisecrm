@@ -14,6 +14,7 @@ export async function scoreAndStoreLead(
   supabase: CRMClient,
   accountId: string,
   leadId: string,
+  actorUserId?: string | null,
 ): Promise<LeadScoreResult> {
   const { data, error: leadError } = await supabase
     .from("leads")
@@ -67,10 +68,14 @@ export async function scoreAndStoreLead(
       : null,
   });
 
+  const previousMotivation =
+    typeof lead.motivation_score === "number" ? lead.motivation_score : null;
+
   const { error: updateError } = await supabase
     .from("leads")
     .update({
       ai_score: result.score,
+      motivation_score: result.motivationScore,
       ai_score_factors: {
         summary: result.summary,
         positives: result.positives,
@@ -83,6 +88,25 @@ export async function scoreAndStoreLead(
 
   if (updateError) {
     throw new Error(updateError.message);
+  }
+
+  if (previousMotivation !== result.motivationScore) {
+    const { error: activityError } = await supabase.from("activities").insert({
+      account_id: accountId,
+      lead_id: leadId,
+      type: "score_changed",
+      actor_user_id: actorUserId ?? null,
+      payload: {
+        field: "motivation_score",
+        from: previousMotivation,
+        to: result.motivationScore,
+        message: "Score changed",
+      },
+    });
+
+    if (activityError) {
+      throw new Error(activityError.message);
+    }
   }
 
   return result;

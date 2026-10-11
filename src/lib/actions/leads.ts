@@ -6,6 +6,7 @@ import { requireAccountId, requireUserId } from "@/lib/supabase/account";
 import { requireBillingCapability } from "@/lib/billing/access";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
 import { requireRows } from "@/lib/supabase/require-rows";
+import { rescoreLeadQuietly } from "@/lib/ai/score-on-create";
 import { createLeadRecord } from "@/lib/leads/create-lead";
 import {
   addLeadNoteSchema,
@@ -252,6 +253,7 @@ export async function importLeadsCsvMapped(
 export async function saveLeadProperty(
   leadId: string,
   input: LeadPropertyFormInput,
+  options?: { parsedCall?: boolean },
 ): Promise<void> {
   const data = leadPropertySchema.parse(input);
   const accountId = await requireAccountId();
@@ -335,8 +337,18 @@ export async function saveLeadProperty(
     },
   });
 
+  if (options?.parsedCall) {
+    await rescoreLeadQuietly(supabase, {
+      accountId,
+      leadId,
+      actorUserId: userId,
+      reason: "parsed_call",
+    });
+  }
+
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/pipeline");
+  revalidatePath("/queue");
 }
 
 export async function updateLeadStage(
@@ -435,5 +447,14 @@ export async function addLeadNote(
     throw new Error(error.message);
   }
 
+  await rescoreLeadQuietly(supabase, {
+    accountId,
+    leadId,
+    actorUserId: userId,
+    reason: "note",
+  });
+
   revalidatePath(`/leads/${leadId}`);
+  revalidatePath("/pipeline");
+  revalidatePath("/queue");
 }

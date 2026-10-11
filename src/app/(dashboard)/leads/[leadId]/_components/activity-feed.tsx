@@ -12,6 +12,7 @@ import {
   Mail,
   MessageSquare,
   PhoneCall,
+  Sparkles,
   StickyNote,
   Tag,
   Zap,
@@ -22,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
 import { sanitizeHtml, stripHtmlTags } from "@/lib/email/sanitize-html";
+import { describeScoreChanged } from "@/lib/activities/describe-score-changed";
 
 function getPayload(activity: Tables<"activities">): Record<string, unknown> {
   return activity.payload as Record<string, unknown>;
@@ -65,6 +67,8 @@ function describeActivity(activity: Tables<"activities">): string {
       return `Call ended: ${String(payload.status ?? "completed").replace("_", " ")}`;
     case "call_disposition_set":
       return `Call outcome: ${payload.disposition ?? "recorded"}`;
+    case "score_changed":
+      return describeScoreChanged(payload);
     default:
       return activity.type;
   }
@@ -100,6 +104,8 @@ function getActivityIcon(type: string): LucideIcon {
     case "call_completed":
     case "call_disposition_set":
       return PhoneCall;
+    case "score_changed":
+      return Sparkles;
     default:
       return CircleDot;
   }

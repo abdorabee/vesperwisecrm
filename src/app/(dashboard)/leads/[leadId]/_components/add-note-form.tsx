@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +12,7 @@ interface AddNoteFormProps {
 }
 
 export function AddNoteForm({ leadId }: AddNoteFormProps) {
+  const router = useRouter();
   const [note, setNote] = useState("");
   const [isPending, startTransition] = useTransition();
 
@@ -26,6 +28,7 @@ export function AddNoteForm({ leadId }: AddNoteFormProps) {
         await addLeadNote(leadId, { note: trimmedNote });
         setNote("");
         toast.success("Note added");
+        router.refresh();
       } catch (error) {
         toast.error(error instanceof Error ? error.message : "Failed to add note");
       }
