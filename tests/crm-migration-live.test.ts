@@ -26,6 +26,10 @@ vi.mock("next/headers", () => ({
         name,
         value,
       })),
+    get: (name: string) => {
+      const value = cookieJar.values.get(name);
+      return value ? { name, value } : undefined;
+    },
     set: (name: string, value: string) => {
       cookieJar.values.set(name, value);
     },
