@@ -16,9 +16,10 @@ export function Pipeline() {
               </h2>
             </div>
             <p className="mt-5 max-w-[46ch] text-[17px] font-light leading-[1.6] text-[var(--mkt-text2)]">
-              Offers, contracts and closings tracked by stage — with the aging,
-              assigned rep and expected spread visible on the card, not buried
-              in a record.
+              Each card shows the next open task, or the next sequence step
+              when no task is open, with a relative due date. Overdue is
+              marked. Nothing open shows No next action. The motivation score
+              on the card runs from 0 to 100 and is separate from the AI score.
             </p>
           </div>
           <span className="font-mono text-[10.5px] font-medium tracking-[0.1em] text-[var(--mkt-text3)]">

@@ -18,9 +18,9 @@ export function Intake() {
               </h2>
             </div>
             <p className="mt-5 max-w-[42ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
-              Pull leads from forms, imports, and the channels you connect.
-              Contact and property details you enter stay on the record before
-              a rep works it.
+              Pull leads from forms and imports. Re-importing the same file
+              creates no new leads: a matching phone, address, and owner name
+              is skipped or merged, and the summary shows that count. Skip tracing (coming soon).
             </p>
           </div>
 

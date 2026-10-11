@@ -148,6 +148,9 @@ export function PricingPreview() {
         <p className="mt-3 max-w-[78ch] font-mono text-[10.5px] leading-[1.6] tracking-[0.04em] text-[var(--mkt-text3)]">
           {PUBLIC_BILLING_CADENCE}
         </p>
+        <p className="mt-3 max-w-[78ch] font-sans text-[14.5px] leading-[1.5] font-light text-[var(--mkt-text2)]">
+          A one-time Polar order can grant Team.
+        </p>
       </div>
     </section>
   );

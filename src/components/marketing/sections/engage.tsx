@@ -17,9 +17,14 @@ export function Engage() {
                 Engage
               </h2>
             </div>
-            <p className="mt-5 max-w-[38ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
-              Email sequences and callback tasks write to the same timeline.
-              Track every touch on one record so the next action is never a guess.
+            <p className="mt-5 max-w-[46ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
+              A captured seller reply stops that lead&apos;s active email
+              sequence. Sequence mail includes an unsubscribe link, and the
+              workspace company name and postal address when they are set.
+              Sequences are for opted-in and inbound sellers. You start each call.
+              A call is allowed at 8:00 a.m. and blocked at 9:00 p.m. in
+              the recipient&apos;s local time, from the property ZIP or the
+              area code. SMS sequences (coming soon).
             </p>
 
             <Stagger className="mt-8 grid border-t border-[color:var(--mkt-border)]">
@@ -42,7 +47,7 @@ export function Engage() {
           <div className="min-w-0">
             <div className="mb-3 flex items-end justify-between">
               <span className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
-                FIG 3.1 — DIALER SESSION + SEQUENCE
+                FIG 3.1 — CLICK TO CALL + SEQUENCE
               </span>
             </div>
             <MockPowerDial />
