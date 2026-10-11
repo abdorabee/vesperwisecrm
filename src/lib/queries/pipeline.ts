@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
 import { requireAccountId } from "@/lib/supabase/account";
 import { getAccountMemberProfiles } from "@/lib/queries/members";
+import { loadNextActions, type LeadNextAction } from "@/lib/queries/next-action";
 import type { Tables } from "@/lib/supabase/types";
+
+export type { LeadNextAction } from "@/lib/queries/next-action";
 
 export interface LeadWithContact extends Tables<"leads"> {
   contact: Pick<
@@ -12,6 +15,7 @@ export interface LeadWithContact extends Tables<"leads"> {
   ownerEmail: string | null;
   searchRelevance: number | null;
   matchReasons: LeadMatchReason[];
+  nextAction: LeadNextAction | null;
 }
 
 export interface PipelineData {
@@ -198,6 +202,7 @@ export async function getPipelineData(filters: {
         : null,
       searchRelevance: smartResultByLeadId.get(rest.id)?.relevance ?? null,
       matchReasons: smartResultByLeadId.get(rest.id)?.matchReasons ?? [],
+      nextAction: null,
     };
   });
 
@@ -212,6 +217,16 @@ export async function getPipelineData(filters: {
       lead.tags.some((tag) => tag.id === filters.tagId),
     );
   }
+
+  const nextActions = await loadNextActions(
+    supabase,
+    accountId,
+    leads.map((lead) => lead.id),
+  );
+  leads = leads.map((lead) => ({
+    ...lead,
+    nextAction: nextActions.get(lead.id) ?? null,
+  }));
 
   return { accountId, stages: stages ?? [], leads, tags: tags ?? [] };
 }
