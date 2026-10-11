@@ -47,6 +47,15 @@ describe("billing configuration", () => {
     expect(getBillingProductId(config, "starter")).toBe("starter-product");
     expect(getBillingProductId(config, "team")).toBe("team-product");
     expect(getBillingProductId(config, "scale")).toBe("scale-product");
+    expect(config.teamLifetimeProductId).toBeNull();
+  });
+
+  it("loads the optional lifetime product without requiring it for checkout", () => {
+    enabledEnvironment();
+    vi.stubEnv("POLAR_TEAM_LIFETIME_PRODUCT_ID", " lifetime-product ");
+
+    expect(getBillingConfig().teamLifetimeProductId).toBe("lifetime-product");
+    expect(() => getBillingConfig()).not.toThrow();
   });
 
   it("allows Starter and Team billing while Scale checkout is disabled", () => {

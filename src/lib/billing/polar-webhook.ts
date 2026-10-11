@@ -125,6 +125,67 @@ async function processPaidOrderEvent(
   }
 }
 
+async function processLifetimeOrderEvent(
+  normalized: Extract<NormalizedPolarEvent, { kind: "order_paid" }>,
+  supabase: ReturnType<typeof createServiceRoleClient>,
+): Promise<void> {
+  if (!normalized.order || normalized.order.grant !== "team_lifetime" || !normalized.accountId) {
+    throw new Error("Polar lifetime order event is incomplete");
+  }
+
+  const { data: existing, error: existingError } = await supabase
+    .from("billing_accounts")
+    .select("last_provider_modified_at")
+    .eq("account_id", normalized.accountId)
+    .single();
+
+  if (existingError) {
+    if (existingError.code === "PGRST116") {
+      return;
+    }
+    throw new Error(existingError.message);
+  }
+  if (!existing) {
+    return;
+  }
+
+  if (
+    isProviderUpdateStale(
+      normalized.providerModifiedAt,
+      existing.last_provider_modified_at,
+    )
+  ) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("billing_accounts")
+    .update({
+      source: "lifetime",
+      plan_key: "team",
+      provider_status: "active",
+      ...(normalized.order.polarCustomerId
+        ? { polar_customer_id: normalized.order.polarCustomerId }
+        : {}),
+      polar_subscription_id: null,
+      polar_product_id: normalized.order.productId,
+      ...(normalized.order.seats != null ? { seats: normalized.order.seats } : {}),
+      current_period_start: null,
+      current_period_end: null,
+      trial_start: null,
+      trial_end: null,
+      cancel_at_period_end: false,
+      past_due_since: null,
+      last_provider_modified_at: normalized.providerModifiedAt,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("account_id", normalized.accountId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 async function insertWebhookEvent(
   normalized: NormalizedPolarEvent,
   payload: Json,
@@ -228,6 +289,11 @@ export async function processPolarWebhook(
   try {
     if (normalized.kind === "subscription") {
       await processSubscriptionEvent(normalized, supabase);
+    } else if (
+      normalized.kind === "order_paid" &&
+      normalized.order.grant === "team_lifetime"
+    ) {
+      await processLifetimeOrderEvent(normalized, supabase);
     } else if (normalized.kind === "order_paid") {
       await processPaidOrderEvent(normalized, supabase);
     }

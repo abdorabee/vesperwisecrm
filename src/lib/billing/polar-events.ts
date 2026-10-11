@@ -35,6 +35,9 @@ export interface NormalizedOrderPaidEvent {
   id: string;
   productId: string;
   subscriptionId: string | null;
+  grant: "subscription_payment" | "team_lifetime";
+  polarCustomerId: string | null;
+  seats: number | null;
 }
 
 interface NormalizedPolarEventBase {
@@ -128,6 +131,46 @@ function productIdFromData(data: Record<string, unknown>): string | null {
     stringValue(pick(data, "productId", "product_id")) ??
     stringValue(pick(product, "id"))
   );
+}
+
+function seatsValue(value: unknown): number | null {
+  const seats = typeof value === "string" && value.trim() ? Number(value) : value;
+  return typeof seats === "number" &&
+    Number.isInteger(seats) &&
+    seats >= 1 &&
+    seats <= 1000
+    ? seats
+    : null;
+}
+
+function productIsRecurring(data: Record<string, unknown>): boolean {
+  const product = record(data.product);
+  if (pick(product, "isRecurring", "is_recurring") === true) {
+    return true;
+  }
+  const interval = pick(product, "recurringInterval", "recurring_interval");
+  return typeof interval === "string" && interval.trim().length > 0;
+}
+
+function isTeamLifetimeOrder(
+  data: Record<string, unknown>,
+  config: BillingConfig,
+): boolean {
+  const productId = productIdFromData(data);
+  if (
+    !productId ||
+    !config.teamLifetimeProductId ||
+    productId !== config.teamLifetimeProductId
+  ) {
+    return false;
+  }
+  if (stringValue(pick(data, "subscriptionId", "subscription_id"))) {
+    return false;
+  }
+  if (stringValue(pick(data, "billingReason", "billing_reason")) !== "purchase") {
+    return false;
+  }
+  return !productIsRecurring(data);
 }
 
 function planForProduct(config: BillingConfig, productId: string): BillingPlan | null {
@@ -259,7 +302,31 @@ export function normalizePolarEvent(
 
   const productId = productIdFromData(data);
   const orderId = stringValue(data.id);
-  if (!productId || !orderId || !planForProduct(config, productId)) {
+  if (!productId || !orderId) {
+    return ignoredEvent(providerEventId, eventType, accountId, providerModifiedAt);
+  }
+
+  const polarCustomerId = stringValue(pick(data, "customerId", "customer_id"));
+  const seats = seatsValue(pick(data, "seats"));
+  if (isTeamLifetimeOrder(data, config)) {
+    return {
+      providerEventId,
+      eventType,
+      accountId,
+      providerModifiedAt,
+      kind: "order_paid",
+      order: {
+        id: orderId,
+        productId,
+        subscriptionId: null,
+        grant: "team_lifetime",
+        polarCustomerId,
+        seats,
+      },
+    };
+  }
+
+  if (!planForProduct(config, productId)) {
     return ignoredEvent(providerEventId, eventType, accountId, providerModifiedAt);
   }
 
@@ -273,6 +340,9 @@ export function normalizePolarEvent(
       id: orderId,
       productId,
       subscriptionId: stringValue(pick(data, "subscriptionId", "subscription_id")),
+      grant: "subscription_payment",
+      polarCustomerId,
+      seats,
     },
   };
 }

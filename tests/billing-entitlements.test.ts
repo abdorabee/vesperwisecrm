@@ -91,6 +91,17 @@ describe("billing plan catalog", () => {
         new Date("2026-08-16T00:00:00.000Z"),
       ),
     ).toBe(false);
+    expect(
+      canRunScheduledWorkflows(
+        subscription({
+          source: "lifetime",
+          plan: "team",
+          providerStatus: "canceled",
+          trialEnd: "2026-08-01T00:00:00.000Z",
+        }),
+        new Date("2026-08-16T00:00:00.000Z"),
+      ),
+    ).toBe(true);
   });
 });
 
@@ -143,6 +154,23 @@ describe("billing access state", () => {
         providerStatus: "trialing",
         trialEnd: "2026-08-01T00:00:00.000Z",
       }),
+      "billing_required",
+    ],
+    [
+      "lifetime team after the trial date",
+      subscription({
+        source: "lifetime",
+        plan: "team",
+        providerStatus: "canceled",
+        cancelAtPeriodEnd: true,
+        currentPeriodEnd: "2026-08-01T00:00:00.000Z",
+        trialEnd: "2026-08-01T00:00:00.000Z",
+      }),
+      "full",
+    ],
+    [
+      "lifetime without a plan",
+      subscription({ source: "lifetime", plan: null, providerStatus: "active" }),
       "billing_required",
     ],
   ];

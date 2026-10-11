@@ -11,6 +11,7 @@ export interface BillingConfig {
   webhookSecret: string | null;
   productIds: Record<BillingPlan, string | null>;
   scaleCheckoutEnabled: boolean;
+  teamLifetimeProductId: string | null;
 }
 
 const REQUIRED_BILLING_VARS = [
@@ -39,6 +40,8 @@ export function getBillingConfig(): BillingConfig {
     team: process.env.POLAR_TEAM_PRODUCT_ID?.trim() || null,
     scale: process.env.POLAR_SCALE_PRODUCT_ID?.trim() || null,
   };
+  const teamLifetimeProductId =
+    process.env.POLAR_TEAM_LIFETIME_PRODUCT_ID?.trim() || null;
 
   if (!enabled) {
     return {
@@ -48,6 +51,7 @@ export function getBillingConfig(): BillingConfig {
       webhookSecret: null,
       productIds,
       scaleCheckoutEnabled: false,
+      teamLifetimeProductId,
     };
   }
 
@@ -72,6 +76,7 @@ export function getBillingConfig(): BillingConfig {
     webhookSecret: process.env.POLAR_WEBHOOK_SECRET!.trim(),
     productIds,
     scaleCheckoutEnabled,
+    teamLifetimeProductId,
   };
 }
 

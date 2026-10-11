@@ -63,7 +63,10 @@ function asPlan(value: string | null): BillingPlan | null {
 }
 
 function asSource(value: string): BillingSource {
-  return value === "polar" || value === "grandfathered" || value === "trial"
+  return value === "polar" ||
+    value === "grandfathered" ||
+    value === "trial" ||
+    value === "lifetime"
     ? value
     : "none";
 }
