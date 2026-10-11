@@ -9,6 +9,10 @@ const trialMigration = readFileSync(
   "supabase/migrations/20261003151928_team_trial_access.sql",
   "utf8",
 );
+const lifetimeMigration = readFileSync(
+  "supabase/migrations/20261011135054_team_lifetime_access.sql",
+  "utf8",
+);
 
 describe("Polar billing migration contract", () => {
   it("creates account billing, webhook event, and usage tables", () => {
@@ -70,5 +74,20 @@ describe("Team trial migration contract", () => {
     expect(trialMigration).toContain("billing.source = 'none'");
     expect(trialMigration).not.toContain("billing.source = 'grandfathered'");
     expect(trialMigration).not.toContain("billing.source = 'polar'");
+  });
+});
+
+describe("Lifetime Team migration contract", () => {
+  it("keeps lifetime writable without consulting trial_end", () => {
+    expect(lifetimeMigration).toContain(
+      "source in ('polar', 'grandfathered', 'none', 'trial', 'lifetime')",
+    );
+    expect(lifetimeMigration).toContain(
+      "if v_source = 'lifetime' and v_plan_key is not null then\n    return true;",
+    );
+    expect(lifetimeMigration).toContain("v_source = 'trial'");
+    expect(lifetimeMigration).toContain("v_trial_end > now()");
+    expect(lifetimeMigration).not.toContain("update public.billing_accounts");
+    expect(lifetimeMigration).not.toContain("interval '60 days'");
   });
 });

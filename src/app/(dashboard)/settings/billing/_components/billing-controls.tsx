@@ -42,6 +42,7 @@ function statusLabel(summary: BillingSummary): string {
   if (summary.accessMode === "billing_required") return "Plan required";
   if (summary.accessMode === "read_only") return "Read-only";
   if (summary.source === "trial") return "Team trial";
+  if (summary.source === "lifetime") return "Lifetime";
   if (summary.cancelAtPeriodEnd) return "Cancels at period end";
   if (summary.providerStatus === "past_due") return "Past due · grace period";
   if (summary.providerStatus === "trialing") return "Trialing";
@@ -116,6 +117,7 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
   }
 
   const onTeamTrial = summary.source === "trial";
+  const onLifetimeTeam = summary.source === "lifetime";
   const activePlanLabel = onTeamTrial
     ? "Team trial"
     : summary.plan
@@ -142,9 +144,11 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
               <p className="mt-1 text-sm text-muted-foreground">
                 {onTeamTrial
                   ? `Team trial ends ${formatDate(summary.trialEnd)}.`
-                  : summary.source === "polar"
-                    ? "Polar subscription"
-                    : "Workspace access"}
+                  : onLifetimeTeam
+                    ? "Team plan, paid once. It does not renew."
+                    : summary.source === "polar"
+                      ? "Polar subscription"
+                      : "Workspace access"}
               </p>
             </div>
             <Badge variant={summary.accessMode === "full" ? "default" : "secondary"}>
@@ -154,7 +158,11 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
           <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
             <div>
               <dt className="text-muted-foreground">{onTeamTrial ? "Trial ends" : "Renewal"}</dt>
-              <dd className="mt-1 font-medium">{formatDate(onTeamTrial ? summary.trialEnd : summary.currentPeriodEnd)}</dd>
+              <dd className="mt-1 font-medium">
+                {onLifetimeTeam
+                  ? "Does not renew"
+                  : formatDate(onTeamTrial ? summary.trialEnd : summary.currentPeriodEnd)}
+              </dd>
             </div>
             <div><dt className="text-muted-foreground">Seats</dt><dd className="mt-1 font-medium">{summary.memberCount} members · {summary.pendingInviteCount} pending · {summary.seats} paid</dd></div>
             <div><dt className="text-muted-foreground">Starter lead usage</dt><dd className="mt-1 font-medium">{summary.leadLimit == null ? `${summary.leadUsage} · unlimited` : `${summary.leadUsage} / ${summary.leadLimit} this UTC month`}</dd></div>

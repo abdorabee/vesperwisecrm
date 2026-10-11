@@ -9,7 +9,12 @@ export type BillingCapability =
   | "workflows"
   | "routing";
 
-export type BillingSource = "polar" | "grandfathered" | "none" | "trial";
+export type BillingSource =
+  | "polar"
+  | "grandfathered"
+  | "none"
+  | "trial"
+  | "lifetime";
 
 export type BillingProviderStatus =
   | "incomplete"
@@ -141,7 +146,7 @@ export function deriveBillingAccessMode(
     return "billing_required";
   }
 
-  if (state.source === "grandfathered") {
+  if (state.source === "grandfathered" || state.source === "lifetime") {
     return "full";
   }
 
