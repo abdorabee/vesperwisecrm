@@ -72,6 +72,7 @@ export function KanbanCard({
               contactId={lead.contact.id}
               contactName={contactName}
               leadId={lead.id}
+              phone={lead.contact.phone}
             />
           </div>
         )}

@@ -97,11 +97,19 @@ Twilio signs both endpoints. Because the correct signing secret is now per-tenan
 
 For local provider testing, use an HTTPS tunnel and set `DIALER_PUBLIC_BASE_URL` to its stable public origin. Update the TwiML App URL (in whichever Twilio account you're testing with) to the same origin. Never use production credentials in an untrusted shared tunnel.
 
+## Calling hours
+
+Outbound calls are rejected outside 8:00 AM–9:00 PM in the recipient's local time. 8:00 AM is allowed. 9:00 PM is not. The window is evaluated in `startDialerCall` before a reservation or provider token is created, and again inside `prepare_dialer_call` so a direct RPC cannot bypass it. An idempotent replay of an attempt that was already reserved still returns that attempt.
+
+Local time comes from the lead property ZIP when that ZIP maps to a US time zone, otherwise from the NANP area code. A property ZIP wins when both are present. Area codes that split a large population across two adjacent zones must be inside the window in every listed zone. If neither the ZIP nor the area code resolves, the call is rejected.
+
 ## Reconciliation schedule
 
 The endpoint is:
 
 `GET https://<crm-host>/api/cron/reconcile-dialer`
+
+`vercel.json` schedules it every minute. The route returns immediately while `DIALER_ENABLED` is not `true`. When the dialer is enabled, provider callbacks use `DIALER_PUBLIC_BASE_URL` as the exact public HTTPS origin.
 
 It requires `Authorization: Bearer <CRON_SECRET>`. Configure Supabase Cron to call it once per minute. Store the URL and secret in Supabase Vault or another secret store; do not commit them into a migration. A representative `pg_cron`/`pg_net` job is:
 

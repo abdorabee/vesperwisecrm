@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getDialerProvider } from "@/lib/dialer/providers/registry";
 import { requireDialerEnabled } from "@/lib/dialer/config";
+import { assertWithinCallingHours } from "@/lib/dialer/calling-hours";
 import { normalizeDialerPhone } from "@/lib/dialer/phone";
 import type { PreparedDialerCall } from "@/lib/dialer/types";
 import { createClient } from "@/lib/supabase/server";
@@ -55,6 +56,18 @@ export async function startDialerCall(
   if (!contact.phone) throw new Error("This contact has no phone number");
 
   const toPhoneE164 = normalizeDialerPhone(contact.phone, config.defaultCountry);
+  let postalCode: string | null = null;
+  if (data.leadId) {
+    const { data: property, error: propertyError } = await supabase
+      .from("lead_properties")
+      .select("postal_code")
+      .eq("account_id", accountId)
+      .eq("lead_id", data.leadId)
+      .maybeSingle();
+    if (propertyError) throw new Error(propertyError.message);
+    postalCode = property?.postal_code ?? null;
+  }
+  assertWithinCallingHours({ phone: toPhoneE164, postalCode });
   const provider = getDialerProvider();
   const { data: preparedRows, error: prepareError } = await supabase.rpc(
     "prepare_dialer_call",

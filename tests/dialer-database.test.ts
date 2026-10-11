@@ -4,6 +4,9 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { randomBytes, randomUUID } from "node:crypto";
 import type { Database } from "../src/lib/supabase/types";
+import { openCallingHoursPhones } from "../src/lib/dialer/calling-hours";
+
+const openPhones = openCallingHoursPhones();
 
 const RUN = process.env.RUN_DIALER_DB_TESTS === "true";
 const URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -30,7 +33,7 @@ async function prepare(
     p_contact_id: input.contactId,
     p_lead_id: input.leadId,
     p_queue_item_id: input.queueItemId ?? null,
-    p_phone_e164: input.contactId === contactId ? "+14155552671" : "+14155552672",
+    p_phone_e164: input.contactId === contactId ? openPhones![0] : openPhones![1],
     p_idempotency_key: input.key ?? randomUUID(),
     p_provider: "twilio",
     p_max_calls_per_second: 20,
@@ -57,7 +60,7 @@ async function providerEvent(input: {
   });
 }
 
-describe.skipIf(!RUN)("dialer database lifecycle", () => {
+describe.skipIf(!RUN || !openPhones)("dialer database lifecycle", () => {
   beforeAll(async () => {
     const email = `dialer-db-${Date.now()}@vesperwisecrm.test`;
     const { data: created, error: userError } = await admin.auth.admin.createUser({
@@ -79,8 +82,8 @@ describe.skipIf(!RUN)("dialer database lifecycle", () => {
 
     const { data: stage } = await admin.from("pipeline_stages").select("id").eq("account_id", accountId).order("display_order").limit(1).single();
     const { data: contacts, error: contactError } = await admin.from("contacts").insert([
-      { account_id: accountId, first_name: "Dialer", last_name: "One", phone: "+14155552671" },
-      { account_id: accountId, first_name: "Dialer", last_name: "Two", phone: "+14155552672" },
+      { account_id: accountId, first_name: "Dialer", last_name: "One", phone: openPhones![0] },
+      { account_id: accountId, first_name: "Dialer", last_name: "Two", phone: openPhones![1] },
     ]).select("id");
     if (contactError || !contacts) throw new Error(contactError?.message ?? "contact setup failed");
     [contactId, secondContactId] = contacts.map((contact) => contact.id);

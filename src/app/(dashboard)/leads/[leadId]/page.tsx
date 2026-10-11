@@ -198,6 +198,8 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
                     contactId={lead.contact.id}
                     contactName={contactName || "Contact"}
                     leadId={lead.id}
+                    phone={lead.contact.phone}
+                    postalCode={lead.property?.postal_code}
                     disabled={Boolean(lead.contact.do_not_call_at)}
                   />
                 )}
