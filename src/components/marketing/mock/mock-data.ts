@@ -154,7 +154,7 @@ export const MARKETING_PREMISE_STEPS: MarketingPremiseStep[] = [
     number: "03",
     label: "Close",
     caption:
-      "Email sequences (early), tasks, and pipeline sit on the same record. The next action is never a guess.",
+      "Email sequences (early), tasks, and pipeline sit on the same record. The owner and stage are never a guess.",
   },
 ];
 
@@ -267,9 +267,9 @@ export interface MarketingDaySequenceStep {
 }
 
 export const MARKETING_DAY_SEQUENCE: MarketingDaySequenceStep[] = [
-  { day: "D1", action: "Email: intro", state: 2 },
-  { day: "D2", action: "Email: process outline", state: 2 },
-  { day: "D3", action: "Email: follow-up", state: 1 },
+  { day: "D1", action: "Email: intro", state: 0 },
+  { day: "D2", action: "Email: process outline", state: 0 },
+  { day: "D3", action: "Email: follow-up", state: 0 },
   { day: "D4", action: "Task: check the reply", state: 0 },
   { day: "D5", action: "Email: check-in", state: 0 },
   { day: "D6", action: "Email: comps + offer", state: 0 },
@@ -330,13 +330,13 @@ export interface DemoSequenceStep {
   channel: "email";
   label: string;
   timing: string;
-  status: "sent" | "scheduled" | "waiting";
+  status: "scheduled" | "waiting";
 }
 
 export const DEMO_SEQUENCE: DemoSequenceStep[] = [
-  { channel: "email", label: "Intro + cash offer range", timing: "Day 0", status: "sent" },
-  { channel: "email", label: "Process outline", timing: "Day 1", status: "sent" },
-  { channel: "email", label: "Follow-up", timing: "Day 2", status: "sent" },
+  { channel: "email", label: "Intro + cash offer range", timing: "Day 0", status: "scheduled" },
+  { channel: "email", label: "Process outline", timing: "Day 1", status: "scheduled" },
+  { channel: "email", label: "Follow-up", timing: "Day 2", status: "scheduled" },
   { channel: "email", label: "Comps + timeline", timing: "Day 4", status: "scheduled" },
   { channel: "email", label: "Still interested?", timing: "Day 7", status: "waiting" },
 ];
@@ -387,51 +387,6 @@ export const DEMO_WORDMARKS: string[] = [
   "Irongate Realty",
   "Cascade Holdings",
   "Redrock Offers",
-];
-
-export interface DemoMetric {
-  value: number;
-  prefix?: string;
-  suffix?: string;
-  label: string;
-}
-
-export const DEMO_METRICS: DemoMetric[] = [
-  { value: 12000, suffix: "+", label: "Leads worked through the queue" },
-  { value: 38000, suffix: "+", label: "Follow-ups sent automatically" },
-  { value: 9200, suffix: "+", label: "Leads with an owner and a stage" },
-  { value: 40, suffix: "%", label: "Less time on manual data entry" },
-];
-
-export interface DemoTestimonial {
-  quote: string;
-  initials: string;
-  persona: string;
-  detail: string;
-}
-
-export const DEMO_TESTIMONIALS: DemoTestimonial[] = [
-  {
-    quote:
-      "We used to lose deals because a lead sat untouched for a week. Now every lead has a next action on the record.",
-    initials: "AL",
-    persona: "Acquisitions Lead",
-    detail: "Land-flipping team, 6 seats",
-  },
-  {
-    quote:
-      "The pipeline card is the record. I can see the lead, the contact, the owner, and the stage without opening another tool.",
-    initials: "AO",
-    persona: "Agency Owner",
-    detail: "Cold-calling agency, 14 seats",
-  },
-  {
-    quote:
-      "The pipeline changed the floor. Everyone can see the stage, the owner, and who's next — we stopped chasing reports.",
-    initials: "SM",
-    persona: "Sales Manager",
-    detail: "Wholesaling operation, 9 seats",
-  },
 ];
 
 export interface DemoPricingTier {

@@ -91,9 +91,9 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     ]);
 
     expect(MARKETING_DAY_SEQUENCE).toEqual([
-      { day: "D1", action: "Email: intro", state: 2 },
-      { day: "D2", action: "Email: process outline", state: 2 },
-      { day: "D3", action: "Email: follow-up", state: 1 },
+      { day: "D1", action: "Email: intro", state: 0 },
+      { day: "D2", action: "Email: process outline", state: 0 },
+      { day: "D3", action: "Email: follow-up", state: 0 },
       { day: "D4", action: "Task: check the reply", state: 0 },
       { day: "D5", action: "Email: check-in", state: 0 },
       { day: "D6", action: "Email: comps + offer", state: 0 },

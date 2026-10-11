@@ -47,7 +47,7 @@ describe("redesigned marketing landing data", () => {
     expect(MARKETING_PREMISE_STEPS.map((step) => step.caption)).toEqual([
       "Every source — PPC, cold lists, referrals, probate — lands in one queue. No CSV shuffling.",
       "Track contact attempts, notes, and stage changes on one record. Know where every conversation stands.",
-      "Email sequences (early), tasks, and pipeline sit on the same record. The next action is never a guess.",
+      "Email sequences (early), tasks, and pipeline sit on the same record. The owner and stage are never a guess.",
     ]);
   });
 });

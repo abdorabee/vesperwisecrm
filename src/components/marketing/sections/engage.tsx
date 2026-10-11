@@ -19,8 +19,7 @@ export function Engage() {
             </div>
             <p className="mt-5 max-w-[38ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
               Email sequences (early) and follow-up tasks write to the same
-              timeline. Track every touch on one record so the next action is
-              never a guess.
+              timeline. The owner and stage are never a guess.
             </p>
 
             <Stagger className="mt-8 grid border-t border-[color:var(--mkt-border)]">
