@@ -186,11 +186,13 @@ export type Database = {
       accounts: {
         Row: {
           age_confirmed_at: string | null
+          company_name: string | null
           created_at: string
           currency_code: string
           date_format: string
           id: string
           name: string
+          postal_address: string | null
           terms_accepted_at: string | null
           time_format: string
           timezone: string | null
@@ -198,11 +200,13 @@ export type Database = {
         }
         Insert: {
           age_confirmed_at?: string | null
+          company_name?: string | null
           created_at?: string
           currency_code?: string
           date_format?: string
           id?: string
           name: string
+          postal_address?: string | null
           terms_accepted_at?: string | null
           time_format?: string
           timezone?: string | null
@@ -210,11 +214,13 @@ export type Database = {
         }
         Update: {
           age_confirmed_at?: string | null
+          company_name?: string | null
           created_at?: string
           currency_code?: string
           date_format?: string
           id?: string
           name?: string
+          postal_address?: string | null
           terms_accepted_at?: string | null
           time_format?: string
           timezone?: string | null

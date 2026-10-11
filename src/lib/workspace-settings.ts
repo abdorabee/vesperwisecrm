@@ -14,6 +14,8 @@ export interface WorkspaceSettings {
   currencyCode: string;
   dateFormat: WorkspaceDateFormat;
   timeFormat: WorkspaceTimeFormat;
+  companyName: string | null;
+  postalAddress: string | null;
   updatedAt: string;
 }
 
@@ -28,7 +30,28 @@ export const DEFAULT_WORKSPACE_SETTINGS = {
   currencyCode: "USD",
   dateFormat: "system" as const,
   timeFormat: "system" as const,
+  companyName: null,
+  postalAddress: null,
 };
+
+export const WORKSPACE_MAILING_MIGRATION_REQUIRED_MESSAGE =
+  "Company name and postal address are unavailable until the mailing address migration is applied.";
+
+export function blankToNull(value: string | null | undefined): string | null {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length === 0 ? null : trimmed;
+}
+
+function optionalMailingText(max: number) {
+  return z.preprocess(
+    (value) => (value == null ? "" : value),
+    z
+      .string()
+      .trim()
+      .max(max)
+      .transform((value) => (value.length === 0 ? null : value)),
+  );
+}
 
 const WORKSPACE_SETTINGS_COLUMNS = [
   "timezone",
@@ -48,6 +71,15 @@ export function isWorkspaceSettingsSchemaMissing(error: {
   if (!error || (error.code !== "42703" && error.code !== "PGRST204")) return false;
   const message = error.message?.toLowerCase() ?? "";
   return WORKSPACE_SETTINGS_COLUMNS.some((column) => message.includes(column));
+}
+
+export function isWorkspaceMailingSchemaMissing(error: {
+  code?: string;
+  message?: string;
+} | null | undefined): boolean {
+  if (!error || (error.code !== "42703" && error.code !== "PGRST204")) return false;
+  const message = error.message?.toLowerCase() ?? "";
+  return message.includes("company_name") || message.includes("postal_address");
 }
 
 export function workspaceSettingsFromLegacyAccount(
@@ -92,6 +124,8 @@ export const workspaceSettingsSchema = z.object({
     .refine(isValidCurrency, "Choose a valid ISO currency"),
   dateFormat: z.enum(["system", "month_day_year", "day_month_year", "iso"]),
   timeFormat: z.enum(["system", "12h", "24h"]),
+  companyName: optionalMailingText(200),
+  postalAddress: optionalMailingText(500),
 });
 
 export type WorkspaceSettingsInput = z.infer<typeof workspaceSettingsSchema>;

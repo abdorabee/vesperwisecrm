@@ -10,8 +10,10 @@ import {
   type WorkspaceSettings,
   type WorkspaceSettingsInput,
 } from "@/lib/workspace-settings";
+import { formatComplianceFooter } from "@/lib/email/compliance-footer-text";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { PermissionState, SettingsSection } from "@/components/settings/settings-primitives";
 import { SettingsSaveBar, type SaveState } from "@/components/settings/settings-save-bar";
 
@@ -25,13 +27,16 @@ function toInput(settings: WorkspaceSettings): WorkspaceSettingsInput {
     currencyCode: settings.currencyCode,
     dateFormat: settings.dateFormat,
     timeFormat: settings.timeFormat,
+    companyName: settings.companyName,
+    postalAddress: settings.postalAddress,
   };
 }
 
-export function WorkspaceSettingsForm({ settings, canEdit, schemaAvailable }: {
+export function WorkspaceSettingsForm({ settings, canEdit, schemaAvailable, mailingSchemaAvailable }: {
   settings: WorkspaceSettings;
   canEdit: boolean;
   schemaAvailable: boolean;
+  mailingSchemaAvailable: boolean;
 }) {
   const initial = useMemo(() => toInput(settings), [settings]);
   const router = useRouter();
@@ -82,6 +87,12 @@ export function WorkspaceSettingsForm({ settings, canEdit, schemaAvailable }: {
 
   const previewSettings = { ...settings, ...values };
   const now = new Date("2026-08-09T18:30:00.000Z");
+  const footerPreview = formatComplianceFooter({
+    unsubscribeUrl: "/api/unsubscribe",
+    companyName: values.companyName,
+    postalAddress: values.postalAddress,
+  });
+  const canEditMailing = canEdit && mailingSchemaAvailable;
 
   return (
     <form onSubmit={submit}>
@@ -95,6 +106,47 @@ export function WorkspaceSettingsForm({ settings, canEdit, schemaAvailable }: {
           <Label htmlFor="workspace-name">Workspace name</Label>
           <Input id="workspace-name" value={values.name} onChange={(event) => set("name", event.target.value)} disabled={!canEdit || pending} required maxLength={120} />
           {schemaAvailable && !canEdit && <PermissionState />}
+        </div>
+      </SettingsSection>
+
+      <SettingsSection
+        title="Mailing address"
+        description="Seller sequence emails include this company name and postal address with the unsubscribe link."
+      >
+        <div className="space-y-5">
+          {!mailingSchemaAvailable && (
+            <PermissionState>
+              Company name and postal address are unavailable until the mailing address migration is applied.
+            </PermissionState>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="company-name">Company name</Label>
+            <Input
+              id="company-name"
+              value={values.companyName ?? ""}
+              onChange={(event) => set("companyName", event.target.value)}
+              disabled={!canEditMailing || pending}
+              maxLength={200}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="postal-address">Postal address</Label>
+            <Textarea
+              id="postal-address"
+              value={values.postalAddress ?? ""}
+              onChange={(event) => set("postalAddress", event.target.value)}
+              disabled={!canEditMailing || pending}
+              maxLength={500}
+              rows={4}
+            />
+            <p className="text-xs text-muted-foreground">
+              Use the real mailing address for this workspace. An empty address stays off the footer.
+            </p>
+          </div>
+          <div id="sequence-footer-preview" className="rounded-md border border-border bg-muted/30 p-4 text-sm">
+            <p className="text-xs font-medium text-muted-foreground">Sequence footer preview</p>
+            <pre className="mt-2 whitespace-pre-wrap font-mono text-xs leading-5">{footerPreview}</pre>
+          </div>
         </div>
       </SettingsSection>
 

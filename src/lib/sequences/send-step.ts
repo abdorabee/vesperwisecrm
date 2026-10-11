@@ -143,6 +143,7 @@ export async function sendDueStep(
       actorUserId,
       contactId: contact.id,
       isMarketing: sequence.is_marketing,
+      includeComplianceFooter: true,
     });
 
     communicationActivityId = result.activityId;

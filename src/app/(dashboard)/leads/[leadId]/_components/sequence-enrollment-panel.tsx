@@ -67,6 +67,9 @@ export function SequenceEnrollmentPanel({
 
   return (
     <div className="flex flex-col gap-4">
+      <p className="text-sm text-muted-foreground">
+        Sequences are for opted-in and inbound sellers.
+      </p>
       {enrollments.map((enrollment) => (
         <div key={enrollment.id} className="rounded-lg border p-3 text-sm">
           <div className="flex items-center justify-between">
