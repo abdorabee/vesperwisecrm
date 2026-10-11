@@ -17,6 +17,7 @@ vi.mock("@/lib/rate-limit", () => ({
 
 import {
   billingAllowsAi,
+  rescoreLeadQuietly,
   scoreNewLeadIfConfigured,
 } from "@/lib/ai/score-on-create";
 
@@ -129,7 +130,12 @@ describe("score on lead create", () => {
       }),
     ).resolves.toBe("scored");
 
-    expect(scoreAndStoreLead).toHaveBeenCalledWith(client, "acct-1", "lead-1");
+    expect(scoreAndStoreLead).toHaveBeenCalledWith(
+      client,
+      "acct-1",
+      "lead-1",
+      "user-1",
+    );
     expect(consumeRateLimit).toHaveBeenCalledWith(
       expect.objectContaining({
         scope: "ai-score-lead",
@@ -161,5 +167,44 @@ describe("score on lead create", () => {
     }
 
     expect(errors).toHaveLength(1);
+  });
+});
+
+describe("rescore after a lead signal", () => {
+  beforeEach(() => {
+    scoreAndStoreLead.mockReset();
+    consumeRateLimit.mockReset();
+    consumeRateLimit.mockResolvedValue(true);
+    delete process.env.ANTHROPIC_API_KEY;
+  });
+
+  test("does not call the model or throw when ANTHROPIC_API_KEY is missing", async () => {
+    const { client, calls } = billingClient(teamTrial);
+
+    await expect(
+      rescoreLeadQuietly(client, {
+        accountId: "acct-1",
+        leadId: "lead-1",
+        actorUserId: "user-1",
+        reason: "note",
+      }),
+    ).resolves.toBeUndefined();
+
+    expect(calls).toEqual([]);
+    expect(scoreAndStoreLead).not.toHaveBeenCalled();
+  });
+
+  test("does not throw when a note rescore fails", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    scoreAndStoreLead.mockRejectedValue(new Error("provider down"));
+    const { client } = billingClient(teamTrial);
+
+    await expect(
+      rescoreLeadQuietly(client, {
+        accountId: "acct-1",
+        leadId: "lead-1",
+        reason: "disposition",
+      }),
+    ).resolves.toBeUndefined();
   });
 });

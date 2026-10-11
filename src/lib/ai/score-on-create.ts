@@ -75,12 +75,13 @@ export function billingAllowsAi(row: BillingRow | null, now = new Date()): boole
   );
 }
 
-export async function scoreNewLeadIfConfigured(
+export async function scoreLeadIfConfigured(
   supabase: CRMClient,
   input: {
     accountId: string;
     leadId: string;
     actorUserId?: string | null;
+    reason?: string;
   },
 ): Promise<"scored" | "skipped"> {
   if (!isAiConfigured()) return "skipped";
@@ -104,12 +105,17 @@ export async function scoreNewLeadIfConfigured(
     });
     if (!withinBudget) return "skipped";
 
-    await scoreAndStoreLead(supabase, input.accountId, input.leadId);
+    await scoreAndStoreLead(
+      supabase,
+      input.accountId,
+      input.leadId,
+      input.actorUserId ?? null,
+    );
     return "scored";
   } catch (error) {
     console.error(
       JSON.stringify({
-        scope: "score-on-create",
+        scope: input.reason ?? "score-on-create",
         event: "score_failed",
         lead_id: input.leadId,
         error: error instanceof Error ? error.message : "Unknown error",
@@ -117,4 +123,31 @@ export async function scoreNewLeadIfConfigured(
     );
     return "skipped";
   }
+}
+
+export async function scoreNewLeadIfConfigured(
+  supabase: CRMClient,
+  input: {
+    accountId: string;
+    leadId: string;
+    actorUserId?: string | null;
+    reason?: string;
+  },
+): Promise<"scored" | "skipped"> {
+  return scoreLeadIfConfigured(supabase, {
+    ...input,
+    reason: input.reason ?? "score-on-create",
+  });
+}
+
+export async function rescoreLeadQuietly(
+  supabase: CRMClient,
+  input: {
+    accountId: string;
+    leadId: string;
+    actorUserId?: string | null;
+    reason: "note" | "disposition" | "parsed_call";
+  },
+): Promise<void> {
+  await scoreLeadIfConfigured(supabase, input);
 }

@@ -21,6 +21,7 @@ import type { Tables } from "@/lib/supabase/types";
 import { ClickToCallButton } from "@/components/dialer/click-to-call-button";
 import { WorkspaceCurrency } from "@/components/workspace-formatting-context";
 import { createLeadTask } from "@/lib/actions/tasks";
+import { MotivationScore } from "@/components/motivation-score";
 import { formatRelativeDue } from "@/lib/dates/relative-due";
 import { cn } from "@/lib/utils";
 
@@ -242,6 +243,7 @@ export function KanbanCard({
           )}
         </div>
         <p className="text-xs text-muted-foreground">{contactName}</p>
+        <MotivationScore score={lead.motivation_score} />
         <NextActionBlock
           leadId={lead.id}
           action={lead.nextAction}

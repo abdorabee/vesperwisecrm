@@ -118,6 +118,7 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
               <AiScorePanel
                 leadId={lead.id}
                 score={lead.ai_score}
+                motivationScore={lead.motivation_score}
                 factors={lead.ai_score_factors}
                 scoredAt={lead.ai_scored_at}
               />

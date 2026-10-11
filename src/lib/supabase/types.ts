@@ -1737,6 +1737,7 @@ export type Database = {
           ai_score: number | null
           ai_score_factors: Json | null
           ai_scored_at: string | null
+          motivation_score: number | null
           client_decided_at: string | null
           client_id: string | null
           client_interest_status: string | null
@@ -1763,6 +1764,7 @@ export type Database = {
           ai_score?: number | null
           ai_score_factors?: Json | null
           ai_scored_at?: string | null
+          motivation_score?: number | null
           client_decided_at?: string | null
           client_id?: string | null
           client_interest_status?: string | null
@@ -1789,6 +1791,7 @@ export type Database = {
           ai_score?: number | null
           ai_score_factors?: Json | null
           ai_scored_at?: string | null
+          motivation_score?: number | null
           client_decided_at?: string | null
           client_id?: string | null
           client_interest_status?: string | null

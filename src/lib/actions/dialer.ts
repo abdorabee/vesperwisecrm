@@ -13,6 +13,7 @@ import {
 } from "@/lib/supabase/account";
 import { requireBillingCapability } from "@/lib/billing/access";
 import { requireRows } from "@/lib/supabase/require-rows";
+import { rescoreLeadQuietly } from "@/lib/ai/score-on-create";
 import {
   cancelCallSchema,
   clearDoNotCallSchema,
@@ -186,6 +187,40 @@ export async function setDialerDisposition(input: unknown): Promise<void> {
     p_notes: data.notes,
   });
   if (error) throw new Error(error.message);
+
+  try {
+    const { data: attempt } = await supabase
+      .from("call_attempts")
+      .select("call:calls(lead_id)")
+      .eq("id", data.attemptId)
+      .maybeSingle();
+    const call = attempt
+      ? Array.isArray(attempt.call)
+        ? attempt.call[0]
+        : attempt.call
+      : null;
+    if (call?.lead_id) {
+      const userId = await requireUserId();
+      await rescoreLeadQuietly(supabase, {
+        accountId,
+        leadId: call.lead_id,
+        actorUserId: userId,
+        reason: "disposition",
+      });
+      revalidatePath(`/leads/${call.lead_id}`);
+      revalidatePath("/pipeline");
+      revalidatePath("/queue");
+    }
+  } catch (rescoreError) {
+    console.error(
+      JSON.stringify({
+        scope: "disposition",
+        event: "score_failed",
+        error: rescoreError instanceof Error ? rescoreError.message : "Unknown error",
+      }),
+    );
+  }
+
   refreshDialerPaths();
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -54,6 +55,7 @@ function contractStatusValue(
 
 export function PropertyPanel({ leadId, property }: PropertyPanelProps) {
   const router = useRouter();
+  const [parsedCall, setParsedCall] = useState(false);
   const {
     register,
     control,
@@ -105,6 +107,7 @@ export function PropertyPanel({ leadId, property }: PropertyPanelProps) {
   });
 
   function handleExtracted(fields: ExtractedCallNoteFields) {
+    setParsedCall(true);
     for (const [key, value] of Object.entries(fields)) {
       if (value == null || value === "") {
         continue;
@@ -115,7 +118,8 @@ export function PropertyPanel({ leadId, property }: PropertyPanelProps) {
 
   async function onSubmit(data: LeadPropertyFormInput) {
     try {
-      await saveLeadProperty(leadId, data);
+      await saveLeadProperty(leadId, data, { parsedCall });
+      setParsedCall(false);
       toast.success("Property details saved");
       router.refresh();
     } catch (error) {

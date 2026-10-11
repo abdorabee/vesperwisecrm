@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { scoreLeadAction } from "@/lib/actions/ai";
+import { MotivationScore } from "@/components/motivation-score";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Json } from "@/lib/supabase/types";
@@ -12,6 +13,7 @@ import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
 interface AiScorePanelProps {
   leadId: string;
   score: number | null;
+  motivationScore: number | null;
   factors: Json | null;
   scoredAt: string | null;
 }
@@ -58,17 +60,20 @@ function scoreTone(score: number): {
 export function AiScorePanel({
   leadId,
   score,
+  motivationScore,
   factors,
   scoredAt,
 }: AiScorePanelProps) {
   const [isPending, startTransition] = useTransition();
   const [latest, setLatest] = useState<{
     score: number;
+    motivationScore: number;
     factors: ScoreFactors;
     scoredAt: string;
   } | null>(null);
 
   const currentScore = latest?.score ?? score;
+  const currentMotivation = latest?.motivationScore ?? motivationScore;
   const currentFactors = latest?.factors ?? parseFactors(factors);
   const currentScoredAt = latest?.scoredAt ?? scoredAt;
 
@@ -78,6 +83,7 @@ export function AiScorePanel({
         const result = await scoreLeadAction(leadId);
         setLatest({
           score: result.score,
+          motivationScore: result.motivationScore,
           factors: {
             summary: result.summary,
             positives: result.positives,
@@ -85,7 +91,9 @@ export function AiScorePanel({
           },
           scoredAt: new Date().toISOString(),
         });
-        toast.success(`Lead scored ${result.score}/100`);
+        toast.success(
+          `Motivation score ${result.motivationScore} · likelihood ${result.score}/100`,
+        );
       } catch (error) {
         toast.error(
           error instanceof Error ? error.message : "Failed to score lead",
@@ -98,7 +106,8 @@ export function AiScorePanel({
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <MotivationScore score={currentMotivation} showEmpty />
         {currentScore != null && tone && (
           <span
             className={cn(
