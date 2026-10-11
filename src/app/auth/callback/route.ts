@@ -35,6 +35,9 @@ export async function GET(request: Request): Promise<NextResponse> {
   const next = resolveSafeRedirect(searchParams.get("next"), origin);
   const supabase = await createClient();
 
+  // A PKCE `code` is also how OAuth and other logins return. Only an invite
+  // OTP (token hash + type=invite) is the person accepting that invite.
+  const inviteAcceptance = !code && Boolean(tokenHash) && otpType === "invite";
   const established = code
     ? !(await supabase.auth.exchangeCodeForSession(code)).error
     : tokenHash && otpType
@@ -47,7 +50,9 @@ export async function GET(request: Request): Promise<NextResponse> {
       : false;
 
   if (established) {
-    const joinedAccountId = await redeemAcceptedInvite();
+    const joinedAccountId = inviteAcceptance
+      ? await redeemAcceptedInvite()
+      : null;
     if (joinedAccountId) {
       await rememberActiveAccount(joinedAccountId);
     } else {

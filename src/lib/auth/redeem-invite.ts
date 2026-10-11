@@ -7,8 +7,9 @@ function escapeIlike(value: string): string {
   return value.replace(/[\\%_]/g, (char) => `\\${char}`);
 }
 
-// Grants membership for a pending invite after the person follows the
-// invite or signup link. Creating the auth user is not acceptance.
+// Grants membership for a pending invite. Call this only after an explicit
+// invite OTP is verified. Creating the auth user, or any other login, is
+// not acceptance.
 export async function redeemAcceptedInvite(): Promise<string | null> {
   const supabase = await createClient();
   const {
