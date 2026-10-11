@@ -8,6 +8,7 @@ import {
   guessMappingFromAliases,
   normalizeHeader as normalizeCsvHeader,
 } from "@/lib/migration/mapping";
+import type { CanonicalImportRecord } from "@/lib/migration/types";
 
 export { normalizeCsvHeader as normalizeHeader };
 
@@ -230,4 +231,28 @@ export function applyMapping(
   }
 
   return { contact, lead, property };
+}
+
+export function mappedRowToCanonical(
+  mapped: MappedRow,
+  source: string,
+): CanonicalImportRecord {
+  return {
+    contact: {
+      firstName: mapped.contact.firstName,
+      lastName: mapped.contact.lastName,
+      email: mapped.contact.email,
+      phone: mapped.contact.phone,
+      company: mapped.contact.company,
+      source: mapped.contact.source || source,
+    },
+    lead: {
+      title: mapped.lead.title,
+      value: mapped.lead.value,
+      pipelineStageName: "",
+      tags: [],
+      notes: mapped.property.notes ?? "",
+    },
+    property: mapped.property,
+  };
 }

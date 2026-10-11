@@ -30,6 +30,7 @@ import {
   previewMigration,
   startMigrationJob,
 } from "@/lib/actions/migration";
+import { formatDuplicatesSkippedMerged } from "@/lib/migration/duplicate-summary";
 import type {
   ImportJobProgress,
   MigrationPreview,
@@ -203,6 +204,9 @@ export function MigrationWizard({ stages }: MigrationWizardProps) {
         <p className="text-sm text-muted-foreground">
           Detected {preview.sourceLabel}. {preview.recordCount} rows ready to import.
         </p>
+        <p className="text-sm" data-testid="import-duplicate-preview">
+          {formatDuplicatesSkippedMerged(preview.duplicateCount)}
+        </p>
         {preview.stageNames.length > 0 && (
           <div className="space-y-3">
             <p className="text-sm font-medium">Pipeline stages</p>
@@ -319,8 +323,11 @@ export function MigrationWizard({ stages }: MigrationWizardProps) {
         <p className="text-sm">
           {done
             ? `Imported ${job.importedCount} of ${job.totalCount} rows.`
-            : `Importing ${job.importedCount + job.failedCount} of ${job.totalCount} rows...`}
+            : `Importing ${job.importedCount + job.failedCount + job.duplicateCount} of ${job.totalCount} rows...`}
           {job.failedCount > 0 ? ` ${job.failedCount} failed.` : ""}
+        </p>
+        <p className="text-sm" data-testid="import-duplicate-summary">
+          {formatDuplicatesSkippedMerged(job.duplicateCount)}
         </p>
         {job.errors.length > 0 && (
           <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">

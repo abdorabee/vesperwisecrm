@@ -6,6 +6,7 @@ import { requireAdminAccountId, requireUserId } from "@/lib/supabase/account";
 import { requireBillingCapability } from "@/lib/billing/access";
 import { getSourceAdapter } from "@/lib/migration/adapters/registry";
 import { MAX_MIGRATION_ROWS } from "@/lib/migration/constants";
+import { countImportDuplicates } from "@/lib/migration/match-existing";
 import {
   buildRecordsFromCsv,
   previewMigrationCsv,
@@ -28,9 +29,21 @@ import type { Json } from "@/lib/supabase/types";
 export async function previewMigration(
   input: PreviewMigrationInput,
 ): Promise<MigrationPreview> {
-  await requireAdminAccountId();
+  const accountId = await requireAdminAccountId();
   const data = previewMigrationSchema.parse(input);
-  return previewMigrationCsv(data.csvText, data.sourceCrm);
+  const preview = previewMigrationCsv(data.csvText, data.sourceCrm);
+  const records = buildRecordsFromCsv(
+    data.csvText,
+    preview.suggestedMapping,
+    preview.sourceCrm,
+  );
+  const supabase = await createClient();
+  preview.duplicateCount = await countImportDuplicates(
+    supabase,
+    accountId,
+    records,
+  );
+  return preview;
 }
 
 export async function startMigrationJob(
