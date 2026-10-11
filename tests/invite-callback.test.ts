@@ -101,8 +101,21 @@ describe("auth callback invite redemption", () => {
     });
     expect(mocks.exchangeCodeForSession).not.toHaveBeenCalled();
     expect(mocks.redeemAcceptedInvite).toHaveBeenCalledTimes(1);
+    expect(mocks.redeemAcceptedInvite).toHaveBeenCalledWith("invite-hash");
     expect(mocks.rememberActiveAccount).toHaveBeenCalledTimes(1);
     expect(mocks.rememberActiveAccount).toHaveBeenCalledWith(INVITED);
+  });
+
+  test("pins the workspace from the opened invite token, not a newer invite", async () => {
+    mocks.redeemAcceptedInvite.mockImplementation(async (token: string) =>
+      token === "older-token" ? "legit-tenant" : "attacker-tenant",
+    );
+
+    await GET(callback({ token_hash: "older-token", type: "invite" }));
+
+    expect(mocks.redeemAcceptedInvite).toHaveBeenCalledWith("older-token");
+    expect(mocks.rememberActiveAccount).toHaveBeenCalledTimes(1);
+    expect(mocks.rememberActiveAccount).toHaveBeenCalledWith("legit-tenant");
   });
 });
 

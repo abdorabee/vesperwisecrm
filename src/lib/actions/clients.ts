@@ -15,6 +15,7 @@ import {
   type ClientFormInput,
   type InviteClientUserInput,
 } from "@/lib/validations/client";
+import { hashInviteAuthToken } from "@/lib/auth/invite-token";
 import {
   buildVerificationLink,
   canSendBrandedAuthEmail,
@@ -121,9 +122,11 @@ export async function inviteClientUser(
     ? `${siteUrl}/auth/callback`
     : `https://${siteUrl}/auth/callback`;
 
-  // The signup trigger grants membership only from this server-issued
-  // invite row -- signup metadata is never trusted for membership.
-  const { error: inviteRecordError } = await serviceRole
+  if (!canSendBrandedAuthEmail()) {
+    throw new Error("Invite email is not configured.");
+  }
+
+  const { data: inviteRow, error: inviteRecordError } = await serviceRole
     .from("invites")
     .insert({
       account_id: accountId,
@@ -131,48 +134,43 @@ export async function inviteClientUser(
       role: "client",
       client_id: clientId,
       invited_by: invitedBy,
-    });
+    })
+    .select("id")
+    .single();
 
-  if (inviteRecordError) {
-    throw new Error(inviteRecordError.message);
+  if (inviteRecordError || !inviteRow) {
+    throw new Error(inviteRecordError?.message ?? "Could not create invite");
   }
 
-  const inviteMetadata = {
-    account_name: account.name,
-  };
-
-  const { data: invited, error: inviteError } = canSendBrandedAuthEmail()
-    ? await serviceRole.auth.admin.generateLink({
-        type: "invite",
-        email: data.email,
-        options: {
-          redirectTo,
-          data: inviteMetadata,
-        },
-      })
-    : await serviceRole.auth.admin.inviteUserByEmail(data.email, {
+  const { data: invited, error: inviteError } =
+    await serviceRole.auth.admin.generateLink({
+      type: "invite",
+      email: data.email,
+      options: {
         redirectTo,
-        data: inviteMetadata,
-      });
-
-  if (inviteError) {
-    throw new Error(inviteError.message);
-  }
-
-  // Membership is inserted when the invite link is accepted, not because
-  // an auth user with this email already exists.
-  if (canSendBrandedAuthEmail()) {
-    const brandedTokenHash = getGeneratedTokenHash(invited);
-    if (!brandedTokenHash) {
-      throw new Error("Invite did not return a token hash");
-    }
-
-    await sendClientPortalInvitationEmail({
-      to: data.email,
-      actionLink: buildVerificationLink(redirectTo, brandedTokenHash, "invite"),
-      accountName: account.name,
+        data: { account_name: account.name },
+      },
     });
+
+  const tokenHash = getGeneratedTokenHash(invited);
+  if (inviteError || !tokenHash) {
+    await serviceRole.from("invites").delete().eq("id", inviteRow.id);
+    throw new Error(inviteError?.message ?? "Invite did not return a token hash");
   }
+
+  const { error: bindError } = await serviceRole
+    .from("invites")
+    .update({ auth_token_hash: hashInviteAuthToken(tokenHash) })
+    .eq("id", inviteRow.id);
+  if (bindError) {
+    throw new Error(bindError.message);
+  }
+
+  await sendClientPortalInvitationEmail({
+    to: data.email,
+    actionLink: buildVerificationLink(redirectTo, tokenHash, "invite"),
+    accountName: account.name,
+  });
 
   revalidatePath(`/team/clients/${clientId}`);
 }

@@ -1,40 +1,37 @@
 import "server-only";
 
+import { hashInviteAuthToken } from "@/lib/auth/invite-token";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
-function escapeIlike(value: string): string {
-  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
-}
-
-// Grants membership for a pending invite. Call this only after an explicit
-// invite OTP is verified. Creating the auth user, or any other login, is
-// not acceptance.
-export async function redeemAcceptedInvite(): Promise<string | null> {
+// Grants membership for the invite bound to this verified OTP. Call this
+// only after an explicit invite OTP is verified. A newer invite for the
+// same email is a different token and must not be redeemed here.
+export async function redeemAcceptedInvite(
+  tokenHash: string,
+): Promise<string | null> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   const email = user?.email?.trim();
-  if (!user || !email) {
+  if (!user || !email || !tokenHash) {
     return null;
   }
 
   const service = createServiceRoleClient();
-  const { data: invites, error } = await service
+  const { data: invite, error } = await service
     .from("invites")
     .select("id, account_id, role, client_id, email")
+    .eq("auth_token_hash", hashInviteAuthToken(tokenHash))
     .is("redeemed_at", null)
     .gt("expires_at", new Date().toISOString())
-    .ilike("email", escapeIlike(email))
-    .order("created_at", { ascending: false })
-    .limit(1);
+    .maybeSingle();
 
   if (error) {
     throw new Error(error.message);
   }
 
-  const invite = invites?.[0];
   if (!invite || invite.email.toLowerCase() !== email.toLowerCase()) {
     return null;
   }

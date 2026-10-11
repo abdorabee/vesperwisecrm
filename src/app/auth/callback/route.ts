@@ -50,9 +50,10 @@ export async function GET(request: Request): Promise<NextResponse> {
       : false;
 
   if (established) {
-    const joinedAccountId = inviteAcceptance
-      ? await redeemAcceptedInvite()
-      : null;
+    const joinedAccountId =
+      inviteAcceptance && tokenHash
+        ? await redeemAcceptedInvite(tokenHash)
+        : null;
     if (joinedAccountId) {
       await rememberActiveAccount(joinedAccountId);
     } else {
