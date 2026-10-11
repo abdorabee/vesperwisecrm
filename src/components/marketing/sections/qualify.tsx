@@ -19,9 +19,9 @@ export function Qualify() {
             </h2>
           </div>
           <p className="mt-5 max-w-[52ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
-            Conversations become structured data. Every call is transcribed,
-            summarised and scored against motivation, condition, timeline and
-            price expectation — then written back to the record.
+            The lead record is the pipeline card. Title, contact, owner, and
+            stage stay together, with the notes you enter written on that same
+            record.
           </p>
         </Reveal>
 

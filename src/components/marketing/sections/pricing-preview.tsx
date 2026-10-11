@@ -29,7 +29,7 @@ const PRICING_TIERS: MarketingPricingTier[] = [
     blurb: "For solo investors and two-person teams getting off spreadsheets.",
     features: [
       "Lead queue + pipeline",
-      "Email sequences",
+      "Email sequences (early)",
       "Contact management",
       "1,000 leads / mo",
     ],
@@ -45,8 +45,6 @@ const PRICING_TIERS: MarketingPricingTier[] = [
       "For acquisition teams running paid channels and cold lists side by side.",
     features: [
       "Workflows and routing",
-      "Dialer",
-      "AI",
       "Unlimited leads",
     ],
     cta: "Start free trial",

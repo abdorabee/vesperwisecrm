@@ -1,3 +1,5 @@
+import { readFileSync, readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -25,6 +27,63 @@ import {
   parseContactInquiry,
   parseDemoBooking,
 } from "../src/lib/validations/marketing-inquiry";
+
+const ROOT = process.cwd();
+
+function marketingSources(dir: string): string[] {
+  return readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory()) {
+      return marketingSources(path);
+    }
+    return path.endsWith(".ts") || path.endsWith(".tsx") ? [path] : [];
+  });
+}
+
+describe("marketing site truth", () => {
+  test("books a 15-minute pipeline call and does not mention the dialer", () => {
+    const page = readFileSync(
+      join(ROOT, "src/app/(marketing)/book-demo/page.tsx"),
+      "utf8",
+    );
+    const description =
+      "Pick a weekday slot for a 15-minute call: we load 3 to 5 of your sellers into a pipeline live. No card required.";
+
+    expect(page).toContain(description);
+    expect(page).toContain("A 15-minute call. We load your sellers into a pipeline.");
+    expect(page).not.toContain("30-minute");
+    expect(page.toLowerCase()).not.toContain("dialer");
+    expect(MARKETING_PAGES.support.sections[0]?.body).toBe(
+      "A 15-minute call: we load 3 to 5 of your sellers into a pipeline live. No card required.",
+    );
+  });
+
+  test("does not show unverified product claims on marketing pages or mocks", () => {
+    const files = [
+      ...marketingSources(join(ROOT, "src/components/marketing")),
+      ...marketingSources(join(ROOT, "src/app/(marketing)")),
+    ];
+    const banned = [
+      /skip trac/i,
+      /\bdialer\b/i,
+      /power dial/i,
+      /ai call summary/i,
+      /motivation score/i,
+      /\bphones\b/i,
+      /3 verified/i,
+      /ai qualification/i,
+      /30-minute/i,
+    ];
+
+    for (const file of files) {
+      const text = readFileSync(file, "utf8");
+      for (const pattern of banned) {
+        expect(text, `${file} matches ${pattern}`).not.toMatch(pattern);
+      }
+      expect(text, file).not.toMatch(/email sequences[^.]{0,40}are live/i);
+    }
+  });
+});
 
 describe("marketing footer destinations", () => {
   test("does not leave column or legal links on #top", () => {

@@ -23,6 +23,10 @@ vi.mock("next/headers", () => ({
         name,
         value,
       })),
+    get: (name: string) => {
+      const value = cookieJar.values.get(name);
+      return value ? { name, value } : undefined;
+    },
     set: (name: string, value: string) => {
       cookieJar.values.set(name, value);
     },
@@ -135,6 +139,15 @@ beforeAll(async () => {
     role: "member",
   });
   memberUserId = await createConfirmedUser("member");
+
+  const { error: memberError } = await admin.from("account_members").insert({
+    account_id: accountId,
+    user_id: memberUserId,
+    role: "member",
+  });
+  if (memberError) {
+    throw new Error(memberError.message);
+  }
 
   memberSupabase = await signInAs(memberUserId);
 });

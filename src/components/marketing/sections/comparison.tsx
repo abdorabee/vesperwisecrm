@@ -17,7 +17,7 @@ const COMPARISON_ROWS: ComparisonRow[] = [
   },
   {
     before: "Manual email follow-up tracking",
-    after: "Automated email sequences with tracking",
+    after: "Email sequences (early)",
   },
   {
     before: "Pipeline buried in spreadsheet tabs",
@@ -25,7 +25,7 @@ const COMPARISON_ROWS: ComparisonRow[] = [
   },
   {
     before: "Follow-up depends on who remembers",
-    after: "Sequences and workflows own the follow-up",
+    after: "Email sequences (early) and workflows own the follow-up",
   },
 ];
 
@@ -43,8 +43,8 @@ export function Comparison() {
             </h2>
             <p className="mt-5 font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
               Teams arrive at VesperWiseCRM from spreadsheets and generic CRMs
-              where follow-up dies in the gaps. Pipeline, email sequences, and
-              the lead queue live on one platform.
+              where follow-up dies in the gaps. Pipeline, email sequences
+              (early), and the lead queue sit on one platform.
             </p>
           </div>
 

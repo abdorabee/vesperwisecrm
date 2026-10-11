@@ -105,21 +105,24 @@ beforeAll(async () => {
     .single();
   investorClientId = client!.id;
 
-  // Restricted member and client user go through the same server-issued
-  // invites rows the real invite flow writes, so the signup trigger joins
-  // them into account A directly instead of also auto-provisioning a
-  // personal account for each of them.
+  // A pending invite stops signup from creating a personal workspace.
+  // Membership is granted on acceptance, so these tests insert that row
+  // the way redeemAcceptedInvite does.
   await admin.from("invites").insert({
     account_id: accountAId,
     email: testEmail("restricted-a"),
     role: "member",
   });
   accountARestrictedId = await createConfirmedUser("restricted-a");
-  await admin
-    .from("account_members")
-    .update({ lead_visibility: "assigned_only" })
-    .eq("account_id", accountAId)
-    .eq("user_id", accountARestrictedId);
+  const { error: restrictedMemberError } = await admin.from("account_members").insert({
+    account_id: accountAId,
+    user_id: accountARestrictedId,
+    role: "member",
+    lead_visibility: "assigned_only",
+  });
+  if (restrictedMemberError) {
+    throw new Error(restrictedMemberError.message);
+  }
 
   await admin.from("invites").insert({
     account_id: accountAId,
@@ -128,6 +131,15 @@ beforeAll(async () => {
     client_id: investorClientId,
   });
   clientUserId = await createConfirmedUser("client");
+  const { error: clientMemberError } = await admin.from("account_members").insert({
+    account_id: accountAId,
+    user_id: clientUserId,
+    role: "client",
+    client_id: investorClientId,
+  });
+  if (clientMemberError) {
+    throw new Error(clientMemberError.message);
+  }
 
   const { data: stage } = await admin
     .from("pipeline_stages")

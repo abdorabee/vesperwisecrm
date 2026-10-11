@@ -36,15 +36,15 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Wholesalers",
     title: "Keep every contract on a next step.",
     description:
-      "Pipeline, email sequences, and the lead queue sit on one record so assignments do not die in a spreadsheet between acquisition and disposition.",
+      "Pipeline, email sequences (early), and the lead queue sit on one record so assignments do not die in a spreadsheet between acquisition and disposition.",
     sections: [
       {
         heading: "One queue for paid and cold traffic",
-        body: "PPC, lists, referrals, and inbound forms land in the same qualification queue. Scoring and ownership are visible before anyone picks up the phone.",
+        body: "PPC, lists, referrals, and inbound forms land in the same qualification queue. Stage and ownership are visible on the lead before follow-up starts.",
       },
       {
         heading: "Follow-up that does not depend on memory",
-        body: "Email and SMS sequences stay attached to the lead. When a seller revives after ninety days, the conversation history is already on the record.",
+        body: "Email sequences (early) stay attached to the lead. When a seller revives after ninety days, the conversation history is already on the record.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -72,11 +72,11 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Buy and hold",
     title: "Work seller conversations like a portfolio.",
     description:
-      "Longer holds need longer follow-up. Sequences, tasks, and a shared pipeline keep off-market opportunities alive without a dedicated VA watching a sheet.",
+      "Longer holds need longer follow-up. Email sequences (early), tasks, and a shared pipeline keep off-market opportunities moving without a dedicated VA watching a sheet.",
     sections: [
       {
         heading: "Nurture without losing the thread",
-        body: "A seller who is not ready this quarter still has a next step. Sequences and reminders fire from the record, not from someone's inbox.",
+        body: "A seller who is not ready this quarter still has a next step. Email sequences (early) and reminders sit on the record, not in someone's inbox.",
       },
       {
         heading: "Reporting that matches how you buy",
@@ -90,7 +90,7 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Agents",
     title: "Treat listing and buyer leads like acquisition work.",
     description:
-      "VesperWise is built for teams that live in conversations: pipeline, email sequences, and the lead queue keep follow-up moving after the first touch.",
+      "VesperWise is built for teams that live in conversations: pipeline, email sequences (early), and the lead queue keep follow-up moving after the first touch.",
     sections: [
       {
         heading: "Every conversation on the record",
@@ -141,7 +141,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Workflows and reporting",
-        body: "Sequences and workflows own follow-up. Reporting shows what moved, what stalled, and who owns the next step.",
+        body: "Email sequences (early) and workflows own follow-up. Reporting shows what moved, what stalled, and who owns the next step.",
       },
     ],
     cta: { label: "See the workflow", href: "/home#ch1" },
@@ -159,7 +159,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Week two: follow up and pipeline",
-        body: "Turn on email sequences, assign ownership, and move leads through pipeline stages. An in-app tour walks signed-in members through the same path.",
+        body: "Email sequences (early), ownership, and pipeline stages sit on the lead. An in-app tour walks signed-in members through the same path.",
       },
     ],
     cta: { label: "Start free trial", href: "/signup" },
@@ -173,7 +173,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Current",
-        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. The CRM itself — pipeline, email sequences, and the lead queue — is available in early access after sign-in.",
+        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. The CRM itself — pipeline and the lead queue — is in early access after sign-in. Email sequences (early).",
       },
       {
         heading: "Next",
@@ -185,7 +185,7 @@ export const MARKETING_PAGES = {
   integrations: {
     href: "/integrations",
     eyebrow: "Resources / Integrations",
-    title: "Email, docs, and telephony on the record.",
+    title: "Email and docs on the record.",
     description:
       "Workspace admins connect providers in Settings after sign-in. Nothing here is a marketplace install — each account brings its own credentials.",
     sections: [
@@ -198,8 +198,8 @@ export const MARKETING_PAGES = {
         body: "Generate a property report into Docs and store it in Drive from the lead, using the account's connected Google client.",
       },
       {
-        heading: "Twilio",
-        body: "SMS sequences (coming soon) will use a connected Twilio account. Email sequences are available now.",
+        heading: "Email sequences",
+        body: "Email sequences (early) run through the same Resend connection. A production send has not gone out yet.",
       },
     ],
     cta: { label: "Talk to sales", href: "/contact" },
@@ -209,11 +209,11 @@ export const MARKETING_PAGES = {
     eyebrow: "Resources / Support",
     title: "Talk to a person, not a ticket maze.",
     description:
-      "For product questions, book a walkthrough. For account or billing issues, send a message. There is no public help center yet.",
+      "For product questions, book a 15-minute call. For account or billing issues, send a message. There is no public help center yet.",
     sections: [
       {
         heading: "See the product",
-        body: "A 30-minute demo covers intake, the queue, the dialer, and pipeline against your workflow. No card required.",
+        body: "A 15-minute call: we load 3 to 5 of your sellers into a pipeline live. No card required.",
       },
       {
         heading: "Account help",
@@ -235,7 +235,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Not a generic CRM with a real-estate coat",
-        body: "The queue, pipeline, email sequences, and property fields are the product. Interface examples on the marketing site are illustrative, not customer proof.",
+        body: "The queue, pipeline, email sequences (early), and property fields are the product. Interface examples on the marketing site are illustrative, not customer proof.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -267,7 +267,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Credentials",
-        body: "Twilio tokens are encrypted at rest with a server-side key. Service-role keys never ship to the browser. Public marketing routes do not require a session.",
+        body: "Connected provider tokens are encrypted at rest with a server-side key. Service-role keys never ship to the browser. Public marketing routes do not require a session.",
       },
       {
         heading: "What this page is not",
@@ -281,7 +281,7 @@ export const MARKETING_PAGES = {
     eyebrow: "Company / Contact",
     title: "Tell us what you want to see.",
     description:
-      "Sales, pilots, and account questions land here. For a scheduled walkthrough, book a demo and pick a slot.",
+      "Sales, pilots, and account questions land here. For a 15-minute call, book a demo and pick a slot.",
     sections: [],
     form: "contact",
     cta: { label: "Book a demo instead", href: "/book-demo" },
@@ -304,15 +304,15 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Workspace data",
-        body: "Lead, call, and email data in a signed-in workspace belongs to that account. Providers you connect (email, Twilio, Google) process data under their terms and your configuration.",
+        body: "Lead and email data in a signed-in workspace belongs to that account. Providers you connect (email, Google) process data under their terms and your configuration.",
       },
       {
         heading: "Subprocessors",
-        body: "Supabase stores workspace data and handles sign-in. Polar processes Starter and Team checkout, invoices, and cancellation. Resend sends workspace email and signup messages when email is configured. AI scoring and call-note parsing send lead text to Anthropic when that feature is configured and the plan includes it. Calls use the Twilio account the workspace connects. SMS uses Twilio when platform SMS credentials are set. Google Docs and Drive run only after a workspace connects Google.",
+        body: "Supabase stores workspace data and handles sign-in. Polar processes Starter and Team checkout, invoices, and cancellation. Resend sends workspace email and signup messages when email is configured. Google Docs and Drive run only after a workspace connects Google. Other providers process data only after a workspace admin connects them.",
       },
       {
         heading: "Retention and deletion",
-        body: "There is no automatic deletion schedule. Canceling a Polar subscription does not delete leads, calls, or email stored for the workspace. The product has no self-serve control that deletes a workspace. Ask through the contact form if you need data removed.",
+        body: "There is no automatic deletion schedule. Canceling a Polar subscription does not delete leads or email stored for the workspace. The product has no self-serve control that deletes a workspace. Ask through the contact form if you need data removed.",
       },
       {
         heading: "Contact",
@@ -338,7 +338,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "The product",
-        body: "Access to VesperWise CRM requires an account. Lead, call, and email data in a signed-in workspace belongs to that account. You are responsible for the data you import and for credentials you connect. We may suspend abuse of intake, email, or telephony.",
+        body: "Access to VesperWise CRM requires an account. Lead and email data in a signed-in workspace belongs to that account. You are responsible for the data you import and for credentials you connect. We may suspend abuse of intake or email.",
       },
       {
         heading: "Cancellation and refunds",
@@ -349,8 +349,8 @@ export const MARKETING_PAGES = {
         body: "A paid Starter or Team subscription renews each month through Polar until an admin cancels it at period end. There is no annual plan.",
       },
       {
-        heading: "Calling and texting",
-        body: "Calls use the Twilio account a workspace admin connects in Calling settings. A call is refused when that phone number is marked Do Not Call. A sequence step set to SMS sends a text to the phone number on the contact when platform Twilio SMS credentials are configured, and that send does not check Do Not Call or an opt-out flag. Marketing email steps skip contacts whose email is marked opted out. A platform admin can suspend a workspace's outbound email. You are responsible for the calls and texts sent from your workspace.",
+        heading: "Outbound email",
+        body: "Marketing email steps skip contacts whose email is marked opted out. A platform admin can suspend a workspace's outbound email. You are responsible for the messages sent from your workspace.",
       },
     ],
     cta: { label: "See pricing", href: "/home#pricing" },
@@ -368,7 +368,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Dependencies",
-        body: "Email sequences depend on providers you connect. An outage there can affect sending even when the CRM is up.",
+        body: "Email sequences (early) depend on providers you connect. An outage there can affect sending even when the CRM is up.",
       },
     ],
     cta: { label: "Contact", href: "/contact" },

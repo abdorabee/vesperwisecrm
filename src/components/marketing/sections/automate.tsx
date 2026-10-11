@@ -46,8 +46,8 @@ export const MARKETING_WORKFLOW_STEPS: MarketingWorkflowStep[] = [
   },
   {
     kind: "ACTION",
-    title: "Start email sequence",
-    detail: "Intro and qualification",
+        title: "Start email sequence",
+        detail: "Email sequences (early)",
     accent: true,
   },
 ];
@@ -81,9 +81,9 @@ export function Automate() {
             </h2>
           </div>
           <p className="mt-5 text-[17px] font-light leading-[1.6] text-[var(--mkt-text2)]">
-            Rules watch the record and act. A new lead is routed and sequenced;
-            a stalled deal is reassigned; a dead lead re-enters nurture ninety
-            days later. No one has to remember.
+            Rules watch the record and act. A new lead is routed, and can
+            enroll in an email sequence (early). Workflows can be set to
+            reassign a stalled deal or re-enter nurture after ninety days.
           </p>
         </Reveal>
 

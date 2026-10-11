@@ -26,15 +26,16 @@ describe("legal pages and the live offer", () => {
     );
   });
 
-  test("terms cover cancellation, renewal, and calling without invented contract clauses", () => {
+  test("terms cover cancellation, renewal, and outbound email without invented contract clauses", () => {
     const headings = MARKETING_PAGES.terms.sections.map((section) => section.heading);
     expect(headings).toEqual(
       expect.arrayContaining([
         "Cancellation and refunds",
         "Auto-renewal",
-        "Calling and texting",
+        "Outbound email",
       ]),
     );
+    expect(headings).not.toContain("Calling and texting");
     const text = MARKETING_PAGES.terms.sections.map((section) => section.body).join("\n");
     expect(text).toContain("cancel a Polar subscription at period end");
     expect(text).not.toMatch(/governing law|limitation of liability|damages cap/i);

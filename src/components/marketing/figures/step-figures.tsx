@@ -110,7 +110,7 @@ export function QualifyFigure({ className }: StepFigureProps) {
       data-fig="qualify"
       className={className}
       role="img"
-      aria-label="Isometric figure: three leads scored to different heights, the strongest highlighted"
+      aria-label="Isometric figure: three lead records at different stages, the furthest along highlighted"
     >
       <path
         d="M 54 196 L 150 148 L 246 196 L 150 244 Z"

@@ -1,20 +1,15 @@
 import {
-  MARKETING_QUALIFY_SCORES,
   MARKETING_QUALIFY_TAGS,
-  type MarketingScoreTone,
+  MARKETING_SELECTED_LEAD,
 } from "@/components/marketing/mock/mock-data";
 import { Stagger, StaggerItem } from "@/components/marketing/motion/stagger";
-import { cn } from "@/lib/utils";
 
-const SCORE_TONE_CLASS: Record<MarketingScoreTone, string> = {
-  accent: "bg-[var(--mkt-accent)]",
-  strong: "bg-[var(--mkt-border-strong)]",
-};
-
-const SCORE_VALUE_CLASS: Record<MarketingScoreTone, string> = {
-  accent: "text-[var(--mkt-text)]",
-  strong: "text-[var(--mkt-text2)]",
-};
+const RECORD_FIELDS = [
+  { label: "TITLE", value: MARKETING_SELECTED_LEAD.title },
+  { label: "CONTACT", value: MARKETING_SELECTED_LEAD.contact },
+  { label: "OWNER", value: MARKETING_SELECTED_LEAD.owner },
+  { label: "STAGE", value: MARKETING_SELECTED_LEAD.stage },
+] as const;
 
 export function MockCallTranscript() {
   return (
@@ -22,50 +17,34 @@ export function MockCallTranscript() {
       <div className="flex h-[42px] items-center gap-[9px] border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] px-4">
         <span className="mkt-pulse block size-[5px] rounded-full bg-[var(--mkt-accent)]" />
         <span className="font-mono text-[11.5px] leading-none text-[var(--mkt-text3)]">
-          CALL 00:07:12 · TRANSCRIBED
+          LEAD · {MARKETING_SELECTED_LEAD.title.toUpperCase()}
         </span>
         <span className="ml-auto hidden font-mono text-[11px] leading-none text-[var(--mkt-text3)] sm:block">
-          DANA R. → M. WHITFIELD
+          {MARKETING_SELECTED_LEAD.stage.toUpperCase()}
         </span>
       </div>
 
       <div className="p-5 px-[18px]">
         <div className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
-          AI SUMMARY
+          ON THE RECORD
         </div>
         <p className="mt-3 font-sans text-[14.5px] leading-[1.6] text-[var(--mkt-text)]">
-          Inherited the property in March. Carrying two mortgages and wants to
-          sell before probate closes. Roof and HVAC need work; will not list
-          with an agent. Open to a cash offer at or above{" "}
-          <span className="rounded-[3px] bg-[var(--mkt-accent-soft)] px-1 py-px">
-            $185k
-          </span>
-          , closing in 30 days.
+          The pipeline card shows the lead title, the contact, the owner, and
+          the stage. Notes you enter stay on that same record.
         </p>
 
         <Stagger className="mt-5 grid overflow-hidden rounded-[9px] border border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-border-subtle)] [gap:1px] sm:grid-cols-2 xl:grid-cols-4">
-          {MARKETING_QUALIFY_SCORES.map((score) => (
+          {RECORD_FIELDS.map((field) => (
             <StaggerItem
-              key={score.label}
+              key={field.label}
               className="bg-[var(--mkt-surface)] p-3 py-[13px]"
             >
               <div className="font-mono text-[10px] leading-none tracking-normal text-[var(--mkt-text3)]">
-                {score.label}
+                {field.label}
               </div>
-              <div
-                className={cn(
-                  "my-2 font-sans text-[19px] leading-none font-medium tracking-normal",
-                  SCORE_VALUE_CLASS[score.tone],
-                )}
-              >
-                {score.value}
+              <div className="my-2 font-sans text-[15px] leading-snug font-medium tracking-normal text-[var(--mkt-text)]">
+                {field.value}
               </div>
-              <span className="block h-[3px] overflow-hidden rounded-sm bg-[var(--mkt-bg2)]">
-                <span
-                  className={cn("block h-full", SCORE_TONE_CLASS[score.tone])}
-                  style={{ width: `${score.pct}%` }}
-                />
-              </span>
             </StaggerItem>
           ))}
         </Stagger>
