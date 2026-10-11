@@ -55,6 +55,10 @@ function describeActivity(activity: Tables<"activities">): string {
       return `Sequence ${payload.channel ?? ""} step ${payload.step_number ?? ""} sent`;
     case "workflow_triggered":
       return `Workflow ${payload.workflow_name ?? ""} ${payload.status ?? "ran"}`;
+    case "user_notified":
+      return payload.status === "skipped"
+        ? "Manager notification skipped"
+        : `Notified ${payload.to ?? "a teammate"}`;
     case "task_created":
       return `Task created: ${payload.title ?? ""}`;
     case "task_completed":
@@ -92,6 +96,8 @@ function getActivityIcon(type: string): LucideIcon {
       return Inbox;
     case "workflow_triggered":
       return Zap;
+    case "user_notified":
+      return Mail;
     case "stage_changed":
       return GitBranch;
     case "lead_created":

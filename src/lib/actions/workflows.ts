@@ -29,6 +29,32 @@ function buildActionConfig(
       return { groupId: action.groupId ?? null };
     case "change_stage":
       return { stageId: action.stageId ?? null };
+    case "reassign":
+      if (action.reassignMode === "group") {
+        return { groupId: action.groupId ?? null };
+      }
+      if (action.reassignMode === "member") {
+        return { userId: action.userId ?? null };
+      }
+      return { target: "manager" };
+    case "create_task":
+      return {
+        title: action.taskTitle ?? "",
+        dueInDays: action.dueInDays ? Number(action.dueInDays) : 1,
+        priority: action.priority ?? "normal",
+        ...(action.userId ? { userId: action.userId } : {}),
+      };
+    case "notify_user": {
+      const config: Record<string, Json> = {};
+      if (action.notifyMode === "member") {
+        config.userId = action.userId ?? null;
+      } else {
+        config.target = "manager";
+      }
+      if (action.subject) config.subject = action.subject;
+      if (action.bodyTemplate) config.bodyTemplate = action.bodyTemplate;
+      return config;
+    }
     default:
       return {};
   }
@@ -52,9 +78,18 @@ export async function saveWorkflow(
   }
   if (data.triggerType === "no_activity_days" && data.triggerDays) {
     triggerConfig.days = Number(data.triggerDays);
+    if (data.triggerStageId) {
+      triggerConfig.stageId = data.triggerStageId;
+    }
   }
   if (data.triggerType === "no_next_action" && data.triggerHours) {
     triggerConfig.hours = Number(data.triggerHours);
+  }
+  if (
+    (data.triggerType === "no_activity_days" || data.triggerType === "no_next_action") &&
+    data.cooldownHours
+  ) {
+    triggerConfig.cooldownHours = Number(data.cooldownHours);
   }
 
   if (data.triggerStageId) {
@@ -112,6 +147,15 @@ export async function saveWorkflow(
         .eq("account_id", accountId)
         .maybeSingle();
       if (!group) throw new Error("Routing group not found");
+    }
+    if (action.userId) {
+      const { data: member } = await supabase
+        .from("account_members")
+        .select("user_id")
+        .eq("user_id", action.userId)
+        .eq("account_id", accountId)
+        .maybeSingle();
+      if (!member) throw new Error("Team member not found");
     }
   }
 
