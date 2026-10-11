@@ -50,8 +50,8 @@ export async function POST(request: Request): Promise<NextResponse> {
     p_provider_sequence: event.providerSequence,
     p_event_type: event.eventType,
     p_status: event.status,
-    p_failure_code: event.failureCode,
-    p_failure_reason: event.failureReason,
+    p_failure_code: event.failureCode ?? "",
+    p_failure_reason: event.failureReason ?? "",
     p_payload: event.safePayload,
     p_occurred_at: event.occurredAt,
   });
