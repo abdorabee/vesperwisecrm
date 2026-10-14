@@ -1,5 +1,6 @@
 export const MARKETING_PUBLIC_PATHS = [
   "/home",
+  "/pricing",
   "/book-demo",
   "/solutions",
   "/docs",
@@ -18,6 +19,7 @@ export const MARKETING_PUBLIC_PATHS = [
 
 export const MARKETING_SITEMAP_PATHS = [
   "/home",
+  "/pricing",
   "/book-demo",
   "/solutions/wholesalers",
   "/solutions/fix-and-flip",
