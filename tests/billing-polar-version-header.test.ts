@@ -29,16 +29,14 @@ describe("Polar API Version Header", () => {
   test("getPolarClient sets Polar-Version header to 2026-04", async () => {
     const client = getPolarClient();
     
-    let capturedRequest: Request | null = null;
-    const mockFetch = vi.fn((request: Request) => {
-      capturedRequest = request;
-      return Promise.resolve(
-        new Response(JSON.stringify({ id: "test" }), {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        })
-      );
-    });
+    let polarVersion: string | null = null;
+    const mockFetch: typeof fetch = async (input, init) => {
+      polarVersion = new Request(input, init).headers.get("Polar-Version");
+      return new Response(JSON.stringify({ id: "test" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    };
 
     global.fetch = mockFetch;
 
@@ -48,7 +46,6 @@ describe("Polar API Version Header", () => {
       // Expected to fail, we're only checking the request
     }
 
-    expect(capturedRequest).not.toBeNull();
-    expect(capturedRequest?.headers.get("Polar-Version")).toBe("2026-04");
+    expect(polarVersion).toBe("2026-04");
   });
 });
