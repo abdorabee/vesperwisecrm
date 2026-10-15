@@ -5,6 +5,7 @@ import { redactToken } from "@/lib/email/redact";
 import { getAccountEmailSettings } from "@/lib/email/account-settings";
 import { logEmailEvent } from "@/lib/email/logger";
 import { getResendClient } from "@/lib/resend/client";
+import { stopActiveSequenceEnrollments } from "@/lib/sequences/stop-on-reply";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 
 export type InboundProcessResult =
@@ -116,6 +117,11 @@ export async function processInboundEmail(
       error: insertError?.message,
     });
   }
+
+  await stopActiveSequenceEnrollments(supabase, {
+    accountId: resolved.accountId,
+    leadId: resolved.leadId,
+  });
 
   logEmailEvent({
     event: "inbound",

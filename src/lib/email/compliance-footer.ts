@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHmac, timingSafeEqual } from "crypto";
+import { formatComplianceFooter } from "@/lib/email/compliance-footer-text";
 
 const TOKEN_TTL_MS = 365 * 24 * 60 * 60 * 1000;
 
@@ -72,14 +73,15 @@ export function verifyUnsubscribeToken(
 export function buildComplianceFooter(params: {
   contactId: string;
   accountId: string;
+  companyName?: string | null;
+  postalAddress?: string | null;
 }): string {
   const token = createUnsubscribeToken(params.contactId, params.accountId);
   const url = `${getAppUrl()}/api/unsubscribe?token=${encodeURIComponent(token)}`;
 
-  return [
-    "",
-    "---",
-    "You're receiving this because you were added as a contact.",
-    `Unsubscribe: ${url}`,
-  ].join("\n");
+  return formatComplianceFooter({
+    unsubscribeUrl: url,
+    companyName: params.companyName,
+    postalAddress: params.postalAddress,
+  });
 }

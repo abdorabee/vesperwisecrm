@@ -83,14 +83,20 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
           <Textarea id="description" rows={2} {...register("description")} />
         </Field>
         <Field>
+          <FieldDescription>
+            Sequences are for opted-in and inbound sellers.
+          </FieldDescription>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
               className="size-4 rounded border"
               {...register("isMarketing")}
             />
-            Marketing sequence (includes unsubscribe footer for CAN-SPAM)
+            Marketing sequence
           </label>
+          <FieldDescription>
+            Every sequence email includes the unsubscribe footer. Marketing sequences also stop when a seller has unsubscribed.
+          </FieldDescription>
         </Field>
       </FieldGroup>
 

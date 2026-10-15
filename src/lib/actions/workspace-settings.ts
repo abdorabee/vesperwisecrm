@@ -5,7 +5,9 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAdminAccountId } from "@/lib/supabase/account";
 import { requireWritableBilling } from "@/lib/billing/access";
 import {
+  isWorkspaceMailingSchemaMissing,
   isWorkspaceSettingsSchemaMissing,
+  WORKSPACE_MAILING_MIGRATION_REQUIRED_MESSAGE,
   WORKSPACE_SETTINGS_MIGRATION_REQUIRED_MESSAGE,
   workspaceSettingsSchema,
   type WorkspaceSettingsInput,
@@ -24,12 +26,17 @@ export async function updateWorkspaceSettings(input: WorkspaceSettingsInput): Pr
       currency_code: settings.currencyCode,
       date_format: settings.dateFormat,
       time_format: settings.timeFormat,
+      company_name: settings.companyName,
+      postal_address: settings.postalAddress,
     })
     .eq("id", accountId)
     .select("id")
     .single();
 
   if (error) {
+    if (isWorkspaceMailingSchemaMissing(error)) {
+      throw new Error(WORKSPACE_MAILING_MIGRATION_REQUIRED_MESSAGE);
+    }
     if (isWorkspaceSettingsSchemaMissing(error)) {
       throw new Error(WORKSPACE_SETTINGS_MIGRATION_REQUIRED_MESSAGE);
     }
