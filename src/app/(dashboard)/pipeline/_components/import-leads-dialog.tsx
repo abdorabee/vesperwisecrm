@@ -37,8 +37,10 @@ import {
   importLeadsCsvMapped,
   previewCsvMapping,
   type CsvMappingPreview,
+  type ImportLeadsCsvResult,
 } from "@/lib/actions/leads";
 import { CRM_FIELD_GROUPS } from "@/lib/leads/csv-import";
+import { formatDuplicatesSkippedMerged } from "@/lib/migration/duplicate-summary";
 import type { Tables } from "@/lib/supabase/types";
 
 interface ImportLeadsDialogProps {
@@ -57,9 +59,10 @@ const FIELD_LABELS = Object.fromEntries(
 
 export function ImportLeadsDialog({ stages }: ImportLeadsDialogProps) {
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<"paste" | "map">("paste");
+  const [step, setStep] = useState<"paste" | "map" | "summary">("paste");
   const [csvText, setCsvText] = useState("");
   const [preview, setPreview] = useState<CsvMappingPreview | null>(null);
+  const [result, setResult] = useState<ImportLeadsCsvResult | null>(null);
   const [mapping, setMapping] = useState<Record<string, string>>({});
   const [pipelineStageId, setPipelineStageId] = useState(DEFAULT_STAGE);
   const [fallbackSource, setFallbackSource] = useState("CSV import");
@@ -77,6 +80,7 @@ export function ImportLeadsDialog({ stages }: ImportLeadsDialogProps) {
     setStep("paste");
     setCsvText("");
     setPreview(null);
+    setResult(null);
     setMapping({});
   }
 
@@ -104,19 +108,17 @@ export function ImportLeadsDialog({ stages }: ImportLeadsDialogProps) {
         fallbackSource,
       });
 
+      const summary = formatDuplicatesSkippedMerged(result.duplicateCount);
       if (result.failed > 0) {
         toast.warning(
-          `Imported ${result.imported} leads; ${result.failed} rows failed`,
+          `Imported ${result.imported} leads. ${summary}`,
           { description: result.errors.slice(0, 3).join("\n") },
         );
       } else {
-        toast.success(`Imported ${result.imported} leads`);
+        toast.success(`Imported ${result.imported} leads. ${summary}`);
       }
-
-      if (result.imported > 0) {
-        setOpen(false);
-        reset();
-      }
+      setResult(result);
+      setStep("summary");
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to import CSV");
     } finally {
@@ -141,7 +143,11 @@ export function ImportLeadsDialog({ stages }: ImportLeadsDialogProps) {
       <DialogContent className={step === "map" ? "sm:max-w-2xl" : "sm:max-w-lg"}>
         <DialogHeader>
           <DialogTitle>
-            {step === "paste" ? "Import leads" : "Map your columns"}
+            {step === "paste"
+              ? "Import leads"
+              : step === "summary"
+                ? "Import summary"
+                : "Map your columns"}
           </DialogTitle>
         </DialogHeader>
 
@@ -176,6 +182,9 @@ export function ImportLeadsDialog({ stages }: ImportLeadsDialogProps) {
 
         {step === "map" && preview && (
           <div className="flex flex-col gap-4">
+            <p className="text-sm text-muted-foreground" data-testid="import-duplicate-preview">
+              {preview.headers.length} columns. {formatDuplicatesSkippedMerged(preview.duplicateCount)}.
+            </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <Field>
                 <FieldLabel>Default stage</FieldLabel>
@@ -272,10 +281,36 @@ export function ImportLeadsDialog({ stages }: ImportLeadsDialogProps) {
           </div>
         )}
 
+        {step === "summary" && result && (
+          <div className="flex flex-col gap-2 text-sm">
+            <p>Imported {result.imported} leads.</p>
+            <p data-testid="import-duplicate-summary">
+              {formatDuplicatesSkippedMerged(result.duplicateCount)}
+            </p>
+            {result.failed > 0 ? <p>{result.failed} rows failed.</p> : null}
+            {result.errors.length > 0 ? (
+              <ul className="list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                {result.errors.slice(0, 5).map((error) => (
+                  <li key={error}>{error}</li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
+        )}
+
         <DialogFooter>
           {step === "paste" ? (
             <Button onClick={goToMapping} disabled={isWorking || !csvText.trim()}>
               {isWorking ? "Reading..." : "Next: map columns"}
+            </Button>
+          ) : step === "summary" ? (
+            <Button
+              onClick={() => {
+                setOpen(false);
+                reset();
+              }}
+            >
+              Done
             </Button>
           ) : (
             <>

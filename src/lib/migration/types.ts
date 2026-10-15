@@ -48,6 +48,7 @@ export interface MigrationPreview {
   suggestedMapping: Record<string, string>;
   stageNames: string[];
   recordCount: number;
+  duplicateCount: number;
 }
 
 export interface ImportJobProgress {
@@ -56,6 +57,7 @@ export interface ImportJobProgress {
   status: ImportJobStatus;
   importedCount: number;
   failedCount: number;
+  duplicateCount: number;
   pendingCount: number;
   totalCount: number;
   errors: string[];

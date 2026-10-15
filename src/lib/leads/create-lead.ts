@@ -4,6 +4,14 @@ import {
   getAccountEmailSettings,
   isAccountEmailReady,
 } from "@/lib/email/account-settings";
+import {
+  collapseWhitespace,
+  digitsOnly,
+  normalizePhoneToE164,
+  normalizePostal,
+  normalizeStoredAddressLine,
+  normalizeStoredState,
+} from "@/lib/migration/normalize";
 import { getResendClient } from "@/lib/resend/client";
 import type { Database } from "@/lib/supabase/types";
 
@@ -114,20 +122,134 @@ async function resolvePipelineStageId(
   return data.id;
 }
 
+interface ContactMatch {
+  id: string;
+  source: string | null;
+  phone: string | null;
+  phone_e164: string | null;
+}
+
+async function findContactByPhone(
+  supabase: CRMClient,
+  accountId: string,
+  phone: string,
+  phoneE164: string | null,
+): Promise<ContactMatch | null> {
+  const { data: digits, error: digitError } = await supabase.rpc(
+    "smart_search_digits",
+    { p_value: phone },
+  );
+  if (digitError) {
+    throw new Error(digitError.message);
+  }
+
+  const last10 = (digits ?? "").slice(-10);
+  if (phoneE164) {
+    const { data: exact, error: exactError } = await supabase
+      .from("contacts")
+      .select("id, source, phone, phone_e164")
+      .eq("account_id", accountId)
+      .eq("phone_e164", phoneE164)
+      .is("deleted_at", null)
+      .limit(1);
+    if (exactError) {
+      throw new Error(exactError.message);
+    }
+    if (exact?.[0]) {
+      return exact[0];
+    }
+  }
+
+  if (last10.length < 10) {
+    return null;
+  }
+
+  const { data: candidates, error } = await supabase
+    .from("contacts")
+    .select("id, source, phone, phone_e164")
+    .eq("account_id", accountId)
+    .is("deleted_at", null)
+    .or(`phone.ilike.%${last10}%,phone_e164.ilike.%${last10}%`)
+    .limit(20);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  for (const candidate of candidates ?? []) {
+    const stored = candidate.phone_e164 || candidate.phone || "";
+    if (digitsOnly(stored).slice(-10) !== last10) {
+      continue;
+    }
+    const { data: candidateDigits, error: candidateError } = await supabase.rpc(
+      "smart_search_digits",
+      { p_value: stored },
+    );
+    if (candidateError) {
+      throw new Error(candidateError.message);
+    }
+    if ((candidateDigits ?? "").slice(-10) === last10) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+async function syncMatchedContact(
+  supabase: CRMClient,
+  accountId: string,
+  contact: ContactMatch,
+  source: string | null,
+  phoneE164: string | null,
+): Promise<void> {
+  const updates: {
+    source?: string;
+    phone?: string;
+    phone_e164?: string;
+  } = {};
+  if (source && !contact.source) {
+    updates.source = source;
+  }
+  if (phoneE164 && contact.phone_e164 !== phoneE164) {
+    const currentLast10 = digitsOnly(contact.phone_e164 || contact.phone || "").slice(-10);
+    const nextLast10 = digitsOnly(phoneE164).slice(-10);
+    const sameNumber = !currentLast10 || currentLast10 === nextLast10;
+    if (sameNumber) {
+      updates.phone = phoneE164;
+      updates.phone_e164 = phoneE164;
+    }
+  }
+  if (Object.keys(updates).length === 0) {
+    return;
+  }
+
+  const { error } = await supabase
+    .from("contacts")
+    .update(updates)
+    .eq("id", contact.id)
+    .eq("account_id", accountId);
+  if (error) {
+    throw new Error(error.message);
+  }
+}
+
 async function findOrCreateContact(
   supabase: CRMClient,
   input: CreateLeadRecordInput,
 ): Promise<string> {
   const email = normalizeOptionalText(input.email);
   const phone = normalizeOptionalText(input.phone);
+  const phoneE164 = phone ? normalizePhoneToE164(phone) : null;
   const company = normalizeOptionalText(input.company);
   const source = normalizeOptionalText(input.source);
-  const lastName = normalizeOptionalText(input.lastName);
+  const firstName = collapseWhitespace(input.firstName);
+  const lastName = collapseWhitespace(input.lastName ?? "") || null;
 
+  let matched: ContactMatch | null = null;
   if (email) {
     const { data: existingContact, error: existingError } = await supabase
       .from("contacts")
-      .select("id, source")
+      .select("id, source, phone, phone_e164")
       .eq("account_id", input.accountId)
       .ilike("email", email)
       .is("deleted_at", null)
@@ -136,32 +258,38 @@ async function findOrCreateContact(
     if (existingError) {
       throw new Error(existingError.message);
     }
+    matched = existingContact;
+  }
 
-    if (existingContact) {
-      if (source && !existingContact.source) {
-        const { error: sourceError } = await supabase
-          .from("contacts")
-          .update({ source })
-          .eq("id", existingContact.id)
-          .eq("account_id", input.accountId);
+  if (!matched && phone) {
+    matched = await findContactByPhone(
+      supabase,
+      input.accountId,
+      phone,
+      phoneE164,
+    );
+  }
 
-        if (sourceError) {
-          throw new Error(sourceError.message);
-        }
-      }
-
-      return existingContact.id;
-    }
+  if (matched) {
+    await syncMatchedContact(
+      supabase,
+      input.accountId,
+      matched,
+      source,
+      phoneE164,
+    );
+    return matched.id;
   }
 
   const { data: newContact, error: contactError } = await supabase
     .from("contacts")
     .insert({
       account_id: input.accountId,
-      first_name: input.firstName.trim(),
+      first_name: firstName,
       last_name: lastName,
-      email,
-      phone,
+      email: email?.toLowerCase() ?? null,
+      phone: phoneE164 ?? phone,
+      phone_e164: phoneE164,
       company,
       source,
     })
@@ -287,11 +415,19 @@ export async function createLeadRecord(
       .insert({
         account_id: input.accountId,
         lead_id: lead.id,
-        address_line1: normalizeOptionalText(input.property.addressLine1),
-        address_line2: normalizeOptionalText(input.property.addressLine2),
-        city: normalizeOptionalText(input.property.city),
-        state: normalizeOptionalText(input.property.state),
-        postal_code: normalizeOptionalText(input.property.postalCode),
+        address_line1: normalizeOptionalText(
+          normalizeStoredAddressLine(input.property.addressLine1 ?? ""),
+        ),
+        address_line2: normalizeOptionalText(
+          normalizeStoredAddressLine(input.property.addressLine2 ?? ""),
+        ),
+        city: normalizeOptionalText(collapseWhitespace(input.property.city ?? "")),
+        state: normalizeOptionalText(
+          normalizeStoredState(input.property.state ?? ""),
+        ),
+        postal_code: normalizeOptionalText(
+          normalizePostal(input.property.postalCode ?? ""),
+        ),
         property_type: normalizeOptionalText(input.property.propertyType),
         bedrooms: input.property.bedrooms ?? null,
         bathrooms: input.property.bathrooms ?? null,
