@@ -9,6 +9,10 @@ const trialMigration = readFileSync(
   "supabase/migrations/20261003151928_team_trial_access.sql",
   "utf8",
 );
+const trialSeatsMigration = readFileSync(
+  "supabase/migrations/20261014141915_trial_seats.sql",
+  "utf8",
+);
 
 describe("Polar billing migration contract", () => {
   it("creates account billing, webhook event, and usage tables", () => {
@@ -70,5 +74,26 @@ describe("Team trial migration contract", () => {
     expect(trialMigration).toContain("billing.source = 'none'");
     expect(trialMigration).not.toContain("billing.source = 'grandfathered'");
     expect(trialMigration).not.toContain("billing.source = 'polar'");
+  });
+});
+
+describe("Trial seats migration contract", () => {
+  it("includes seats and 5 on the trial trigger insert", () => {
+    const insertStart = trialSeatsMigration.indexOf(
+      "insert into public.billing_accounts",
+    );
+    const insertEnd = trialSeatsMigration.indexOf("on conflict (account_id)");
+    const insert = trialSeatsMigration.slice(insertStart, insertEnd);
+
+    expect(insertStart).toBeGreaterThanOrEqual(0);
+    expect(insert).toContain("seats");
+    expect(insert).toContain("5");
+    expect(trialSeatsMigration).toContain(
+      "billing_private.create_billing_account()",
+    );
+    expect(trialSeatsMigration).toContain("source = 'trial'");
+    expect(trialSeatsMigration).toContain("seats = 1");
+    expect(trialSeatsMigration).not.toContain("source = 'polar'");
+    expect(trialSeatsMigration).not.toContain("source = 'grandfathered'");
   });
 });

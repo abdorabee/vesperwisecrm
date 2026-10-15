@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, test } from "vitest";
 
 import {
@@ -86,6 +87,14 @@ describe("marketing footer destinations", () => {
 describe("marketing public paths", () => {
   test("allows book-demo, solutions, company, resources, and legal routes", () => {
     expect(isMarketingPublicPath("/book-demo")).toBe(true);
+    expect(isMarketingPublicPath("/pricing")).toBe(true);
+    const pricingPage = readFileSync(
+      "src/app/(marketing)/pricing/page.tsx",
+      "utf8",
+    );
+    expect(pricingPage).toContain("The founding offer is $600.");
+    expect(pricingPage).toContain("NEXT_PUBLIC_POLAR_FOUNDING_CHECKOUT_URL");
+    expect(pricingPage).toContain('"/signup"');
     expect(isMarketingPublicPath("/solutions/wholesalers")).toBe(true);
     expect(isMarketingPublicPath("/privacy")).toBe(true);
     expect(isMarketingPublicPath("/about")).toBe(true);
@@ -97,6 +106,7 @@ describe("marketing public paths", () => {
 
   test("lists sitemap destinations for every footer page", () => {
     expect(MARKETING_SITEMAP_PATHS).toContain("/book-demo");
+    expect(MARKETING_SITEMAP_PATHS).toContain("/pricing");
     expect(MARKETING_SITEMAP_PATHS).toEqual(
       expect.arrayContaining([
         ...SOLUTION_SLUGS.map((slug) => `/solutions/${slug}`),
