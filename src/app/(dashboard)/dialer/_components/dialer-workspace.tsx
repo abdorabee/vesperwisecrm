@@ -94,6 +94,7 @@ function QueueCard({ queue, data }: { queue: DialerQueue; data: DialerPageData }
               contactName={contactName(ready.contact)}
               leadId={ready.lead_id}
               queueItemId={ready.id}
+              phone={ready.contact.phone}
               disabled={Boolean(ready.contact.do_not_call_at)}
             />
           </div>

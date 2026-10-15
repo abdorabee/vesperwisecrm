@@ -139,6 +139,8 @@ function QueueRow({ lead, groups }: QueueRowProps) {
                 contactId={lead.contact.id}
                 contactName={contactName || "Contact"}
                 leadId={lead.id}
+                phone={lead.contact.phone}
+                postalCode={lead.property?.postal_code}
               />
             )}
             {groups.length > 0 && (
