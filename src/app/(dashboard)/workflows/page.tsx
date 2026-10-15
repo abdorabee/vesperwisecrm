@@ -9,6 +9,7 @@ const TRIGGER_LABELS: Record<string, string> = {
   stage_changed: "Stage changed",
   tag_added: "Tag added",
   no_activity_days: "No activity",
+  no_next_action: "No next action",
 };
 
 export default async function WorkflowsPage() {
@@ -40,8 +41,8 @@ export default async function WorkflowsPage() {
             <Link key={workflow.id} href={`/workflows/${workflow.id}`}>
               <Card className="h-full transition-colors hover:bg-muted/50">
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between text-base">
-                    {workflow.name}
+                  <CardTitle className="flex items-start justify-between gap-2 text-base">
+                    <span className="min-w-0 text-balance">{workflow.name}</span>
                     {!workflow.is_active && (
                       <Badge variant="outline" className="text-[10px]">
                         Inactive

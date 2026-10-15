@@ -8,6 +8,9 @@ export const workflowActionSchema = z
       "add_tag",
       "assign_round_robin",
       "change_stage",
+      "reassign",
+      "create_task",
+      "notify_user",
     ]),
     subject: z.string().optional(),
     bodyTemplate: z.string().optional(),
@@ -15,6 +18,18 @@ export const workflowActionSchema = z
     tagId: z.string().optional(),
     groupId: z.string().optional(),
     stageId: z.string().optional(),
+    userId: z.string().optional(),
+    taskTitle: z.string().optional(),
+    dueInDays: z
+      .string()
+      .optional()
+      .refine(
+        (value) => !value || (/^\d+$/.test(value) && Number(value) > 0),
+        "Must be a positive whole number",
+      ),
+    priority: z.enum(["low", "normal", "high"]).optional(),
+    reassignMode: z.enum(["manager", "member", "group"]).optional(),
+    notifyMode: z.enum(["manager", "member"]).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.actionType === "send_email_template" && !data.bodyTemplate) {
@@ -48,6 +63,34 @@ export const workflowActionSchema = z
         message: "Select a stage",
       });
     }
+    if (data.actionType === "reassign" && data.reassignMode === "member" && !data.userId) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["userId"],
+        message: "Select a teammate",
+      });
+    }
+    if (data.actionType === "reassign" && data.reassignMode === "group" && !data.groupId) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["groupId"],
+        message: "Select a group",
+      });
+    }
+    if (data.actionType === "notify_user" && data.notifyMode === "member" && !data.userId) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["userId"],
+        message: "Select a teammate",
+      });
+    }
+    if (data.actionType === "create_task" && !data.taskTitle?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["taskTitle"],
+        message: "Task title is required",
+      });
+    }
   });
 
 export const workflowSchema = z.object({
@@ -75,9 +118,32 @@ export const workflowSchema = z.object({
       (v) => !v || (/^\d+$/.test(v) && Number(v) > 0),
       "Must be a positive whole number",
     ),
+  cooldownHours: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || (/^\d+$/.test(v) && Number(v) > 0),
+      "Must be a positive whole number",
+    ),
   isActive: z.boolean(),
   actions: z.array(workflowActionSchema).min(1, "Add at least one action"),
-});
+})
+  .superRefine((data, ctx) => {
+    if (data.triggerType === "no_activity_days" && !data.triggerDays) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["triggerDays"],
+        message: "Enter the number of days",
+      });
+    }
+    if (data.triggerType === "no_next_action" && !data.triggerHours) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["triggerHours"],
+        message: "Enter the number of hours",
+      });
+    }
+  });
 
 export type WorkflowActionInput = z.infer<typeof workflowActionSchema>;
 export type WorkflowInput = z.infer<typeof workflowSchema>;
