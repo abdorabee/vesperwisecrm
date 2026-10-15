@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { scoreNewLeadIfConfigured } from "@/lib/ai/score-on-create";
 import {
   formatFromAddress,
   getAccountEmailSettings,
@@ -360,6 +361,23 @@ export async function createLeadRecord(
       source: normalizeOptionalText(input.source),
     },
   });
+
+  try {
+    await scoreNewLeadIfConfigured(supabase, {
+      accountId: input.accountId,
+      leadId: lead.id,
+      actorUserId: input.actorUserId ?? null,
+    });
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        scope: "create-lead",
+        event: "score_failed",
+        lead_id: lead.id,
+        error: error instanceof Error ? error.message : "Unknown error",
+      }),
+    );
+  }
 
   if (input.notifyMembers) {
     try {
