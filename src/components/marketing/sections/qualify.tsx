@@ -19,9 +19,10 @@ export function Qualify() {
             </h2>
           </div>
           <p className="mt-5 max-w-[52ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
-            Conversations become structured data. Every call is transcribed,
-            summarised and scored against motivation, condition, timeline and
-            price expectation — then written back to the record.
+            Creating a lead requests an AI score. A motivation score from 0 to
+            100 is separate from that score, and the queue can filter for 70
+            and above. A new note, a call disposition, or parsed call notes
+            requests that motivation score again. Every call is transcribed (coming soon). AI call summary (coming soon).
           </p>
         </Reveal>
 

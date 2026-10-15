@@ -27,7 +27,7 @@ export function MockSearchPanel() {
       <div className="grid min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="min-w-0 border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] p-[18px] pb-[22px] lg:border-r lg:border-b-0">
           <div className="mb-[15px] font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
-            FILTERS · ICP
+            SKIP TRACING (COMING SOON)
           </div>
 
           <Stagger className="grid gap-[9px]">
@@ -116,7 +116,7 @@ export function MockSearchPanel() {
                 TOTAL LIST 18,402
               </span>
               <span className="font-mono text-[10.5px] leading-none text-[var(--mkt-text3)]">
-                MATCHED 214 · SKIP TRACED 214 · DUPES REMOVED 63
+                MATCHED 214 · DUPES REMOVED 63
               </span>
             </div>
           </div>

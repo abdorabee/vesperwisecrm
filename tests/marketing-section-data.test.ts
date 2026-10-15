@@ -70,6 +70,7 @@ describe("marketing Intake, Qualify, and Engage data", () => {
       { label: "Email sequences", value: "Live" },
       { label: "Contact timeline", value: "Live" },
       { label: "Pipeline stages", value: "Live" },
+      { label: "Calling hours", value: "Blocked at 9:00 p.m." },
     ]);
 
     expect(MARKETING_WAVEFORM_BARS).toHaveLength(48);
@@ -91,11 +92,11 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     ]);
 
     expect(MARKETING_DAY_SEQUENCE).toEqual([
-      { day: "D1", action: "Call + voicemail drop", state: 2 },
-      { day: "D1", action: "SMS: cash offer intro", state: 2 },
+      { day: "D1", action: "Call", state: 2 },
+      { day: "D1", action: "SMS sequences (coming soon)", state: 0 },
       { day: "D2", action: "Email: process outline", state: 2 },
       { day: "D3", action: "Call attempt 2", state: 1 },
-      { day: "D5", action: "SMS check-in", state: 0 },
+      { day: "D5", action: "SMS sequences (coming soon)", state: 0 },
       { day: "D6", action: "Email: comps + offer", state: 0 },
       { day: "D7", action: "Final call, then nurture", state: 0 },
     ]);

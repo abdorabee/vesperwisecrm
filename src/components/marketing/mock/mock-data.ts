@@ -106,7 +106,7 @@ export const MARKETING_HERO_ACTIVITY: MarketingHeroActivityEvent[] = [
     accent: false,
   },
   {
-    text: "AI call summary: wants out before probate closes",
+    text: "AI call summary (coming soon)",
     time: "TODAY 09:41",
     accent: false,
   },
@@ -131,7 +131,7 @@ export const MARKETING_LEAD_INTEL_STATS: MarketingLeadIntelStat[] = [
   { label: "EST. VALUE", value: "$214,000" },
   { label: "EQUITY", value: "68%" },
   { label: "OWNERSHIP", value: "14 yrs" },
-  { label: "PHONES", value: "3 verified" },
+  { label: "VERIFIED PHONES", value: "Coming soon" },
 ];
 
 export const MARKETING_PROOF_LABEL =
@@ -273,6 +273,7 @@ export const MARKETING_ENGAGE_STATS: MarketingEngageStat[] = [
   { label: "Email sequences", value: "Live" },
   { label: "Contact timeline", value: "Live" },
   { label: "Pipeline stages", value: "Live" },
+  { label: "Calling hours", value: "Blocked at 9:00 p.m." },
 ];
 
 export interface MarketingWaveformBar {
@@ -310,11 +311,11 @@ export interface MarketingDaySequenceStep {
 }
 
 export const MARKETING_DAY_SEQUENCE: MarketingDaySequenceStep[] = [
-  { day: "D1", action: "Call + voicemail drop", state: 2 },
-  { day: "D1", action: "SMS: cash offer intro", state: 2 },
+  { day: "D1", action: "Call", state: 2 },
+  { day: "D1", action: "SMS sequences (coming soon)", state: 0 },
   { day: "D2", action: "Email: process outline", state: 2 },
   { day: "D3", action: "Call attempt 2", state: 1 },
-  { day: "D5", action: "SMS check-in", state: 0 },
+  { day: "D5", action: "SMS sequences (coming soon)", state: 0 },
   { day: "D6", action: "Email: comps + offer", state: 0 },
   { day: "D7", action: "Final call, then nurture", state: 0 },
 ];

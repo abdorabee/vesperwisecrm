@@ -42,7 +42,7 @@ describe("redesigned marketing landing data", () => {
         accent: false,
       },
       {
-        text: "AI call summary: wants out before probate closes",
+        text: "AI call summary (coming soon)",
         time: "TODAY 09:41",
         accent: false,
       },

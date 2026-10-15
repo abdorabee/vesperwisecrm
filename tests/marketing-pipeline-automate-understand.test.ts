@@ -47,36 +47,20 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
     expect(MARKETING_WORKFLOW_STEPS).toEqual([
       {
         kind: "TRIGGER",
-        title: "New lead created",
-        detail: "Any source",
+        title: "Untouched 4 days",
+        detail: "Negotiation stage",
         accent: true,
       },
       {
         kind: "ACTION",
-        title: "Assign to pipeline stage",
-        detail: "Based on source and type",
-      },
-      {
-        kind: "BRANCH",
-        title: "Has contact info?",
-        detail: "Yes → route · No → create a task",
-      },
-      {
-        kind: "ACTION",
-        title: "Route to team member",
-        detail: "Round robin by market",
+        title: "Notify the manager",
+        detail: "Internal email",
         accent: true,
       },
       {
         kind: "ACTION",
-        title: "Create follow-up task",
-        detail: "Schedule first touch",
-      },
-      {
-        kind: "ACTION",
-        title: "Start email sequence",
-        detail: "Intro and qualification",
-        accent: true,
+        title: "Reassign the lead",
+        detail: "New owner",
       },
     ]);
     expect(JSON.stringify(MARKETING_WORKFLOW_STEPS).toLowerCase()).not.toContain(
@@ -85,16 +69,16 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
 
     expect(MARKETING_OTHER_WORKFLOWS).toEqual([
       {
-        tag: "WORKFLOW 07",
-        text: "No contact after 6 attempts → drop to long-term nurture, revisit in 90 days.",
+        tag: "PRESET",
+        text: "Untouched 4 days in Negotiation → notify the manager and reassign.",
       },
       {
-        tag: "WORKFLOW 11",
-        text: "Deal untouched for 4 days in Negotiation → notify manager, reassign.",
+        tag: "PRESET",
+        text: "Nurture for 90 days → move back to the first open stage and re-enroll.",
       },
       {
-        tag: "WORKFLOW 14",
-        text: "Contract signed → create closing checklist, notify title, log spread.",
+        tag: "ONCE",
+        text: "Leave the cooldown blank to fire once per lead, or set hours to run again.",
       },
     ]);
   });

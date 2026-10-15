@@ -44,7 +44,7 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
       },
       {
         heading: "Follow-up that does not depend on memory",
-        body: "Email and SMS sequences stay attached to the lead. When a seller revives after ninety days, the conversation history is already on the record.",
+        body: "Email sequences stay attached to the lead and stop when a reply is captured. SMS sequences (coming soon). Conversation history stays on the record.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -54,7 +54,7 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Fix and flip",
     title: "From first call to rehab without losing context.",
     description:
-      "Property notes, motivation, and next actions stay on the lead so acquisitions, project managers, and dispositions are looking at the same record.",
+      "Property notes and next actions stay on the lead. A motivation score from 0 to 100 is separate from the AI score, so acquisitions and dispositions are looking at the same record.",
     sections: [
       {
         heading: "Capture the property while you are on the call",
@@ -141,7 +141,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Workflows and reporting",
-        body: "Sequences and workflows own follow-up. Reporting shows what moved, what stalled, and who owns the next step.",
+        body: "A captured reply stops an active sequence, and sequence mail includes the workspace mailing footer. Scheduled workflows fire once per lead, can notify a manager, and include presets for an untouched Negotiation deal and a 90-day nurture. Reporting shows what moved, what stalled, and who owns the next step.",
       },
     ],
     cta: { label: "See the workflow", href: "/home#ch1" },
@@ -173,7 +173,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Current",
-        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. The CRM itself — pipeline, email sequences, and the lead queue — is available in early access after sign-in.",
+        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. The CRM itself — pipeline, email sequences, and the lead queue — is available in early access after sign-in. Pipeline cards show the next action and a separate 0–100 motivation score. Creating a lead requests an AI score. Import dedupe skips or merges a repeated phone, address, and owner name. A captured reply stops the active sequence, and sequence mail can include the workspace address. A call is allowed at 8:00 a.m. and blocked at 9:00 p.m. local time, and you start each call. Scheduled workflows fire once per lead unless a cooldown is set. A one-time Polar order can grant Team. Verified phones, AI call summary, skip tracing, SMS sequences, and Every call is transcribed stay coming soon.",
       },
       {
         heading: "Next",
@@ -191,7 +191,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Email",
-        body: "Outbound and inbound email run through Resend, with per-account From addresses and reply capture back onto the lead.",
+        body: "Outbound and inbound email run through Resend, with per-account From addresses. A captured reply is stored on the lead and stops that lead's active sequence. Seller sequence mail includes an unsubscribe link, plus the workspace company name and postal address when they are set.",
       },
       {
         heading: "Google Docs and Drive",
@@ -199,7 +199,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Twilio",
-        body: "SMS sequences (coming soon) will use a connected Twilio account. Email sequences are available now.",
+        body: "Outbound calls use the Twilio account a workspace connects. A call is allowed at 8:00 a.m. and blocked at 9:00 p.m. in the recipient's local time, from the property ZIP or the area code. SMS sequences (coming soon) will use a connected Twilio account. Email sequences are available now.",
       },
     ],
     cta: { label: "Talk to sales", href: "/contact" },

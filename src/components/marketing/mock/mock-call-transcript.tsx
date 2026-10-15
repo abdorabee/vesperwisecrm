@@ -22,7 +22,7 @@ export function MockCallTranscript() {
       <div className="flex h-[42px] items-center gap-[9px] border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] px-4">
         <span className="mkt-pulse block size-[5px] rounded-full bg-[var(--mkt-accent)]" />
         <span className="font-mono text-[11.5px] leading-none text-[var(--mkt-text3)]">
-          CALL 00:07:12 · TRANSCRIBED
+          EVERY CALL IS TRANSCRIBED (COMING SOON)
         </span>
         <span className="ml-auto hidden font-mono text-[11px] leading-none text-[var(--mkt-text3)] sm:block">
           DANA R. → M. WHITFIELD
@@ -31,7 +31,7 @@ export function MockCallTranscript() {
 
       <div className="p-5 px-[18px]">
         <div className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
-          AI SUMMARY
+          AI CALL SUMMARY (COMING SOON)
         </div>
         <p className="mt-3 font-sans text-[14.5px] leading-[1.6] text-[var(--mkt-text)]">
           Inherited the property in March. Carrying two mortgages and wants to

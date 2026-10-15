@@ -10,6 +10,10 @@ export interface MarketingPipelineCard {
   rep: string;
   meta: string;
   hot?: boolean;
+  motivation: number;
+  nextTitle: string;
+  nextDue: string;
+  overdue?: boolean;
 }
 
 export interface MarketingPipelineColumn {
@@ -38,6 +42,9 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         age: "2d",
         rep: "DR",
         meta: "OFFER SENT",
+        motivation: 92,
+        nextTitle: "Call the seller",
+        nextDue: "Due in 2 days",
       },
       {
         addr: "882 Ridgeline Ct",
@@ -45,6 +52,9 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         age: "5d",
         rep: "MJ",
         meta: "AWAITING REPLY",
+        motivation: 78,
+        nextTitle: "No next action",
+        nextDue: "",
       },
     ],
   },
@@ -61,6 +71,10 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         rep: "DR",
         meta: "COUNTERED",
         hot: true,
+        motivation: 84,
+        nextTitle: "Send the offer",
+        nextDue: "Overdue · 3 days ago",
+        overdue: true,
       },
       {
         addr: "77 Ellsworth Rd",
@@ -68,6 +82,9 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         age: "8d",
         rep: "AK",
         meta: "SECOND CALL",
+        motivation: 61,
+        nextTitle: "Sequence: Intro email",
+        nextDue: "Due tomorrow",
       },
     ],
   },
@@ -84,6 +101,9 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         rep: "MJ",
         meta: "SIGNED",
         hot: true,
+        motivation: 88,
+        nextTitle: "Book the inspection",
+        nextDue: "Due in 5 days",
       },
       {
         addr: "9040 Sunfield Dr",
@@ -91,6 +111,9 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         age: "6d",
         rep: "AK",
         meta: "INSPECTION",
+        motivation: 54,
+        nextTitle: "No next action",
+        nextDue: "",
       },
     ],
   },
@@ -107,6 +130,9 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         rep: "DR",
         meta: "TITLE CLEAR",
         hot: true,
+        motivation: 71,
+        nextTitle: "Confirm title",
+        nextDue: "Due in 4 days",
       },
     ],
   },
@@ -122,6 +148,9 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         age: "—",
         rep: "MJ",
         meta: "FUNDED",
+        motivation: 90,
+        nextTitle: "No next action",
+        nextDue: "",
       },
       {
         addr: "18 Carrow St",
@@ -129,6 +158,9 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         age: "—",
         rep: "AK",
         meta: "FUNDED",
+        motivation: 66,
+        nextTitle: "No next action",
+        nextDue: "",
       },
     ],
   },
@@ -197,7 +229,31 @@ export function MockPipelineBoard() {
                     <div className="truncate text-[12.5px] font-medium leading-[1.3] text-[var(--mkt-text)]">
                       {card.addr}
                     </div>
-                    <div className="mt-2.5 flex items-center justify-between gap-3">
+                    <div className="mt-2 font-mono text-[10px] tracking-[0.04em] text-[var(--mkt-text3)]">
+                      Motivation score {card.motivation}
+                    </div>
+                    {card.nextTitle === "No next action" ? (
+                      <span className="mt-2 inline-flex w-fit rounded border border-[color:var(--mkt-border)] px-1.5 py-1 font-mono text-[10px] leading-none text-[var(--mkt-text2)]">
+                        No next action
+                      </span>
+                    ) : (
+                      <div className="mt-2">
+                        <div className="text-[12px] font-medium leading-[1.3] text-[var(--mkt-text)]">
+                          {card.nextTitle}
+                        </div>
+                        <div
+                          className={cn(
+                            "mt-1 font-mono text-[10.5px]",
+                            card.overdue
+                              ? "font-medium text-[var(--mkt-accent)]"
+                              : "text-[var(--mkt-text3)]",
+                          )}
+                        >
+                          {card.nextDue}
+                        </div>
+                      </div>
+                    )}
+                    <div className="mt-2.5 flex items-center justify-between gap-3 border-t border-[color:var(--mkt-border-subtle)] pt-2">
                       <span
                         className={cn(
                           "font-mono text-[11.5px] font-medium text-[var(--mkt-text2)]",
@@ -207,15 +263,7 @@ export function MockPipelineBoard() {
                         {card.spread}
                       </span>
                       <span className="font-mono text-[10.5px] text-[var(--mkt-text3)]">
-                        {card.age}
-                      </span>
-                    </div>
-                    <div className="mt-2.5 flex items-center gap-1.5 border-t border-[color:var(--mkt-border-subtle)] pt-2">
-                      <span className="block size-[15px] rounded-full border border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-bg2)] text-center font-mono text-[8px] font-medium leading-[13px] text-[var(--mkt-text2)]">
                         {card.rep}
-                      </span>
-                      <span className="font-mono text-[10.5px] text-[var(--mkt-text3)]">
-                        {card.meta}
                       </span>
                     </div>
                   </div>

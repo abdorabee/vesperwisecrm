@@ -19,51 +19,35 @@ export interface MarketingOtherWorkflow {
 export const MARKETING_WORKFLOW_STEPS: MarketingWorkflowStep[] = [
   {
     kind: "TRIGGER",
-    title: "New lead created",
-    detail: "Any source",
+    title: "Untouched 4 days",
+    detail: "Negotiation stage",
     accent: true,
   },
   {
     kind: "ACTION",
-    title: "Assign to pipeline stage",
-    detail: "Based on source and type",
-  },
-  {
-    kind: "BRANCH",
-    title: "Has contact info?",
-    detail: "Yes → route · No → create a task",
-  },
-  {
-    kind: "ACTION",
-    title: "Route to team member",
-    detail: "Round robin by market",
+    title: "Notify the manager",
+    detail: "Internal email",
     accent: true,
   },
   {
     kind: "ACTION",
-    title: "Create follow-up task",
-    detail: "Schedule first touch",
-  },
-  {
-    kind: "ACTION",
-    title: "Start email sequence",
-    detail: "Intro and qualification",
-    accent: true,
+    title: "Reassign the lead",
+    detail: "New owner",
   },
 ];
 
 export const MARKETING_OTHER_WORKFLOWS: MarketingOtherWorkflow[] = [
   {
-    tag: "WORKFLOW 07",
-    text: "No contact after 6 attempts → drop to long-term nurture, revisit in 90 days.",
+    tag: "PRESET",
+    text: "Untouched 4 days in Negotiation → notify the manager and reassign.",
   },
   {
-    tag: "WORKFLOW 11",
-    text: "Deal untouched for 4 days in Negotiation → notify manager, reassign.",
+    tag: "PRESET",
+    text: "Nurture for 90 days → move back to the first open stage and re-enroll.",
   },
   {
-    tag: "WORKFLOW 14",
-    text: "Contract signed → create closing checklist, notify title, log spread.",
+    tag: "ONCE",
+    text: "Leave the cooldown blank to fire once per lead, or set hours to run again.",
   },
 ];
 
@@ -81,9 +65,10 @@ export function Automate() {
             </h2>
           </div>
           <p className="mt-5 text-[17px] font-light leading-[1.6] text-[var(--mkt-text2)]">
-            Rules watch the record and act. A new lead is routed and sequenced;
-            a stalled deal is reassigned; a dead lead re-enters nurture ninety
-            days later. No one has to remember.
+            Scheduled workflows fire once per lead, or again after a cooldown
+            you set. A deal untouched for 4 days in Negotiation notifies the
+            manager and is reassigned. A lead nurtured for 90 days moves back
+            to the first open stage and is re-enrolled.
           </p>
         </Reveal>
 
@@ -94,16 +79,16 @@ export function Automate() {
           >
             <div className="flex min-h-[42px] items-center gap-2.5 border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] px-4 py-2">
               <span className="font-mono text-[10.5px] font-medium tracking-[0.09em] text-[var(--mkt-text3)]">
-                WORKFLOW 03 · NEW LEAD → FIRST TOUCH
+                PRESET · UNTOUCHED 4 DAYS IN NEGOTIATION
               </span>
               <span className="ml-auto flex items-center gap-2 font-mono text-[11px] text-[var(--mkt-text2)]">
                 <span className="mkt-pulse block size-[5px] rounded-full bg-[var(--mkt-accent)]" />
-                LIVE · 1,284 RUNS / 30D
+                FIRES ONCE PER LEAD
               </span>
             </div>
 
             <div className="min-w-0 overflow-x-auto px-6 py-8">
-              <div className="relative min-w-[860px]">
+              <div className="relative min-w-[520px]">
                 <svg
                   className="absolute top-1/2 right-8 left-8 h-px -translate-y-1/2"
                   aria-hidden
