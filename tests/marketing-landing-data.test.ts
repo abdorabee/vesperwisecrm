@@ -14,7 +14,7 @@ describe("redesigned marketing landing data", () => {
       eyebrow: "ACQUISITION CRM / REAL ESTATE",
       title: "Every lead worked. Nothing goes cold.",
       subhead:
-        "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences, and lead queue in one place. Early access available now.",
+        "VesperWiseCRM is the acquisition system for real estate teams. Pipeline and lead queue are live. Email sequences: coming soon.",
       primaryCta: "Book a demo",
       secondaryCta: "See the workflow",
       note: "No card. Team free for 60 days.",
@@ -63,7 +63,7 @@ describe("redesigned marketing landing data", () => {
     expect(MARKETING_PREMISE_STEPS.map((step) => step.caption)).toEqual([
       "Every source — PPC, cold lists, referrals, probate — lands in one queue. No CSV shuffling.",
       "Track contact attempts, notes, and stage changes on one record. Know where every conversation stands.",
-      "Email sequences, tasks and pipeline sit on the same record. The next action is never a guess.",
+      "Notes, tasks, and owner sit on the lead. The next action is never a guess.",
     ]);
   });
 });

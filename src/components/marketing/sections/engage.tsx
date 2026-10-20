@@ -1,3 +1,4 @@
+import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
 import { MARKETING_ENGAGE_STATS } from "@/components/marketing/mock/mock-data";
 import { MockPowerDial } from "@/components/marketing/mock/mock-power-dial";
 import { Reveal } from "@/components/marketing/motion/reveal";
@@ -18,8 +19,7 @@ export function Engage() {
               </h2>
             </div>
             <p className="mt-5 max-w-[38ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
-              Email sequences and callback tasks write to the same timeline.
-              Track every touch on one record so the next action is never a guess.
+              Notes, tasks, and owner sit on the lead. The next action is never a guess.
             </p>
 
             <Stagger className="mt-8 grid border-t border-[color:var(--mkt-border)]">
@@ -28,12 +28,15 @@ export function Engage() {
                   key={stat.label}
                   className="flex items-baseline justify-between gap-3 border-b border-[color:var(--mkt-border-subtle)] py-3.5"
                 >
-                  <span className="font-sans text-[13.5px] leading-snug text-[var(--mkt-text2)]">
+                  <span className="inline-flex items-center gap-2 font-sans text-[13.5px] leading-snug text-[var(--mkt-text2)]">
                     {stat.label}
+                    {stat.comingSoon ? <ComingSoonPill /> : null}
                   </span>
-                  <span className="font-mono text-[13.5px] leading-none font-medium text-[var(--mkt-text)]">
-                    {stat.value}
-                  </span>
+                  {stat.comingSoon ? null : (
+                    <span className="font-mono text-[13.5px] leading-none font-medium text-[var(--mkt-text)]">
+                      {stat.value}
+                    </span>
+                  )}
                 </StaggerItem>
               ))}
             </Stagger>

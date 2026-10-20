@@ -16,7 +16,7 @@ export const MARKETING_HERO_COPY: MarketingHeroCopy = {
   eyebrow: "ACQUISITION CRM / REAL ESTATE",
   title: "Every lead worked. Nothing goes cold.",
   subhead:
-    "VesperWiseCRM is the acquisition system for real estate teams — pipeline, email sequences, and lead queue in one place. Early access available now.",
+    "VesperWiseCRM is the acquisition system for real estate teams. Pipeline and lead queue are live. Email sequences: coming soon.",
   primaryCta: "Book a demo",
   secondaryCta: "See the workflow",
   note: "No card. Team free for 60 days.",
@@ -131,7 +131,7 @@ export const MARKETING_LEAD_INTEL_STATS: MarketingLeadIntelStat[] = [
   { label: "EST. VALUE", value: "$214,000" },
   { label: "EQUITY", value: "68%" },
   { label: "OWNERSHIP", value: "14 yrs" },
-  { label: "PHONES", value: "3 verified" },
+  { label: "PHONES", value: "Verification coming soon" },
 ];
 
 export const MARKETING_PROOF_LABEL =
@@ -181,7 +181,7 @@ export const MARKETING_PREMISE_STEPS: MarketingPremiseStep[] = [
     number: "03",
     label: "Close",
     caption:
-      "Email sequences, tasks and pipeline sit on the same record. The next action is never a guess.",
+      "Notes, tasks, and owner sit on the lead. The next action is never a guess.",
   },
 ];
 
@@ -267,11 +267,12 @@ export const MARKETING_QUALIFY_TAGS: string[] = [
 export interface MarketingEngageStat {
   label: string;
   value: string;
+  comingSoon?: boolean;
 }
 
 export const MARKETING_ENGAGE_STATS: MarketingEngageStat[] = [
-  { label: "Email sequences", value: "Live" },
-  { label: "Contact timeline", value: "Live" },
+  { label: "Email sequences", value: "Coming soon", comingSoon: true },
+  { label: "Notes, tasks, and owner", value: "On the lead" },
   { label: "Pipeline stages", value: "Live" },
 ];
 
@@ -310,10 +311,10 @@ export interface MarketingDaySequenceStep {
 }
 
 export const MARKETING_DAY_SEQUENCE: MarketingDaySequenceStep[] = [
-  { day: "D1", action: "Call + voicemail drop", state: 2 },
-  { day: "D1", action: "SMS: cash offer intro", state: 2 },
-  { day: "D2", action: "Email: process outline", state: 2 },
-  { day: "D3", action: "Call attempt 2", state: 1 },
+  { day: "D1", action: "Call + voicemail drop", state: 0 },
+  { day: "D1", action: "SMS: cash offer intro", state: 0 },
+  { day: "D2", action: "Email: process outline", state: 0 },
+  { day: "D3", action: "Call attempt 2", state: 0 },
   { day: "D5", action: "SMS check-in", state: 0 },
   { day: "D6", action: "Email: comps + offer", state: 0 },
   { day: "D7", action: "Final call, then nurture", state: 0 },
@@ -373,13 +374,13 @@ export interface DemoSequenceStep {
   channel: "email" | "sms" | "call";
   label: string;
   timing: string;
-  status: "sent" | "scheduled" | "waiting";
+  status: "scheduled" | "waiting";
 }
 
 export const DEMO_SEQUENCE: DemoSequenceStep[] = [
-  { channel: "email", label: "Intro + cash offer range", timing: "Day 0", status: "sent" },
-  { channel: "sms", label: "Quick follow-up text", timing: "Day 1", status: "sent" },
-  { channel: "call", label: "Qualification call", timing: "Day 2", status: "sent" },
+  { channel: "email", label: "Intro + cash offer range", timing: "Day 0", status: "scheduled" },
+  { channel: "sms", label: "Quick follow-up text", timing: "Day 1", status: "scheduled" },
+  { channel: "call", label: "Qualification call", timing: "Day 2", status: "scheduled" },
   { channel: "email", label: "Comps + timeline", timing: "Day 4", status: "scheduled" },
   { channel: "sms", label: "Still interested?", timing: "Day 7", status: "waiting" },
 ];

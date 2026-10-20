@@ -38,7 +38,7 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("One system instead of six tabs.");
     expect(sectionText).toContain(
       normalizeWhitespace(
-        "Teams arrive at VesperWiseCRM from spreadsheets and generic CRMs where follow-up dies in the gaps. Pipeline, email sequences, and the lead queue live on one platform.",
+        "Teams arrive at VesperWiseCRM from spreadsheets and generic CRMs where follow-up dies in the gaps. Pipeline and lead queue are live. Email sequences: coming soon.",
       ),
     );
     expect(section).toContain("Leads in a shared spreadsheet");
@@ -62,7 +62,7 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("EARLY ACCESS");
     expect(section).toContain("Team for 60 days. No card.");
     expect(section).toContain(
-      "VesperWiseCRM is in early access. Pipeline management, email sequences, and the lead queue are live.",
+      "VesperWiseCRM is in early access. Pipeline and lead queue are live. Email sequences: coming soon.",
     );
     expect(section).not.toContain("PLACEHOLDER ·");
     expectNoLegacyMarketingTokens(section);

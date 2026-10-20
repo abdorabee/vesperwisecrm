@@ -1,3 +1,4 @@
+import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
 import {
   MARKETING_QUALIFY_SCORES,
   MARKETING_QUALIFY_TAGS,
@@ -18,8 +19,9 @@ const SCORE_VALUE_CLASS: Record<MarketingScoreTone, string> = {
 
 export function MockCallTranscript() {
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)]">
-      <div className="flex h-[42px] items-center gap-[9px] border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] px-4">
+    <div className="relative min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)]">
+      <ComingSoonPill className="absolute top-2.5 right-3 z-10" />
+      <div className="flex h-[42px] items-center gap-[9px] border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] px-4 pr-28">
         <span className="mkt-pulse block size-[5px] rounded-full bg-[var(--mkt-accent)]" />
         <span className="font-mono text-[11.5px] leading-none text-[var(--mkt-text3)]">
           CALL 00:07:12 · TRANSCRIBED

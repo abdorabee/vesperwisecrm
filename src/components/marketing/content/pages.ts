@@ -173,7 +173,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Current",
-        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. The CRM itself — pipeline, email sequences, and the lead queue — is available in early access after sign-in.",
+        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. Pipeline and lead queue are live. Email sequences: coming soon. The CRM is available in early access after sign-in.",
       },
       {
         heading: "Next",
@@ -199,7 +199,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Twilio",
-        body: "SMS sequences (coming soon) will use a connected Twilio account. Email sequences are available now.",
+        body: "SMS sequences (coming soon) will use a connected Twilio account. Email sequences: coming soon.",
       },
     ],
     cta: { label: "Talk to sales", href: "/contact" },

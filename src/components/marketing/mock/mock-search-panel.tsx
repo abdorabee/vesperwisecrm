@@ -1,3 +1,4 @@
+import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
 import {
   MARKETING_FUNNEL_BARS,
   MARKETING_INTAKE_FILTERS,
@@ -19,14 +20,12 @@ export function MockSearchPanel() {
         <span className="min-w-0 font-mono text-[10.5px] leading-snug font-medium tracking-normal text-[var(--mkt-text3)]">
           FIG 1.1 — SEARCH SPACE CONSTRAINED BY FILTERS
         </span>
-        <span className="shrink-0 font-mono text-[10.5px] leading-none text-[var(--mkt-text3)]">
-          18,402 → 214
-        </span>
       </div>
 
-      <div className="grid min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] lg:grid-cols-[260px_minmax(0,1fr)]">
+      <div className="relative grid min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] lg:grid-cols-[260px_minmax(0,1fr)]">
+        <ComingSoonPill className="absolute top-3 right-3 z-10" />
         <aside className="min-w-0 border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] p-[18px] pb-[22px] lg:border-r lg:border-b-0">
-          <div className="mb-[15px] font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
+          <div className="mb-[15px] pr-24 font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)] lg:pr-0">
             FILTERS · ICP
           </div>
 
@@ -79,7 +78,7 @@ export function MockSearchPanel() {
         </aside>
 
         <div className="min-w-0">
-          <div className="flex min-h-[46px] flex-col gap-2 border-b border-[color:var(--mkt-border-subtle)] p-4 sm:flex-row sm:items-center sm:gap-2.5 sm:px-4 sm:py-0">
+          <div className="flex min-h-[46px] flex-col gap-2 border-b border-[color:var(--mkt-border-subtle)] p-4 pt-9 sm:flex-row sm:items-center sm:gap-2.5 sm:px-4 sm:py-0 sm:pr-28 lg:pt-0">
             <div className="flex min-w-0 flex-1 items-center gap-[9px] rounded-[7px] border border-[color:var(--mkt-border)] bg-[var(--mkt-bg)] px-[11px] py-2">
               <span className="block size-2.5 shrink-0 rounded-full border-[1.5px] border-[color:var(--mkt-text3)]" />
               <span className="min-w-0 truncate font-sans text-[12.5px] leading-none text-[var(--mkt-text2)]">
@@ -90,7 +89,7 @@ export function MockSearchPanel() {
               </span>
             </div>
             <span className="inline-flex shrink-0 items-center justify-center rounded-md bg-[var(--mkt-accent)] px-3 py-[9px] font-sans text-[11.5px] leading-none font-medium text-[var(--mkt-accent-ink)]">
-              Push 214 to queue
+              Push to queue
             </span>
           </div>
 
@@ -111,12 +110,9 @@ export function MockSearchPanel() {
               ))}
             </div>
 
-            <div className="mt-3 flex flex-col gap-2 border-t border-[color:var(--mkt-border-subtle)] pt-[11px] sm:flex-row sm:justify-between">
+            <div className="mt-3 border-t border-[color:var(--mkt-border-subtle)] pt-[11px]">
               <span className="font-mono text-[10.5px] leading-none text-[var(--mkt-text3)]">
                 TOTAL LIST 18,402
-              </span>
-              <span className="font-mono text-[10.5px] leading-none text-[var(--mkt-text3)]">
-                MATCHED 214 · SKIP TRACED 214 · DUPES REMOVED 63
               </span>
             </div>
           </div>

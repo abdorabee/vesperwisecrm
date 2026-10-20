@@ -67,8 +67,8 @@ describe("marketing Intake, Qualify, and Engage data", () => {
 
   test("keeps approved engage stats, waveform, queue, and sequence", () => {
     expect(MARKETING_ENGAGE_STATS).toEqual([
-      { label: "Email sequences", value: "Live" },
-      { label: "Contact timeline", value: "Live" },
+      { label: "Email sequences", value: "Coming soon", comingSoon: true },
+      { label: "Notes, tasks, and owner", value: "On the lead" },
       { label: "Pipeline stages", value: "Live" },
     ]);
 
@@ -91,13 +91,14 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     ]);
 
     expect(MARKETING_DAY_SEQUENCE).toEqual([
-      { day: "D1", action: "Call + voicemail drop", state: 2 },
-      { day: "D1", action: "SMS: cash offer intro", state: 2 },
-      { day: "D2", action: "Email: process outline", state: 2 },
-      { day: "D3", action: "Call attempt 2", state: 1 },
+      { day: "D1", action: "Call + voicemail drop", state: 0 },
+      { day: "D1", action: "SMS: cash offer intro", state: 0 },
+      { day: "D2", action: "Email: process outline", state: 0 },
+      { day: "D3", action: "Call attempt 2", state: 0 },
       { day: "D5", action: "SMS check-in", state: 0 },
       { day: "D6", action: "Email: comps + offer", state: 0 },
       { day: "D7", action: "Final call, then nurture", state: 0 },
     ]);
+    expect(MARKETING_DAY_SEQUENCE.every((step) => step.state !== 2)).toBe(true);
   });
 });

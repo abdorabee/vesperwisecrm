@@ -43,8 +43,8 @@ export function Comparison() {
             </h2>
             <p className="mt-5 font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
               Teams arrive at VesperWiseCRM from spreadsheets and generic CRMs
-              where follow-up dies in the gaps. Pipeline, email sequences, and
-              the lead queue live on one platform.
+              where follow-up dies in the gaps. Pipeline and lead queue are live.
+              Email sequences: coming soon.
             </p>
           </div>
 

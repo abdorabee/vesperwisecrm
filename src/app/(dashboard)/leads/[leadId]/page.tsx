@@ -167,7 +167,11 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
               <AddNoteForm leadId={lead.id} />
-              <ActivityFeed activities={activities} />
+              <ActivityFeed
+                activities={activities}
+                leadName={lead.title}
+                contactName={contactName}
+              />
             </CardContent>
           </Card>
         </div>

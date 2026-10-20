@@ -1,3 +1,4 @@
+import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
 import {
   MARKETING_HERO_ACTIVITY,
   MARKETING_LEAD_INTEL_STATS,
@@ -12,8 +13,9 @@ const SELECTED_LEAD = {
 
 export function MockLeadIntelPanel() {
   return (
-    <aside className="min-w-0 bg-[var(--mkt-raised)]">
-      <div className="border-b border-[color:var(--mkt-border-subtle)] px-4 py-4 sm:px-[18px]">
+    <aside className="relative min-w-0 bg-[var(--mkt-raised)]">
+      <ComingSoonPill className="absolute top-3 right-3 z-10" />
+      <div className="border-b border-[color:var(--mkt-border-subtle)] px-4 py-4 pr-28 sm:px-[18px]">
         <div className="font-mono text-[10.5px] font-medium tracking-[0.09em] text-[var(--mkt-text3)] uppercase">
           Lead Intelligence
         </div>
