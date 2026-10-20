@@ -4,6 +4,7 @@ import {
   formatWorkspaceCurrency,
   formatWorkspaceDate,
   formatWorkspaceDateTime,
+  isWorkspaceMailingSchemaMissing,
   isWorkspaceSettingsSchemaMissing,
   workspaceSettingsFromLegacyAccount,
   workspaceSettingsSchema,
@@ -28,6 +29,8 @@ describe("workspace settings", () => {
         currencyCode: "egp",
         dateFormat: "day_month_year",
         timeFormat: "24h",
+        companyName: "  Northwind Holdings  ",
+        postalAddress: "  ",
       }),
     ).toEqual({
       name: "VesperWise Egypt",
@@ -35,6 +38,25 @@ describe("workspace settings", () => {
       currencyCode: "EGP",
       dateFormat: "day_month_year",
       timeFormat: "24h",
+      companyName: "Northwind Holdings",
+      postalAddress: null,
+    });
+  });
+
+  test("stores a blank mailing address as empty", () => {
+    expect(
+      workspaceSettingsSchema.parse({
+        name: "VesperWise",
+        timezone: null,
+        currencyCode: "USD",
+        dateFormat: "system",
+        timeFormat: "system",
+        companyName: "",
+        postalAddress: "\n  \n",
+      }),
+    ).toMatchObject({
+      companyName: null,
+      postalAddress: null,
     });
   });
 
@@ -103,6 +125,17 @@ describe("workspace settings", () => {
     expect(isWorkspaceSettingsSchemaMissing({ code: "42501", message: "permission denied for table accounts" })).toBe(false);
   });
 
+  test("recognizes a database that has not received the mailing address columns", () => {
+    expect(isWorkspaceMailingSchemaMissing({
+      code: "PGRST204",
+      message: "Could not find the 'postal_address' column of 'accounts' in the schema cache",
+    })).toBe(true);
+    expect(isWorkspaceMailingSchemaMissing({
+      code: "42703",
+      message: "column accounts.timezone does not exist",
+    })).toBe(false);
+  });
+
   test("uses backward-compatible defaults for a legacy account row", () => {
     expect(workspaceSettingsFromLegacyAccount({
       id: "account-1",
@@ -115,6 +148,8 @@ describe("workspace settings", () => {
       currencyCode: "USD",
       dateFormat: "system",
       timeFormat: "system",
+      companyName: null,
+      postalAddress: null,
       updatedAt: "2026-08-09T10:00:00.000Z",
     });
   });

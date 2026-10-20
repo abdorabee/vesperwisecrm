@@ -11,7 +11,12 @@ export default async function SequencesPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Sequences</h1>
+        <div>
+          <h1 className="text-2xl font-semibold">Sequences</h1>
+          <p className="text-sm text-muted-foreground">
+            Sequences are for opted-in and inbound sellers.
+          </p>
+        </div>
         <Button render={<Link href="/sequences/new" />} nativeButton={false}>
           New sequence
         </Button>

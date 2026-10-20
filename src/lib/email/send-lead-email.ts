@@ -4,6 +4,7 @@ import {
   getAccountEmailSettings,
 } from "@/lib/email/account-settings";
 import { buildComplianceFooter } from "@/lib/email/compliance-footer";
+import { getWorkspaceMailingIdentity } from "@/lib/queries/workspace-settings";
 import { logEmailEvent } from "@/lib/email/logger";
 import { resolveReplyRouting } from "@/lib/email/reply-routing";
 import {
@@ -29,6 +30,7 @@ export async function sendLeadFacingEmail(params: {
   actorUserId: string | null;
   contactId?: string;
   isMarketing?: boolean;
+  includeComplianceFooter?: boolean;
 }): Promise<SendLeadEmailResult> {
   const {
     supabase,
@@ -40,6 +42,7 @@ export async function sendLeadFacingEmail(params: {
     actorUserId,
     contactId,
     isMarketing,
+    includeComplianceFooter,
   } = params;
 
   const settings = await getAccountEmailSettings(accountId);
@@ -50,9 +53,17 @@ export async function sendLeadFacingEmail(params: {
     : null;
   const fromAddress = formatFromAddress(settings, memberIdentity);
 
+  const attachFooter = Boolean(contactId) && (includeComplianceFooter || isMarketing);
+  const mailing = attachFooter ? await getWorkspaceMailingIdentity(accountId) : null;
   const body =
-    isMarketing && contactId
-      ? rawBody + buildComplianceFooter({ contactId, accountId })
+    attachFooter && contactId
+      ? rawBody +
+        buildComplianceFooter({
+          contactId,
+          accountId,
+          companyName: mailing?.companyName,
+          postalAddress: mailing?.postalAddress,
+        })
       : rawBody;
 
   const routing = await resolveReplyRouting({
