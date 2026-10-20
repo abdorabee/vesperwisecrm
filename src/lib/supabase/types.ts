@@ -2104,6 +2104,52 @@ export type Database = {
           },
         ]
       }
+      workflow_lead_fires: {
+        Row: {
+          account_id: string
+          fired_at: string
+          id: string
+          lead_id: string
+          workflow_id: string
+        }
+        Insert: {
+          account_id: string
+          fired_at?: string
+          id?: string
+          lead_id: string
+          workflow_id: string
+        }
+        Update: {
+          account_id?: string
+          fired_at?: string
+          id?: string
+          lead_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_lead_fires_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_lead_fires_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workflow_lead_fires_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       workflow_actions: {
         Row: {
           account_id: string

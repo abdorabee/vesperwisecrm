@@ -18,6 +18,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Field,
+  FieldDescription,
   FieldGroup,
   FieldLabel,
   FieldError,
@@ -27,6 +28,11 @@ import { workflowSchema, type WorkflowInput } from "@/lib/validations/workflow";
 import type { Tables } from "@/lib/supabase/types";
 import type { GroupWithMembers } from "@/lib/queries/groups";
 
+export interface WorkflowMemberOption {
+  userId: string;
+  email: string;
+}
+
 interface WorkflowFormProps {
   workflowId?: string;
   defaultValues?: WorkflowInput;
@@ -34,6 +40,7 @@ interface WorkflowFormProps {
   tags: Tables<"tags">[];
   sequences: Tables<"sequences">[];
   groups: GroupWithMembers[];
+  members: WorkflowMemberOption[];
 }
 
 const TRIGGER_LABELS: Record<WorkflowInput["triggerType"], string> = {
@@ -50,6 +57,9 @@ const ACTION_LABELS: Record<string, string> = {
   add_tag: "Add a tag",
   assign_round_robin: "Assign via routing group",
   change_stage: "Change stage",
+  reassign: "Reassign the lead",
+  create_task: "Create a task",
+  notify_user: "Notify a teammate",
 };
 
 const emptyAction: WorkflowInput["actions"][number] = {
@@ -65,6 +75,7 @@ export function WorkflowForm({
   tags,
   sequences,
   groups,
+  members,
 }: WorkflowFormProps) {
   const router = useRouter();
 
@@ -194,11 +205,41 @@ export function WorkflowForm({
         )}
 
         {triggerType === "no_activity_days" && (
-          <Field>
-            <FieldLabel htmlFor="triggerDays">Days without activity</FieldLabel>
-            <Input id="triggerDays" inputMode="numeric" {...register("triggerDays")} />
-            <FieldError errors={[errors.triggerDays]} />
-          </Field>
+          <>
+            <Field>
+              <FieldLabel htmlFor="triggerDays">Days without activity</FieldLabel>
+              <Input id="triggerDays" inputMode="numeric" {...register("triggerDays")} />
+              <FieldError errors={[errors.triggerDays]} />
+            </Field>
+            <Field>
+              <FieldLabel>Only in this stage (optional)</FieldLabel>
+              <Controller
+                control={control}
+                name="triggerStageId"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(v) => field.onChange(v ?? "")}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Any open stage">
+                        {(value: string) =>
+                          stages.find((s) => s.id === value)?.name ?? "Any open stage"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {stages.map((stage) => (
+                        <SelectItem key={stage.id} value={stage.id}>
+                          {stage.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </Field>
+          </>
         )}
 
         {triggerType === "no_next_action" && (
@@ -208,6 +249,22 @@ export function WorkflowForm({
             </FieldLabel>
             <Input id="triggerHours" inputMode="numeric" {...register("triggerHours")} />
             <FieldError errors={[errors.triggerHours]} />
+          </Field>
+        )}
+
+        {(triggerType === "no_activity_days" || triggerType === "no_next_action") && (
+          <Field>
+            <FieldLabel htmlFor="cooldownHours">Run again after (hours)</FieldLabel>
+            <Input
+              id="cooldownHours"
+              inputMode="numeric"
+              placeholder="Only once"
+              {...register("cooldownHours")}
+            />
+            <FieldDescription>
+              Leave blank to run once for each lead.
+            </FieldDescription>
+            <FieldError errors={[errors.cooldownHours]} />
           </Field>
         )}
 
@@ -289,6 +346,7 @@ export function WorkflowForm({
                 tags={tags}
                 sequences={sequences}
                 groups={groups}
+                members={members}
               />
             </CardContent>
           </Card>
@@ -311,6 +369,7 @@ interface ActionFieldsProps {
   tags: Tables<"tags">[];
   sequences: Tables<"sequences">[];
   groups: GroupWithMembers[];
+  members: WorkflowMemberOption[];
 }
 
 function ActionFields({
@@ -322,8 +381,11 @@ function ActionFields({
   tags,
   sequences,
   groups,
+  members,
 }: ActionFieldsProps) {
   const actionType = useWatch({ control, name: `actions.${index}.actionType` });
+  const notifyMode = useWatch({ control, name: `actions.${index}.notifyMode` });
+  const reassignMode = useWatch({ control, name: `actions.${index}.reassignMode` }) ?? "manager";
 
   if (actionType === "send_email_template") {
     return (
@@ -405,6 +467,161 @@ function ActionFields({
     );
   }
 
+  if (actionType === "notify_user") {
+    return (
+      <>
+        <Field>
+          <FieldLabel>Who gets the email</FieldLabel>
+          <Controller
+            control={control}
+            name={`actions.${index}.notifyMode`}
+            render={({ field }) => (
+              <Select
+                value={field.value ?? "manager"}
+                onValueChange={(v) => v && field.onChange(v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {(value: string) =>
+                      value === "member" ? "A specific teammate" : "The manager"
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manager">The manager</SelectItem>
+                  <SelectItem value="member">A specific teammate</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+          <FieldDescription>Internal email, not a message to the seller.</FieldDescription>
+        </Field>
+        <MemberSelect
+          index={index}
+          control={control}
+          members={members}
+          show={notifyMode === "member"}
+          error={errors.actions?.[index]?.userId}
+        />
+        <Field>
+          <FieldLabel htmlFor={`actions.${index}.subject`}>Subject (optional)</FieldLabel>
+          <Input id={`actions.${index}.subject`} {...register(`actions.${index}.subject`)} />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor={`actions.${index}.bodyTemplate`}>Message (optional)</FieldLabel>
+          <Textarea
+            id={`actions.${index}.bodyTemplate`}
+            rows={3}
+            {...register(`actions.${index}.bodyTemplate`)}
+          />
+        </Field>
+      </>
+    );
+  }
+
+  if (actionType === "reassign") {
+    return (
+      <>
+        <Field>
+          <FieldLabel>Reassign to</FieldLabel>
+          <Controller
+            control={control}
+            name={`actions.${index}.reassignMode`}
+            render={({ field }) => (
+              <Select
+                value={field.value ?? "manager"}
+                onValueChange={(v) => v && field.onChange(v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {(value: string) =>
+                      value === "member"
+                        ? "A specific teammate"
+                        : value === "group"
+                          ? "A routing group"
+                          : "The manager"
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manager">The manager</SelectItem>
+                  <SelectItem value="member">A specific teammate</SelectItem>
+                  <SelectItem value="group">A routing group</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </Field>
+        <MemberSelect
+          index={index}
+          control={control}
+          members={members}
+          show={reassignMode === "member"}
+          error={errors.actions?.[index]?.userId}
+        />
+        {reassignMode === "group" ? (
+          <GroupSelect index={index} control={control} groups={groups} errors={errors} />
+        ) : null}
+      </>
+    );
+  }
+
+  if (actionType === "create_task") {
+    return (
+      <>
+        <Field>
+          <FieldLabel htmlFor={`actions.${index}.taskTitle`}>Task title</FieldLabel>
+          <Input id={`actions.${index}.taskTitle`} {...register(`actions.${index}.taskTitle`)} />
+          <FieldError errors={[errors.actions?.[index]?.taskTitle]} />
+        </Field>
+        <Field>
+          <FieldLabel htmlFor={`actions.${index}.dueInDays`}>Due in days</FieldLabel>
+          <Input
+            id={`actions.${index}.dueInDays`}
+            inputMode="numeric"
+            placeholder="1"
+            {...register(`actions.${index}.dueInDays`)}
+          />
+          <FieldError errors={[errors.actions?.[index]?.dueInDays]} />
+        </Field>
+        <Field>
+          <FieldLabel>Priority</FieldLabel>
+          <Controller
+            control={control}
+            name={`actions.${index}.priority`}
+            render={({ field }) => (
+              <Select
+                value={field.value ?? "normal"}
+                onValueChange={(v) => v && field.onChange(v)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue>
+                    {(value: string) =>
+                      value === "high" ? "High" : value === "low" ? "Low" : "Normal"
+                    }
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="normal">Normal</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </Field>
+        <MemberSelect
+          index={index}
+          control={control}
+          members={members}
+          show
+          label="Assign to (optional)"
+          error={errors.actions?.[index]?.userId}
+        />
+      </>
+    );
+  }
+
   if (actionType === "assign_round_robin") {
     return (
       <Field>
@@ -462,6 +679,96 @@ function ActionFields({
         )}
       />
       <FieldError errors={[errors.actions?.[index]?.stageId]} />
+    </Field>
+  );
+}
+
+function MemberSelect({
+  index,
+  control,
+  members,
+  show,
+  label = "Teammate",
+  error,
+}: {
+  index: number;
+  control: ActionFieldsProps["control"];
+  members: WorkflowMemberOption[];
+  show: boolean;
+  label?: string;
+  error?: { message?: string };
+}) {
+  if (!show) {
+    return null;
+  }
+
+  return (
+    <Field>
+      <FieldLabel>{label}</FieldLabel>
+      <Controller
+        control={control}
+        name={`actions.${index}.userId`}
+        render={({ field }) => (
+          <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v ?? "")}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a teammate">
+                {(value: string) =>
+                  members.find((member) => member.userId === value)?.email ?? "Select a teammate"
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {members.map((member) => (
+                <SelectItem key={member.userId} value={member.userId}>
+                  {member.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      <FieldError errors={[error]} />
+    </Field>
+  );
+}
+
+function GroupSelect({
+  index,
+  control,
+  groups,
+  errors,
+}: {
+  index: number;
+  control: ActionFieldsProps["control"];
+  groups: GroupWithMembers[];
+  errors: ActionFieldsProps["errors"];
+}) {
+  return (
+    <Field>
+      <FieldLabel>Routing group</FieldLabel>
+      <Controller
+        control={control}
+        name={`actions.${index}.groupId`}
+        render={({ field }) => (
+          <Select value={field.value ?? ""} onValueChange={(v) => field.onChange(v ?? "")}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a group">
+                {(value: string) =>
+                  groups.find((group) => group.id === value)?.name ?? "Select a group"
+                }
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {groups.map((group) => (
+                <SelectItem key={group.id} value={group.id}>
+                  {group.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+      <FieldError errors={[errors.actions?.[index]?.groupId]} />
     </Field>
   );
 }
