@@ -1141,6 +1141,7 @@ export type Database = {
           account_id: string
           created_at: string
           created_by_user_id: string | null
+          duplicate_count: number
           error_summary: string | null
           failed_count: number
           id: string
@@ -1155,6 +1156,7 @@ export type Database = {
           account_id: string
           created_at?: string
           created_by_user_id?: string | null
+          duplicate_count?: number
           error_summary?: string | null
           failed_count?: number
           id?: string
@@ -1169,6 +1171,7 @@ export type Database = {
           account_id?: string
           created_at?: string
           created_by_user_id?: string | null
+          duplicate_count?: number
           error_summary?: string | null
           failed_count?: number
           id?: string

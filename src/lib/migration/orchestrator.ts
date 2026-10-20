@@ -1,5 +1,6 @@
 import { suggestMapping } from "@/lib/migration/adapters/create-adapter";
 import { getSourceAdapter } from "@/lib/migration/adapters/registry";
+import { duplicateCountForRecords } from "@/lib/migration/dedupe";
 import { detectSourceCrm } from "@/lib/migration/detect-source";
 import { parseCsv } from "@/lib/leads/csv-import";
 import type {
@@ -17,6 +18,7 @@ export function previewMigrationCsv(
   const adapter = detectSourceCrm(headers, preferredSource);
   const suggestedMapping = suggestMapping(adapter, headers);
   const records = buildRecords(rows, suggestedMapping, adapter);
+  const duplicateCount = duplicateCountForRecords(records);
   const stageNames = [
     ...new Set(
       records
@@ -33,6 +35,7 @@ export function previewMigrationCsv(
     suggestedMapping,
     stageNames,
     recordCount: rows.length,
+    duplicateCount,
   };
 }
 
