@@ -15,7 +15,7 @@ interface AuthPageProps {
 const WORKFLOW_STAGES = [
   { label: "Capture", detail: "Calls, forms, imports, and replies" },
   { label: "Qualify", detail: "Context, motivation, owner, and priority" },
-  { label: "Act", detail: "Conversation, task, sequence, or next step" },
+  { label: "Act", detail: "Conversation, task, or next step" },
 ] as const;
 
 function AuthFeedback({ error, message }: { error?: string; message?: string }) {

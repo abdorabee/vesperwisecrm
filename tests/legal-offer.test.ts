@@ -32,7 +32,7 @@ describe("legal pages and the live offer", () => {
       expect.arrayContaining([
         "Cancellation and refunds",
         "Auto-renewal",
-        "Calling and texting",
+        "Your data",
       ]),
     );
     const text = MARKETING_PAGES.terms.sections.map((section) => section.body).join("\n");

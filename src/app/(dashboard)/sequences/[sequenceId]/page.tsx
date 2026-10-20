@@ -1,4 +1,5 @@
 import { getSequenceDetail } from "@/lib/queries/sequences";
+import { redirectIfOutreachUiDisabled } from "@/lib/features/outreach-ui";
 import { SequenceForm } from "../_components/sequence-form";
 import type { SequenceInput } from "@/lib/validations/sequence";
 
@@ -9,6 +10,7 @@ interface SequenceDetailPageProps {
 export default async function SequenceDetailPage({
   params,
 }: SequenceDetailPageProps) {
+  redirectIfOutreachUiDisabled();
   const { sequenceId } = await params;
   const { sequence, steps } = await getSequenceDetail(sequenceId);
 

@@ -102,7 +102,7 @@
         transparent 1px
       );
     background-size: 56px 56px;
-    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+    mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
   }
 
   .mkt-rise {

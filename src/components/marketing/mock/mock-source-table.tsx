@@ -24,7 +24,7 @@ export const MARKETING_SOURCE_KPIS: MarketingSourceKpi[] = [
 
 export const MARKETING_SOURCE_ROWS: MarketingSourceRow[] = [
   { name: "PPC", pct: "88%", contracts: "12", cpc: "$1,410", accent: true },
-  { name: "Cold list", pct: "66%", contracts: "9", cpc: "$980", accent: true },
+  { name: "Imported list", pct: "66%", contracts: "9", cpc: "$980", accent: true },
   { name: "Probate", pct: "48%", contracts: "6", cpc: "$2,240" },
   { name: "Direct mail", pct: "34%", contracts: "4", cpc: "$3,110" },
   { name: "Referral", pct: "22%", contracts: "3", cpc: "$310" },

@@ -30,10 +30,12 @@ export function getDashboardNavigation({
   isAdmin,
   isPlatformAdmin,
   billingCapabilities,
+  outreachUiEnabled = false,
 }: {
   isAdmin: boolean;
   isPlatformAdmin: boolean;
   billingCapabilities?: readonly BillingCapability[];
+  outreachUiEnabled?: boolean;
 }): ProductNavGroup[] {
   const has = (capability: BillingCapability) =>
     billingCapabilities === undefined || billingCapabilities.includes(capability);
@@ -52,8 +54,12 @@ export function getDashboardNavigation({
     {
       label: "Engage",
       items: [
-        ...(has("dialer") ? [{ href: "/dialer", label: "Dialer", icon: PhoneCall }] : []),
-        ...(has("sequences") ? [{ href: "/sequences", label: "Sequences", icon: Gauge }] : []),
+        ...(outreachUiEnabled && has("dialer")
+          ? [{ href: "/dialer", label: "Dialer", icon: PhoneCall }]
+          : []),
+        ...(outreachUiEnabled && has("sequences")
+          ? [{ href: "/sequences", label: "Sequences", icon: Gauge }]
+          : []),
       ],
     },
     ...(has("workflows") ? [{ label: "Automate", items: [{ href: "/workflows", label: "Workflows", icon: Workflow }] }] : []),

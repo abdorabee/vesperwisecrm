@@ -21,18 +21,22 @@ import type { Tables } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { WorkspaceDateTime } from "@/components/workspace-formatting-context";
+import { leadCreatedActivityText } from "@/lib/activities/lead-created-text";
 import { sanitizeHtml, stripHtmlTags } from "@/lib/email/sanitize-html";
 
 function getPayload(activity: Tables<"activities">): Record<string, unknown> {
   return activity.payload as Record<string, unknown>;
 }
 
-function describeActivity(activity: Tables<"activities">): string {
+function describeActivity(
+  activity: Tables<"activities">,
+  names?: { leadName?: string | null; contactName?: string | null },
+): string {
   const payload = getPayload(activity);
 
   switch (activity.type) {
     case "lead_created":
-      return `Lead created: "${payload.title ?? ""}"`;
+      return leadCreatedActivityText(payload, names);
     case "stage_changed":
       return `Stage changed from ${payload.from_stage ?? "—"} to ${payload.to_stage ?? "—"}`;
     case "tag_added":
@@ -294,7 +298,13 @@ function TimelineItem({
   );
 }
 
-function ActivityItem({ activity }: { activity: Tables<"activities"> }) {
+function ActivityItem({
+  activity,
+  names,
+}: {
+  activity: Tables<"activities">;
+  names?: { leadName?: string | null; contactName?: string | null };
+}) {
   const payload = getPayload(activity);
   const isEmail =
     activity.type === "email_sent" || activity.type === "email_received";
@@ -308,7 +318,7 @@ function ActivityItem({ activity }: { activity: Tables<"activities"> }) {
   return (
     <TimelineItem icon={Icon}>
       <div className="flex flex-col gap-1 pb-1">
-        <p className="text-sm">{describeActivity(activity)}</p>
+        <p className="text-sm">{describeActivity(activity, names)}</p>
         {(isEmail || isSms || isNote) && <EmailBody activity={activity} />}
         <p className="text-xs text-muted-foreground tabular-nums">
           <WorkspaceDateTime value={activity.created_at} />
@@ -322,10 +332,12 @@ function EmailThreadItem({
   threadKey,
   subject,
   activities,
+  names,
 }: {
   threadKey: string;
   subject: string;
   activities: Tables<"activities">[];
+  names?: { leadName?: string | null; contactName?: string | null };
 }) {
   return (
     <TimelineItem icon={threadKey.startsWith("sms:") ? MessageSquare : Mail}>
@@ -339,7 +351,7 @@ function EmailThreadItem({
         </summary>
         <ul className="mt-3 flex flex-col gap-4 border-l border-border pl-4">
           {activities.map((activity) => (
-            <ActivityItem key={activity.id} activity={activity} />
+            <ActivityItem key={activity.id} activity={activity} names={names} />
           ))}
         </ul>
       </details>
@@ -353,9 +365,14 @@ function EmailThreadItem({
 
 export function ActivityFeed({
   activities,
+  leadName,
+  contactName,
 }: {
   activities: Tables<"activities">[];
+  leadName?: string | null;
+  contactName?: string | null;
 }) {
+  const names = { leadName, contactName };
   if (activities.length === 0) {
     return (
       <div className="flex flex-col items-center gap-2 py-8 text-center">
@@ -376,9 +393,10 @@ export function ActivityFeed({
             threadKey={item.threadKey}
             subject={item.subject}
             activities={item.activities}
+            names={names}
           />
         ) : (
-          <ActivityItem key={item.activity.id} activity={item.activity} />
+          <ActivityItem key={item.activity.id} activity={item.activity} names={names} />
         ),
       )}
     </ul>

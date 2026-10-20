@@ -15,7 +15,8 @@ interface MarketingNavLink {
 
 const NAV_LINKS: MarketingNavLink[] = [
   { label: "Product", href: "/home#ch1" },
-  { label: "Automation", href: "/home#ch5" },
+  { label: "Pipeline", href: "/home#ch4" },
+  { label: "Scorecard", href: "/home#ch6" },
   { label: "Teams", href: "/home#proof" },
   { label: "Pricing", href: "/home#pricing" },
 ];
@@ -53,7 +54,7 @@ export function MarketingNav() {
         <div className="hidden items-center gap-1 md:flex">
           {NAV_LINKS.map((link) => (
             <Link
-              key={link.href}
+              key={`${link.href}-${link.label}`}
               href={link.href}
               className="rounded-md px-3 py-2 text-sm text-[var(--mkt-text2)] transition-colors duration-150 hover:bg-[var(--mkt-bg2)] hover:text-[var(--mkt-text)]"
             >

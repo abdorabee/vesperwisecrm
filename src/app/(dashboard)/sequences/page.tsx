@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { getSequences } from "@/lib/queries/sequences";
+import { redirectIfOutreachUiDisabled } from "@/lib/features/outreach-ui";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function SequencesPage() {
+  redirectIfOutreachUiDisabled();
   const sequences = await getSequences();
 
   return (

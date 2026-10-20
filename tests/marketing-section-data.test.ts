@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 import {
-  MARKETING_DAY_SEQUENCE,
+  MARKETING_DAY_PLAN,
   MARKETING_ENGAGE_STATS,
   MARKETING_FUNNEL_BARS,
   MARKETING_INTAKE_FILTERS,
@@ -16,7 +16,7 @@ describe("marketing Intake, Qualify, and Engage data", () => {
   test("keeps approved intake sources, filters, and computed funnel bars", () => {
     expect(MARKETING_INTAKE_SOURCES).toEqual([
       { n: "01", label: "PPC, SEO and inbound seller forms", meta: "REAL TIME" },
-      { n: "02", label: "Cold lists, direct mail and probate records", meta: "CSV / API" },
+      { n: "02", label: "Imported lists, direct mail, and probate records", meta: "CSV / API" },
       { n: "03", label: "Duplicate detection on import", meta: "AUTO" },
     ]);
     expect(
@@ -67,9 +67,9 @@ describe("marketing Intake, Qualify, and Engage data", () => {
 
   test("keeps approved engage stats, waveform, queue, and sequence", () => {
     expect(MARKETING_ENGAGE_STATS).toEqual([
-      { label: "Email sequences", value: "Live" },
-      { label: "Contact timeline", value: "Live" },
-      { label: "Pipeline stages", value: "Live" },
+      { label: "Notes", value: "On the lead" },
+      { label: "Tasks", value: "On the lead" },
+      { label: "Owner", value: "On the lead" },
     ]);
 
     expect(MARKETING_WAVEFORM_BARS).toHaveLength(48);
@@ -90,14 +90,15 @@ describe("marketing Intake, Qualify, and Engage data", () => {
       "W. Nkemdirim · 41",
     ]);
 
-    expect(MARKETING_DAY_SEQUENCE).toEqual([
-      { day: "D1", action: "Call + voicemail drop", state: 2 },
-      { day: "D1", action: "SMS: cash offer intro", state: 2 },
-      { day: "D2", action: "Email: process outline", state: 2 },
-      { day: "D3", action: "Call attempt 2", state: 1 },
-      { day: "D5", action: "SMS check-in", state: 0 },
+    expect(MARKETING_DAY_PLAN).toEqual([
+      { day: "D1", action: "Call + voicemail drop", state: 0 },
+      { day: "D1", action: "Note: offer context", state: 0 },
+      { day: "D2", action: "Email: process outline", state: 0 },
+      { day: "D3", action: "Call attempt 2", state: 0 },
+      { day: "D5", action: "Task check-in", state: 0 },
       { day: "D6", action: "Email: comps + offer", state: 0 },
       { day: "D7", action: "Final call, then nurture", state: 0 },
     ]);
+    expect(JSON.stringify(MARKETING_DAY_PLAN).toLowerCase()).not.toMatch(/sms|sequence|dial/);
   });
 });

@@ -19,7 +19,7 @@ export function Testimonials() {
 
         <div className="mt-12 rounded-[14px] border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] p-8 shadow-[0_18px_50px_color-mix(in_oklch,var(--mkt-text)_6%,transparent)]">
           <p className="font-sans text-[15px] leading-[1.65] font-light text-[var(--mkt-text2)]">
-            VesperWiseCRM is in early access. Pipeline management, email sequences, and the lead queue are live.
+            VesperWiseCRM is in early access. Pipeline and lead queue are live.
             Every new workspace gets Team free for 60 days, with no card. Book a demo if you want a walkthrough before you sign up.
           </p>
         </div>

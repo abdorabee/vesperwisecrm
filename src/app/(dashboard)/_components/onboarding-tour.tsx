@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 interface OnboardingTourProps {
   isAdmin: boolean;
   includeWorkflows: boolean;
+  includeOutreach?: boolean;
 }
 
 interface TourStep {
@@ -70,7 +71,11 @@ const TOUR_STEPS: TourStep[] = [
   },
 ];
 
-export function OnboardingTour({ isAdmin, includeWorkflows }: OnboardingTourProps) {
+export function OnboardingTour({
+  isAdmin,
+  includeWorkflows,
+  includeOutreach = false,
+}: OnboardingTourProps) {
   const { open, setOpen, closeTour } = useOnboardingTour();
   const [stepIndex, setStepIndex] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -81,9 +86,10 @@ export function OnboardingTour({ isAdmin, includeWorkflows }: OnboardingTourProp
       TOUR_STEPS.filter((step) => {
         if (step.adminOnly && !isAdmin) return false;
         if (step.route === "/workflows" && !includeWorkflows) return false;
+        if (step.route === "/sequences" && !includeOutreach) return false;
         return true;
       }),
-    [includeWorkflows, isAdmin],
+    [includeOutreach, includeWorkflows, isAdmin],
   );
   const currentStep = steps[stepIndex] ?? steps[0];
   const isFirstStep = stepIndex === 0;

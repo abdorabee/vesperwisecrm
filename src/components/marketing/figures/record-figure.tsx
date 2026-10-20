@@ -26,7 +26,7 @@ const RECORD_LAYERS: Layer[] = [
     index: 1,
     path: "M 62 224 L 150 180 L 238 224 L 150 268 Z",
     connectorY: 224,
-    label: "OWNER · VERIFIED",
+    label: "OWNER",
     accent: false,
     delay: "0.21s",
   },
@@ -42,7 +42,7 @@ const RECORD_LAYERS: Layer[] = [
     index: 3,
     path: "M 62 156 L 150 112 L 238 156 L 150 200 Z",
     connectorY: 156,
-    label: "PHONES · 3 VERIFIED",
+    label: "PHONES · VERIFICATION COMING SOON",
     accent: true,
     delay: "0.39s",
   },
@@ -70,7 +70,7 @@ const layerClassName =
 export function RecordFigure({ className }: RecordFigureProps) {
   return (
     <svg
-      viewBox="0 0 420 340"
+      viewBox="0 0 520 340"
       className={cn("block h-auto w-full", className)}
       role="img"
       aria-label="Isometric figure: one seller record built from six stacked data layers"

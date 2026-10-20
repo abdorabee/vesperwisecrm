@@ -1,8 +1,10 @@
 import { PageHeader } from "@/components/page-header";
 import { getDialerPageData } from "@/lib/queries/dialer";
+import { redirectIfOutreachUiDisabled } from "@/lib/features/outreach-ui";
 import { DialerWorkspace } from "./_components/dialer-workspace";
 
 export default async function DialerPage() {
+  redirectIfOutreachUiDisabled();
   const data = await getDialerPageData();
   return (
     <div className="flex flex-col gap-6">

@@ -45,9 +45,8 @@ describe("marketing footer destinations", () => {
     expect(product?.links).toEqual([
       { label: "Lead queue", href: "/home#ch1" },
       { label: "Pipeline", href: "/home#ch4" },
-      { label: "Email sequences", href: "/home#ch5" },
       { label: "Workflows", href: "/home#ch5" },
-      { label: "Reporting", href: "/home#ch6" },
+      { label: "Scorecard", href: "/home#ch6" },
     ]);
     expect(product?.links.map((link) => link.label)).not.toContain("Skip tracing");
   });
@@ -92,7 +91,21 @@ describe("marketing public paths", () => {
       "src/app/(marketing)/pricing/page.tsx",
       "utf8",
     );
-    expect(pricingPage).toContain("The founding offer is $600.");
+    expect(pricingPage).toContain("Founding license: $600 once. 5 spots.");
+    expect(pricingPage).toContain(
+      "Includes done-for-you setup, 5 seats, and every future update.",
+    );
+    expect(pricingPage).toContain("Full refund if you cancel within your first month.");
+    expect(pricingPage).toContain(
+      "After the 5 founding spots, new teams go on the subscription.",
+    );
+    expect(pricingPage).toContain(
+      "Or start free: every new workspace gets 60 days free, no card.",
+    );
+    expect(pricingPage).toContain("Claim a founding spot");
+    expect(pricingPage).toContain("Book a 15-min call");
+    expect(pricingPage).toContain('href="/book-demo"');
+    expect(pricingPage).not.toContain("Checkout for the founding offer is on Polar.");
     expect(pricingPage).toContain("NEXT_PUBLIC_POLAR_FOUNDING_CHECKOUT_URL");
     expect(pricingPage).toContain('"/signup"');
     expect(isMarketingPublicPath("/solutions/wholesalers")).toBe(true);

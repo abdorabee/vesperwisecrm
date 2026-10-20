@@ -18,9 +18,8 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: "Lead queue", href: "/home#ch1" },
       { label: "Pipeline", href: "/home#ch4" },
-      { label: "Email sequences", href: "/home#ch5" },
       { label: "Workflows", href: "/home#ch5" },
-      { label: "Reporting", href: "/home#ch6" },
+      { label: "Scorecard", href: "/home#ch6" },
     ],
   },
   {

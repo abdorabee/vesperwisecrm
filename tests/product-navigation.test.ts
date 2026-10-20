@@ -9,7 +9,6 @@ describe("product navigation", () => {
       "Workspace",
       "Sales",
       "Capture",
-      "Engage",
       "Automate",
       "Insights",
     ]);
@@ -18,8 +17,6 @@ describe("product navigation", () => {
       "/pipeline",
       "/queue",
       "/intake",
-      "/dialer",
-      "/sequences",
       "/workflows",
       "/scorecard",
     ]);
@@ -56,8 +53,20 @@ describe("product navigation", () => {
     expect(hrefsFor("team", "billing_required")).not.toContain("/dialer");
     expect(hrefsFor("team", "billing_required")).not.toContain("/workflows");
     expect(hrefsFor("team", "billing_required")).toContain("/pipeline");
+    expect(hrefsFor("team", "full")).not.toContain("/dialer");
+    expect(hrefsFor("team", "full")).not.toContain("/sequences");
     expect(hrefsFor("team", "full")).toEqual(
-      expect.arrayContaining(["/dialer", "/workflows", "/pipeline"]),
+      expect.arrayContaining(["/workflows", "/pipeline"]),
     );
+    expect(
+      getDashboardNavigation({
+        isAdmin: false,
+        isPlatformAdmin: false,
+        billingCapabilities: getBillableNavCapabilities("team", "full"),
+        outreachUiEnabled: true,
+      })
+        .flatMap((group) => group.items)
+        .map((item) => item.href),
+    ).toEqual(expect.arrayContaining(["/dialer", "/sequences", "/workflows"]));
   });
 });

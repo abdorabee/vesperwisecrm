@@ -356,7 +356,11 @@ export async function createLeadRecord(
     type: "lead_created",
     actor_user_id: input.actorUserId ?? null,
     payload: {
-      title: input.title,
+      title: input.title.trim(),
+      contact_name:
+        [normalizeOptionalText(input.firstName), normalizeOptionalText(input.lastName)]
+          .filter(Boolean)
+          .join(" ") || null,
       source: normalizeOptionalText(input.source),
     },
   });

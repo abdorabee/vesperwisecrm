@@ -143,6 +143,7 @@ interface AccountMenuProps {
   isAdmin: boolean;
   isPlatformAdmin: boolean;
   billingCapabilities?: readonly BillingCapability[];
+  outreachUiEnabled?: boolean;
   collapsed?: boolean;
 }
 
