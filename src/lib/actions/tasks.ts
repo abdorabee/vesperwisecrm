@@ -74,6 +74,7 @@ export async function createLeadTask(
   });
 
   revalidatePath("/");
+  revalidatePath("/pipeline");
   revalidatePath(`/leads/${leadId}`);
 
   return { taskId: task.id };
@@ -164,6 +165,7 @@ export async function completeLeadTask(
   ]);
 
   revalidatePath("/");
+  revalidatePath("/pipeline");
   revalidatePath(`/leads/${task.lead_id}`);
 
   return { nextTaskId: nextTask.id };
