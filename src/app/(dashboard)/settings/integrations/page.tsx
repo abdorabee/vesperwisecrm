@@ -7,6 +7,7 @@ import { getDialerCredentialStatus } from "@/lib/queries/dialer-credentials";
 import { isAccountEmailReady } from "@/lib/email/account-settings";
 import { isGoogleConfigured } from "@/lib/google/client";
 import { SettingsPageHeader, SettingsSection, ConnectionStatus } from "@/components/settings/settings-primitives";
+import { isOutreachUiEnabled } from "@/lib/features/outreach-ui";
 
 export default async function IntegrationsSettingsPage() {
   await requireSettingsAdmin();
@@ -23,7 +24,7 @@ export default async function IntegrationsSettingsPage() {
         <div className="space-y-3">
           <Link href="/settings/email"><ConnectionStatus connected={isAccountEmailReady(email)} label="Resend email" detail={email?.sending_domain ?? "Set up a verified sending domain"} /></Link>
           <Link href="/settings/google"><ConnectionStatus connected={Boolean(google) && isGoogleConfigured()} label="Google Docs and Drive" detail={google?.connectedEmail ?? (isGoogleConfigured() ? "Ready to connect" : "OAuth environment variables are not configured")} /></Link>
-          {billingCapabilities.includes("dialer") ? (
+          {isOutreachUiEnabled() && billingCapabilities.includes("dialer") ? (
             <Link href="/settings/calling"><ConnectionStatus connected={twilio.connected && twilio.status === "active"} label="Twilio calling" detail={twilio.fromNumber ?? "Connect your workspace-owned Twilio account"} /></Link>
           ) : null}
           <Link href="/settings/data-migration" className="flex items-start justify-between gap-4 rounded-lg border border-border bg-muted/30 p-4">

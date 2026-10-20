@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
 import { VesperWiseLogo } from "@/components/vesper-wise-logo";
 import { MarketingThemeToggle } from "@/components/marketing/marketing-theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -12,14 +11,12 @@ import { cn } from "@/lib/utils";
 interface MarketingNavLink {
   label: string;
   href: string;
-  comingSoon?: boolean;
 }
 
 const NAV_LINKS: MarketingNavLink[] = [
   { label: "Product", href: "/home#ch1" },
-  { label: "Email sequences", href: "/home#ch5", comingSoon: true },
-  { label: "Dialer", href: "/home#ch3", comingSoon: true },
-  { label: "Automation", href: "/home#ch5" },
+  { label: "Pipeline", href: "/home#ch4" },
+  { label: "Scorecard", href: "/home#ch6" },
   { label: "Teams", href: "/home#proof" },
   { label: "Pricing", href: "/home#pricing" },
 ];
@@ -59,10 +56,9 @@ export function MarketingNav() {
             <Link
               key={`${link.href}-${link.label}`}
               href={link.href}
-              className="inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--mkt-text2)] transition-colors duration-150 hover:bg-[var(--mkt-bg2)] hover:text-[var(--mkt-text)]"
+              className="rounded-md px-3 py-2 text-sm text-[var(--mkt-text2)] transition-colors duration-150 hover:bg-[var(--mkt-bg2)] hover:text-[var(--mkt-text)]"
             >
               {link.label}
-              {link.comingSoon ? <ComingSoonPill /> : null}
             </Link>
           ))}
         </div>

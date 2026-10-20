@@ -29,7 +29,7 @@ const PRICING_TIERS: MarketingPricingTier[] = [
     blurb: "For solo investors and two-person teams getting off spreadsheets.",
     features: [
       "Lead queue + pipeline",
-      "Email sequences",
+      "Notes, tasks, and owners",
       "Contact management",
       "1,000 leads / mo",
     ],
@@ -42,10 +42,10 @@ const PRICING_TIERS: MarketingPricingTier[] = [
     cadence: "/ SEAT / MO",
     badge: "MOST COMMON",
     blurb:
-      "For acquisition teams running paid channels and cold lists side by side.",
+      "For acquisition teams sharing one pipeline.",
     features: [
       "Workflows and routing",
-      "Dialer",
+      "Scorecard",
       "AI",
       "Unlimited leads",
     ],

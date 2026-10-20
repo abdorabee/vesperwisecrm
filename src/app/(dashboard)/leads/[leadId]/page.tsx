@@ -32,6 +32,7 @@ import { getLeadCallHistory } from "@/lib/queries/dialer";
 import { Badge } from "@/components/ui/badge";
 import { ContactDoNotCallControl } from "@/components/dialer/contact-do-not-call-control";
 import { isDialerEnabled } from "@/lib/dialer/config";
+import { isOutreachUiEnabled } from "@/lib/features/outreach-ui";
 import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
 import { formatWorkspaceCurrency, formatWorkspaceDateTime } from "@/lib/workspace-settings";
 
@@ -148,18 +149,20 @@ export default async function LeadDetailPage({ params }: LeadDetailPageProps) {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Sequences</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SequenceEnrollmentPanel
-                leadId={lead.id}
-                enrollments={enrollments}
-                availableSequences={sequences}
-              />
-            </CardContent>
-          </Card>
+          {isOutreachUiEnabled() ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Sequences</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SequenceEnrollmentPanel
+                  leadId={lead.id}
+                  enrollments={enrollments}
+                  availableSequences={sequences}
+                />
+              </CardContent>
+            </Card>
+          ) : null}
 
           <Card>
             <CardHeader>

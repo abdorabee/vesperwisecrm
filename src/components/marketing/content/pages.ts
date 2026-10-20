@@ -36,15 +36,15 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Wholesalers",
     title: "Keep every contract on a next step.",
     description:
-      "Pipeline, email sequences, and the lead queue sit on one record so assignments do not die in a spreadsheet between acquisition and disposition.",
+      "The pipeline and the lead queue sit on one record so assignments do not die in a spreadsheet between acquisition and disposition.",
     sections: [
       {
-        heading: "One queue for paid and cold traffic",
-        body: "PPC, lists, referrals, and inbound forms land in the same qualification queue. Scoring and ownership are visible before anyone picks up the phone.",
+        heading: "One queue for every source",
+        body: "Forms, lists, referrals, and inbound messages land in the same qualification queue. Ownership is visible before anyone opens the lead.",
       },
       {
         heading: "Follow-up that does not depend on memory",
-        body: "Email and SMS sequences stay attached to the lead. When a seller revives after ninety days, the conversation history is already on the record.",
+        body: "Notes, tasks, and the owner stay on the lead. When a seller returns after ninety days, the history is already on the record.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -72,15 +72,15 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Buy and hold",
     title: "Work seller conversations like a portfolio.",
     description:
-      "Longer holds need longer follow-up. Sequences, tasks, and a shared pipeline keep off-market opportunities alive without a dedicated VA watching a sheet.",
+      "Longer holds need a shared record. Tasks and a shared pipeline keep off-market opportunities visible without a dedicated VA watching a sheet.",
     sections: [
       {
         heading: "Nurture without losing the thread",
-        body: "A seller who is not ready this quarter still has a next step. Sequences and reminders fire from the record, not from someone's inbox.",
+        body: "A seller who is not ready this quarter still has a next task. The owner and the due date sit on the record, not in someone's inbox.",
       },
       {
         heading: "Reporting that matches how you buy",
-        body: "See what is in qualification, what is under contract, and what went cold — without exporting five tools into a weekly deck.",
+        body: "See what is in qualification, what is under contract, and what stalled — without exporting five tools into a weekly deck.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -90,7 +90,7 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     eyebrow: "Solutions / Agents",
     title: "Treat listing and buyer leads like acquisition work.",
     description:
-      "VesperWise is built for teams that live in conversations: pipeline, email sequences, and the lead queue keep follow-up moving after the first touch.",
+      "VesperWise is a pipeline CRM: stages, the lead queue, notes, and owners keep the next step visible after the first conversation.",
     sections: [
       {
         heading: "Every conversation on the record",
@@ -141,7 +141,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Workflows and reporting",
-        body: "Sequences and workflows own follow-up. Reporting shows what moved, what stalled, and who owns the next step.",
+        body: "Tasks and owners keep the next step. The scorecard shows what moved, what stalled, and who owns it.",
       },
     ],
     cta: { label: "See the workflow", href: "/home#ch1" },
@@ -159,7 +159,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Week two: follow up and pipeline",
-        body: "Turn on email sequences, assign ownership, and move leads through pipeline stages. An in-app tour walks signed-in members through the same path.",
+        body: "Assign an owner and move leads through pipeline stages. An in-app tour walks signed-in members through the same path.",
       },
     ],
     cta: { label: "Start free trial", href: "/signup" },
@@ -173,7 +173,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Current",
-        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. Pipeline and lead queue are live. Email sequences: coming soon. The CRM is available in early access after sign-in.",
+        body: "Public marketing pages, a book-a-demo calendar, and working footer destinations. Pipeline and lead queue are live. The CRM is available in early access after sign-in.",
       },
       {
         heading: "Next",
@@ -198,8 +198,8 @@ export const MARKETING_PAGES = {
         body: "Generate a property report into Docs and store it in Drive from the lead, using the account's connected Google client.",
       },
       {
-        heading: "Twilio",
-        body: "SMS sequences (coming soon) will use a connected Twilio account. Email sequences: coming soon.",
+        heading: "Phone numbers on the record",
+        body: "A workspace can store the phone number that belongs on the lead. The public product is the pipeline, not an outbound campaign tool.",
       },
     ],
     cta: { label: "Talk to sales", href: "/contact" },
@@ -213,7 +213,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "See the product",
-        body: "A 30-minute demo covers intake, the queue, the dialer, and pipeline against your workflow. No card required.",
+        body: "A 30-minute demo covers intake, the queue, and the pipeline against your workflow. No card required.",
       },
       {
         heading: "Account help",
@@ -235,7 +235,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Not a generic CRM with a real-estate coat",
-        body: "The queue, pipeline, email sequences, and property fields are the product. Interface examples on the marketing site are illustrative, not customer proof.",
+        body: "The queue, pipeline, notes, tasks, owners, and property fields are the product. Interface examples on the marketing site are illustrative, not customer proof.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -308,7 +308,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Subprocessors",
-        body: "Supabase stores workspace data and handles sign-in. Polar processes Starter and Team checkout, invoices, and cancellation. Resend sends workspace email and signup messages when email is configured. AI scoring and call-note parsing send lead text to Anthropic when that feature is configured and the plan includes it. Calls use the Twilio account the workspace connects. SMS uses Twilio when platform SMS credentials are set. Google Docs and Drive run only after a workspace connects Google.",
+        body: "Supabase stores workspace data and handles sign-in. Polar processes Starter and Team checkout, invoices, and cancellation. Resend sends workspace email and signup messages when email is configured. AI scoring and note parsing send lead text to Anthropic when that feature is configured and the plan includes it. Google Docs and Drive run only after a workspace connects Google.",
       },
       {
         heading: "Retention and deletion",
@@ -349,8 +349,8 @@ export const MARKETING_PAGES = {
         body: "A paid Starter or Team subscription renews each month through Polar until an admin cancels it at period end. There is no annual plan.",
       },
       {
-        heading: "Calling and texting",
-        body: "Calls use the Twilio account a workspace admin connects in Calling settings. A call is refused when that phone number is marked Do Not Call. A sequence step set to SMS sends a text to the phone number on the contact when platform Twilio SMS credentials are configured, and that send does not check Do Not Call or an opt-out flag. Marketing email steps skip contacts whose email is marked opted out. A platform admin can suspend a workspace's outbound email. You are responsible for the calls and texts sent from your workspace.",
+        heading: "Your data",
+        body: "You are responsible for the data you import and for credentials you connect. A platform admin can suspend a workspace's outbound email. Marketing email skips contacts whose email is marked opted out.",
       },
     ],
     cta: { label: "See pricing", href: "/home#pricing" },
@@ -368,7 +368,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Dependencies",
-        body: "Email sequences depend on providers you connect. An outage there can affect sending even when the CRM is up.",
+        body: "Connected providers can affect email delivery even when the CRM is up.",
       },
     ],
     cta: { label: "Contact", href: "/contact" },

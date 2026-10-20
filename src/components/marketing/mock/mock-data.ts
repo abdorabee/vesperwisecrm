@@ -16,7 +16,7 @@ export const MARKETING_HERO_COPY: MarketingHeroCopy = {
   eyebrow: "ACQUISITION CRM / REAL ESTATE",
   title: "Every lead worked. Nothing goes cold.",
   subhead:
-    "VesperWiseCRM is the acquisition system for real estate teams. Pipeline and lead queue are live. Email sequences: coming soon.",
+    "VesperWiseCRM is the pipeline CRM for real estate teams. Leads, stages, notes, tasks, and owners stay on one record.",
   primaryCta: "Book a demo",
   secondaryCta: "See the workflow",
   note: "No card. Team free for 60 days.",
@@ -46,7 +46,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
   {
     name: "Denise Okoro",
     address: "882 Ridgeline Ct · Fort Wayne, IN",
-    source: "Cold list",
+    source: "Imported list",
     stage: "Contacted",
     score: 78,
     touch: "22m ago",
@@ -86,7 +86,7 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
   {
     name: "Walter Nkemdirim",
     address: "3312 Brookville Rd · Terre Haute, IN",
-    source: "Cold list",
+    source: "Imported list",
     stage: "No contact",
     score: 41,
     touch: "1d ago",
@@ -101,7 +101,7 @@ export interface MarketingHeroActivityEvent {
 
 export const MARKETING_HERO_ACTIVITY: MarketingHeroActivityEvent[] = [
   {
-    text: "Lead added from a cold list",
+    text: "Lead added from an imported list",
     time: "TODAY 09:14",
     accent: false,
   },
@@ -167,7 +167,7 @@ export const MARKETING_PREMISE_STEPS: MarketingPremiseStep[] = [
     number: "01",
     label: "Capture",
     caption:
-      "Every source — PPC, cold lists, referrals, probate — lands in one queue. No CSV shuffling.",
+      "Every source — PPC, imported lists, referrals, probate — lands in one queue. No CSV shuffling.",
   },
   {
     figureLabel: "FIG 0.3",
@@ -195,7 +195,7 @@ export const MARKETING_INTAKE_SOURCES: MarketingIntakeSource[] = [
   { n: "01", label: "PPC, SEO and inbound seller forms", meta: "REAL TIME" },
   {
     n: "02",
-    label: "Cold lists, direct mail and probate records",
+    label: "Imported lists, direct mail, and probate records",
     meta: "CSV / API",
   },
   { n: "03", label: "Duplicate detection on import", meta: "AUTO" },
@@ -271,9 +271,9 @@ export interface MarketingEngageStat {
 }
 
 export const MARKETING_ENGAGE_STATS: MarketingEngageStat[] = [
-  { label: "Email sequences", value: "Coming soon", comingSoon: true },
-  { label: "Notes, tasks, and owner", value: "On the lead" },
-  { label: "Pipeline stages", value: "Live" },
+  { label: "Notes", value: "On the lead" },
+  { label: "Tasks", value: "On the lead" },
+  { label: "Owner", value: "On the lead" },
 ];
 
 export interface MarketingWaveformBar {
@@ -302,20 +302,20 @@ export const MARKETING_UP_NEXT: string[] = [
   "W. Nkemdirim · 41",
 ];
 
-export type MarketingSequenceState = 0 | 1 | 2;
+export type MarketingPlanState = 0 | 1 | 2;
 
-export interface MarketingDaySequenceStep {
+export interface MarketingDayPlanStep {
   day: string;
   action: string;
-  state: MarketingSequenceState;
+  state: MarketingPlanState;
 }
 
-export const MARKETING_DAY_SEQUENCE: MarketingDaySequenceStep[] = [
+export const MARKETING_DAY_PLAN: MarketingDayPlanStep[] = [
   { day: "D1", action: "Call + voicemail drop", state: 0 },
-  { day: "D1", action: "SMS: cash offer intro", state: 0 },
+  { day: "D1", action: "Note: offer context", state: 0 },
   { day: "D2", action: "Email: process outline", state: 0 },
   { day: "D3", action: "Call attempt 2", state: 0 },
-  { day: "D5", action: "SMS check-in", state: 0 },
+  { day: "D5", action: "Task check-in", state: 0 },
   { day: "D6", action: "Email: comps + offer", state: 0 },
   { day: "D7", action: "Final call, then nurture", state: 0 },
 ];
@@ -331,8 +331,8 @@ export interface DemoQueueLead {
 
 export const DEMO_QUEUE_LEADS: DemoQueueLead[] = [
   { name: "3412 Larkspur Ave", source: "PPC form", score: 92, temperature: "hot" },
-  { name: "Duplex — Cedar Hills", source: "Cold call", score: 81, temperature: "hot" },
-  { name: "104 Bellamy Ct", source: "SMS reply", score: 64, temperature: "warm" },
+  { name: "Duplex — Cedar Hills", source: "Referral", score: 81, temperature: "hot" },
+  { name: "104 Bellamy Ct", source: "Form reply", score: 64, temperature: "warm" },
   { name: "Vacant lot — Rte 9", source: "List import", score: 47, temperature: "warm" },
   { name: "88 Winslow Dr", source: "Referral", score: 22, temperature: "cold" },
 ];
@@ -370,19 +370,19 @@ export const DEMO_PIPELINE: DemoPipelineColumn[] = [
   },
 ];
 
-export interface DemoSequenceStep {
-  channel: "email" | "sms" | "call";
+export interface DemoPlanStep {
+  channel: "email" | "task" | "note";
   label: string;
   timing: string;
   status: "scheduled" | "waiting";
 }
 
-export const DEMO_SEQUENCE: DemoSequenceStep[] = [
+export const DEMO_PLAN: DemoPlanStep[] = [
   { channel: "email", label: "Intro + cash offer range", timing: "Day 0", status: "scheduled" },
-  { channel: "sms", label: "Quick follow-up text", timing: "Day 1", status: "scheduled" },
-  { channel: "call", label: "Qualification call", timing: "Day 2", status: "scheduled" },
+  { channel: "task", label: "Quick follow-up task", timing: "Day 1", status: "scheduled" },
+  { channel: "note", label: "Qualification note", timing: "Day 2", status: "scheduled" },
   { channel: "email", label: "Comps + timeline", timing: "Day 4", status: "scheduled" },
-  { channel: "sms", label: "Still interested?", timing: "Day 7", status: "waiting" },
+  { channel: "note", label: "Still interested?", timing: "Day 7", status: "waiting" },
 ];
 
 export interface DemoKpi {
@@ -412,20 +412,20 @@ export const DEMO_STAGE_BARS: DemoBar[] = [
 export interface DemoScorecardRow {
   initials: string;
   name: string;
-  dials: number;
+  tasks: number;
   deals: number;
 }
 
 export const DEMO_SCORECARD: DemoScorecardRow[] = [
-  { initials: "MK", name: "M. Keller", dials: 148, deals: 6 },
-  { initials: "JR", name: "J. Ruiz", dials: 131, deals: 5 },
-  { initials: "AT", name: "A. Tran", dials: 117, deals: 4 },
-  { initials: "DB", name: "D. Boone", dials: 92, deals: 2 },
+  { initials: "MK", name: "M. Keller", tasks: 148, deals: 6 },
+  { initials: "JR", name: "J. Ruiz", tasks: 131, deals: 5 },
+  { initials: "AT", name: "A. Tran", tasks: 117, deals: 4 },
+  { initials: "DB", name: "D. Boone", tasks: 92, deals: 2 },
 ];
 
 export const DEMO_WORDMARKS: string[] = [
   "Apex Homebuyers",
-  "Northline Dials",
+  "Northline Homes",
   "Bluecreek Land Co",
   "Summit Acquisitions",
   "Irongate Realty",
@@ -457,7 +457,7 @@ export interface DemoTestimonial {
 export const DEMO_TESTIMONIALS: DemoTestimonial[] = [
   {
     quote:
-      "We used to lose deals because a lead sat untouched for a week. Now every lead has a next action and the sequences run whether we remember or not.",
+      "We used to lose deals because a lead sat untouched for a week. Now every lead has an owner and a next task.",
     initials: "AL",
     persona: "Acquisitions Lead",
     detail: "Land-flipping team, 6 seats",
@@ -467,11 +467,11 @@ export const DEMO_TESTIMONIALS: DemoTestimonial[] = [
       "The AI call summaries alone pay for it. My closers stopped taking notes and started closing — I read the summary and know exactly where a deal stands.",
     initials: "AO",
     persona: "Agency Owner",
-    detail: "Cold-calling agency, 14 seats",
+    detail: "Brokerage, 14 seats",
   },
   {
     quote:
-      "The TV wall changed the floor. Everyone can see dials, deals, and who's on top — we stopped chasing reports and the numbers went up on their own.",
+      "The scorecard changed the floor. Everyone can see tasks, deals, and who's on top — we stopped chasing reports and the numbers went up on their own.",
     initials: "SM",
     persona: "Sales Manager",
     detail: "Wholesaling operation, 9 seats",
@@ -496,7 +496,7 @@ export const DEMO_PRICING_TIERS: DemoPricingTier[] = [
     features: [
       "Lead intake forms + API",
       "Kanban pipeline",
-      "Email sequences",
+      "Notes, tasks, and owners",
       "Mobile PWA",
     ],
   },
@@ -508,7 +508,7 @@ export const DEMO_PRICING_TIERS: DemoPricingTier[] = [
     features: [
       "Everything in Solo",
       "AI lead scoring + call summaries",
-      "SMS sequences + workflows",
+      "Tasks and workflows",
       "Scorecards + TV KPI wall",
       "Team roles & permissions",
     ],

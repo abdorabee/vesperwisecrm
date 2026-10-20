@@ -18,6 +18,7 @@ import { isAccountEmailReady } from "@/lib/email/account-settings";
 import { formatWorkspaceDate } from "@/lib/workspace-settings";
 import { YourDay } from "./_components/your-day";
 import { GettingStartedChecklist } from "./_components/getting-started-checklist";
+import { isOutreachUiEnabled } from "@/lib/features/outreach-ui";
 
 const AT_RISK_PREVIEW_COUNT = 8;
 
@@ -72,7 +73,7 @@ export default async function DashboardPage() {
         hasLeads={stats.totalLeads > 0}
         emailConnected={isAccountEmailReady(emailSettings)}
         callingConnected={Boolean(dialerCredentials?.connected && dialerCredentials.status === "active")}
-        showCalling={billingCapabilities.includes("dialer")}
+        showCalling={isOutreachUiEnabled() && billingCapabilities.includes("dialer")}
       />
 
       <Card>

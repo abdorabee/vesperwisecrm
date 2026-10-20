@@ -106,8 +106,8 @@
   --cold-bg: rgba(93, 103, 112, 0.08);
   --cold-border: rgba(93, 103, 112, 0.22);
 
-  /* Reserved for exactly one emphasis moment per view (e.g. active sequence step,
-     "deal won" confirmation) — never for hover states, never stacked with ring+blur. */
+  /* Reserved for exactly one emphasis moment per view (for example a won deal)
+     — never for hover states, never stacked with ring+blur. */
   --glow-cyan: 0 0 40px rgba(223, 255, 0, 0.22), 0 0 80px rgba(223, 255, 0, 0.1);
   --glow-amber: 0 0 40px rgba(245, 181, 68, 0.2), 0 0 80px rgba(245, 181, 68, 0.1);
   --glow-emerald: 0 0 40px rgba(74, 222, 128, 0.2), 0 0 80px rgba(74, 222, 128, 0.1);

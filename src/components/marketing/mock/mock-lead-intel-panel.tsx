@@ -93,7 +93,7 @@ export function MockLeadIntelPanel() {
           tabIndex={-1}
           className="mt-1 w-full rounded-md border-0 bg-[var(--mkt-text)] px-3 py-3 font-sans text-[12.5px] leading-none font-medium text-[var(--mkt-bg)] transition-opacity duration-150 hover:opacity-85"
         >
-          Start power dial
+          Open the lead
         </button>
       </div>
     </aside>

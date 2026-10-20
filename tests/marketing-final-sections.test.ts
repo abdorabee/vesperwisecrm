@@ -38,7 +38,7 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("One system instead of six tabs.");
     expect(sectionText).toContain(
       normalizeWhitespace(
-        "Teams arrive at VesperWiseCRM from spreadsheets and generic CRMs where follow-up dies in the gaps. Pipeline and lead queue are live. Email sequences: coming soon.",
+        "Teams arrive at VesperWiseCRM from spreadsheets and generic CRMs where the next step dies in the gaps. The pipeline and the lead queue live on one record.",
       ),
     );
     expect(section).toContain("Leads in a shared spreadsheet");
@@ -46,11 +46,11 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("Contact info scattered across tools");
     expect(section).toContain("All contact history on one record");
     expect(section).toContain("Manual email follow-up tracking");
-    expect(section).toContain("Automated email sequences with tracking");
+    expect(section).toContain("Notes and tasks tracked on the record");
     expect(section).toContain("Pipeline buried in spreadsheet tabs");
     expect(section).toContain("Visual pipeline with drag-and-drop stages");
     expect(section).toContain("Follow-up depends on who remembers");
-    expect(section).toContain("Sequences and workflows own the follow-up");
+    expect(section).toContain("Tasks and owners keep the next step");
     expect(section.toLowerCase()).not.toContain("skip tracing");
     expectNoLegacyMarketingTokens(section);
   });
@@ -62,7 +62,7 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("EARLY ACCESS");
     expect(section).toContain("Team for 60 days. No card.");
     expect(section).toContain(
-      "VesperWiseCRM is in early access. Pipeline and lead queue are live. Email sequences: coming soon.",
+      "VesperWiseCRM is in early access. Pipeline and lead queue are live.",
     );
     expect(section).not.toContain("PLACEHOLDER ·");
     expectNoLegacyMarketingTokens(section);
@@ -78,7 +78,9 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("9.0");
     expect(section).toContain("PRICING");
     expect(section).toContain("Per seat. Monthly.");
-    expect(section).toContain("Dialer");
+    expect(section).toContain("Scorecard");
+    expect(section).not.toContain("Dialer");
+    expect(section).not.toContain("Email sequences");
     expect(section).toContain('"AI"');
     expect(section).toContain("Workflows and routing");
     expect(section).toContain("Unlimited leads");
@@ -98,7 +100,7 @@ describe("final marketing landing sections", () => {
     expect(section).toContain("$179");
     expect(section).toContain("MOST COMMON");
     expect(sectionText).toContain(
-      "For acquisition teams running paid channels and cold lists side by side.",
+      "For acquisition teams sharing one pipeline.",
     );
     expect(section).toContain("Scale");
     expect(section).toContain("Custom");
@@ -167,10 +169,9 @@ describe("marketing home page section order", () => {
     expect(page).toContain(
       "VesperWise CRM — Every Lead Worked. Nothing Goes Cold.",
     );
-    expect(page).toContain("real estate acquisition teams");
+    expect(page).toContain("A pipeline CRM for real estate teams");
     expect(page).not.toContain("skip tracing");
-    expect(page).toContain("AI qualification");
-    expect(page).toContain("dialer");
+    expect(page).not.toMatch(/dialer|sequence|sms/i);
     expect(page).toContain("pipeline");
   });
 });

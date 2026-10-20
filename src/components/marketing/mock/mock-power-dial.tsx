@@ -13,7 +13,7 @@ export function MockPowerDial() {
       <div className="grid min-w-0 border-b border-[color:var(--mkt-border-subtle)] lg:grid-cols-[minmax(0,1fr)_220px]">
         <div className="min-w-0 p-5 pb-[22px] pr-28">
           <div className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
-            POWER DIAL
+            LEAD RECORD
           </div>
           <div className="mt-4 flex items-center gap-3.5">
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-[color:var(--mkt-border)] bg-[var(--mkt-accent)]">
@@ -66,7 +66,7 @@ export function MockPowerDial() {
       <div className="p-5 pb-[22px]">
         <div className="mb-4 flex items-center justify-between gap-3">
           <span className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
-            SEQUENCE · 7-DAY SELLER FOLLOW-UP
+            TASKS · FIRST WEEK ON THE LEAD
           </span>
           <ComingSoonPill />
         </div>

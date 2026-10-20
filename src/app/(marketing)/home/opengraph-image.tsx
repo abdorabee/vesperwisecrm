@@ -20,7 +20,7 @@ export default function Image() {
           padding: 96,
           background: "#000000",
           backgroundImage:
-            "radial-gradient(ellipse at top, rgba(223,255,0,0.08), transparent 60%)",
+            "linear-gradient(to bottom, rgba(223,255,0,0.08), transparent 60%)",
           color: "#ffffff",
         }}
       >

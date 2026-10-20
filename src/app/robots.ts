@@ -16,7 +16,6 @@ export default function robots(): MetadataRoute.Robots {
           "/pipeline",
           "/leads",
           "/queue",
-          "/sequences",
           "/workflows",
           "/scorecard",
           "/settings",

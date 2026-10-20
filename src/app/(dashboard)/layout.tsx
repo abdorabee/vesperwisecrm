@@ -16,6 +16,7 @@ import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
 import { WorkspaceFormattingProvider } from "@/components/workspace-formatting-context";
 import { getBillingSummary } from "@/lib/billing/access";
 import { getBillableNavCapabilities } from "@/lib/billing/entitlements";
+import { isOutreachUiEnabled } from "@/lib/features/outreach-ui";
 
 export default async function DashboardLayout({
   children,
@@ -46,15 +47,16 @@ export default async function DashboardLayout({
     billingSummary?.plan ?? null,
     billingSummary?.accessMode ?? "billing_required",
   );
+  const outreachUiEnabled = isOutreachUiEnabled();
   const workspace = await getWorkspaceSettings();
   // Read here so the rail renders at its final width on the server; reading it
   // on the client instead is what made a collapsed sidebar flash open on load.
   const sidebarCollapsed =
     (await cookies()).get(SIDEBAR_COLLAPSED_COOKIE)?.value === "1";
-  const dialerShell = isDialerEnabled()
+  const dialerShell = outreachUiEnabled && isDialerEnabled()
     ? await getDialerShellData()
     : { active: null, dispositions: [] };
-  const twilioCredentialStatus = isDialerEnabled()
+  const twilioCredentialStatus = outreachUiEnabled && isDialerEnabled()
     ? await getDialerCredentialStatus()
     : { connected: false, accountSid: null, fromNumber: null, status: null, lastVerifiedAt: null };
   const twilioConnected = twilioCredentialStatus.connected && twilioCredentialStatus.status === "active";
@@ -77,7 +79,7 @@ export default async function DashboardLayout({
     : null;
 
   return (
-    <DialerSessionProvider initialSession={initialSession} enabled={isDialerEnabled()} twilioConnected={twilioConnected}>
+    <DialerSessionProvider initialSession={initialSession} enabled={outreachUiEnabled && isDialerEnabled()} twilioConnected={twilioConnected}>
       <OnboardingTourProvider>
         <WorkspaceFormattingProvider settings={workspace}>
         <a href="#main-content" className="sr-only z-[100] rounded-md bg-primary px-4 py-2 text-primary-foreground focus:not-sr-only focus:fixed focus:left-4 focus:top-4">
@@ -91,6 +93,7 @@ export default async function DashboardLayout({
             isAdmin={isAdmin}
             isPlatformAdmin={isPlatformAdmin}
             billingCapabilities={billingCapabilities}
+            outreachUiEnabled={outreachUiEnabled}
             defaultCollapsed={sidebarCollapsed}
           />
           <div className="min-w-0 flex-1">
@@ -101,14 +104,18 @@ export default async function DashboardLayout({
               isAdmin={isAdmin}
               isPlatformAdmin={isPlatformAdmin}
               billingCapabilities={billingCapabilities}
+              outreachUiEnabled={outreachUiEnabled}
             />
             <main id="main-content" tabIndex={-1} className="min-w-0 p-4 sm:p-6 lg:p-8">{children}</main>
           </div>
           <OnboardingTour
             isAdmin={isAdmin}
             includeWorkflows={billingCapabilities.includes("workflows")}
+            includeOutreach={outreachUiEnabled}
           />
-          <ActiveCallPanel dispositions={dialerShell.dispositions} />
+          {outreachUiEnabled ? (
+            <ActiveCallPanel dispositions={dialerShell.dispositions} />
+          ) : null}
         </div>
         </WorkspaceFormattingProvider>
       </OnboardingTourProvider>

@@ -1,12 +1,10 @@
 import Link from "next/link";
 
-import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
 import { VesperWiseLogo } from "@/components/vesper-wise-logo";
 
 interface FooterLink {
   label: string;
   href: string;
-  comingSoon?: boolean;
 }
 
 interface FooterColumn {
@@ -20,8 +18,6 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: "Lead queue", href: "/home#ch1" },
       { label: "Pipeline", href: "/home#ch4" },
-      { label: "Email sequences", href: "/home#ch5", comingSoon: true },
-      { label: "Dialer", href: "/home#ch3", comingSoon: true },
       { label: "Workflows", href: "/home#ch5" },
       { label: "Scorecard", href: "/home#ch6" },
     ],
@@ -91,10 +87,9 @@ export function MarketingFooter() {
                   <li key={`${column.title}-${link.label}`}>
                     <Link
                       href={link.href}
-                      className="inline-flex items-center gap-2 text-sm text-[var(--mkt-text2)] transition-colors duration-150 hover:text-[var(--mkt-text)]"
+                      className="text-sm text-[var(--mkt-text2)] transition-colors duration-150 hover:text-[var(--mkt-text)]"
                     >
                       {link.label}
-                      {link.comingSoon ? <ComingSoonPill /> : null}
                     </Link>
                   </li>
                 ))}

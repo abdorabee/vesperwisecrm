@@ -1,8 +1,13 @@
-import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
 import { MARKETING_ENGAGE_STATS } from "@/components/marketing/mock/mock-data";
-import { MockPowerDial } from "@/components/marketing/mock/mock-power-dial";
 import { Reveal } from "@/components/marketing/motion/reveal";
 import { Stagger, StaggerItem } from "@/components/marketing/motion/stagger";
+
+const RECORD_LINES = [
+  { label: "Owner", value: "Dana R." },
+  { label: "Note", value: "Wants a timeline before listing." },
+  { label: "Task", value: "Callback Thursday" },
+  { label: "Stage", value: "Qualified" },
+];
 
 export function Engage() {
   return (
@@ -15,7 +20,7 @@ export function Engage() {
                 3.0
               </span>
               <h2 className="font-sans text-[clamp(30px,3.4vw,44px)] leading-none font-normal tracking-normal text-[var(--mkt-text)]">
-                Engage
+                Record
               </h2>
             </div>
             <p className="mt-5 max-w-[38ch] font-sans text-[17px] leading-[1.6] font-light text-[var(--mkt-text2)]">
@@ -28,15 +33,12 @@ export function Engage() {
                   key={stat.label}
                   className="flex items-baseline justify-between gap-3 border-b border-[color:var(--mkt-border-subtle)] py-3.5"
                 >
-                  <span className="inline-flex items-center gap-2 font-sans text-[13.5px] leading-snug text-[var(--mkt-text2)]">
+                  <span className="font-sans text-[13.5px] leading-snug text-[var(--mkt-text2)]">
                     {stat.label}
-                    {stat.comingSoon ? <ComingSoonPill /> : null}
                   </span>
-                  {stat.comingSoon ? null : (
-                    <span className="font-mono text-[13.5px] leading-none font-medium text-[var(--mkt-text)]">
-                      {stat.value}
-                    </span>
-                  )}
+                  <span className="font-mono text-[13.5px] leading-none font-medium text-[var(--mkt-text)]">
+                    {stat.value}
+                  </span>
                 </StaggerItem>
               ))}
             </Stagger>
@@ -45,10 +47,34 @@ export function Engage() {
           <div className="min-w-0">
             <div className="mb-3 flex items-end justify-between">
               <span className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
-                FIG 3.1 — DIALER SESSION + SEQUENCE
+                FIG 3.1 — LEAD RECORD
               </span>
             </div>
-            <MockPowerDial />
+            <div className="min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)]">
+              <div className="border-b border-[color:var(--mkt-border-subtle)] px-5 py-4">
+                <div className="font-sans text-[15px] font-medium text-[var(--mkt-text)]">
+                  Marcus Whitfield
+                </div>
+                <div className="mt-1 font-sans text-xs text-[var(--mkt-text3)]">
+                  4127 Kessler Blvd · Indianapolis, IN
+                </div>
+              </div>
+              <dl className="grid">
+                {RECORD_LINES.map((line) => (
+                  <div
+                    key={line.label}
+                    className="flex items-baseline justify-between gap-4 border-b border-[color:var(--mkt-border-subtle)] px-5 py-3.5 last:border-b-0"
+                  >
+                    <dt className="font-mono text-[10.5px] tracking-[0.06em] text-[var(--mkt-text3)] uppercase">
+                      {line.label}
+                    </dt>
+                    <dd className="text-right font-sans text-[13.5px] text-[var(--mkt-text)]">
+                      {line.value}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
           </div>
         </Reveal>
       </div>

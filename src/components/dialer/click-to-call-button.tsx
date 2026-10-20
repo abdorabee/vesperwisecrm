@@ -20,6 +20,9 @@ export function ClickToCallButton({
   size?: "sm" | "default";
 }) {
   const dialer = useDialerSession();
+  if (process.env.NEXT_PUBLIC_OUTREACH_UI_ENABLED !== "true") {
+    return null;
+  }
   const blockedReason = !dialer.enabled
     ? "Dialer is not enabled"
     : !dialer.twilioConnected

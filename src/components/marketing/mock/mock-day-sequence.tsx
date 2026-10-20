@@ -1,6 +1,6 @@
 import {
-  MARKETING_DAY_SEQUENCE,
-  type MarketingSequenceState,
+  MARKETING_DAY_PLAN,
+  type MarketingPlanState,
 } from "@/components/marketing/mock/mock-data";
 import { Stagger, StaggerItem } from "@/components/marketing/motion/stagger";
 
@@ -12,7 +12,7 @@ interface SequenceStateClasses {
   bar: string;
 }
 
-const SEQUENCE_STATE_CLASSES: Record<MarketingSequenceState, SequenceStateClasses> = {
+const PLAN_STATE_CLASSES: Record<MarketingPlanState, SequenceStateClasses> = {
   0: {
     border: "border-[color:var(--mkt-border-subtle)]",
     background: "bg-[var(--mkt-bg)]",
@@ -40,8 +40,8 @@ export function MockDaySequence() {
   return (
     <div className="min-w-0 overflow-x-auto">
       <Stagger className="grid min-w-[640px] grid-cols-7 gap-2 sm:min-w-0">
-        {MARKETING_DAY_SEQUENCE.map((step, index) => {
-          const state = SEQUENCE_STATE_CLASSES[step.state];
+        {MARKETING_DAY_PLAN.map((step, index) => {
+          const state = PLAN_STATE_CLASSES[step.state];
 
           return (
             <StaggerItem

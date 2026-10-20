@@ -20,7 +20,7 @@ const SITE_URL =
 const PAGE_TITLE =
   "VesperWise CRM — Every Lead Worked. Nothing Goes Cold.";
 const PAGE_DESCRIPTION =
-  "Built for real estate acquisition teams: intake, AI qualification, dialer, and pipeline in one CRM so every seller conversation moves forward.";
+  "A pipeline CRM for real estate teams: leads, stages, notes, tasks, owners, and a scorecard.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

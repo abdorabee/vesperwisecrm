@@ -20,7 +20,7 @@ describe("settings navigation", () => {
   test("describes the active page with its settings group", () => {
     const location = getCurrentSettingsLocation(
       "/settings/calling",
-      getSettingsNavigationGroups(true, teamFull),
+      getSettingsNavigationGroups(true, teamFull, true),
     );
     expect(location).toMatchObject({ groupLabel: "Communication", label: "Calling" });
   });
@@ -47,7 +47,12 @@ describe("settings navigation", () => {
     expect(expiredTrial).not.toContain("/settings/routing");
     expect(expiredTrial).not.toContain("/settings/calling");
     expect(team).toContain("/settings/routing");
-    expect(team).toContain("/settings/calling");
+    expect(team).not.toContain("/settings/calling");
+    expect(
+      getSettingsNavigationGroups(true, teamFull, true)
+        .flatMap((group) => group.items)
+        .map((item) => item.href),
+    ).toContain("/settings/calling");
   });
 
   test("exposes billing to workspace admins", () => {

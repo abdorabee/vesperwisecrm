@@ -46,8 +46,8 @@ export const MARKETING_WORKFLOW_STEPS: MarketingWorkflowStep[] = [
   },
   {
     kind: "ACTION",
-    title: "Start email sequence",
-    detail: "Intro and qualification",
+    title: "Name the owner",
+    detail: "The lead has someone responsible",
     accent: true,
   },
 ];

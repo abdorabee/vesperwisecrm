@@ -74,8 +74,8 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
       },
       {
         kind: "ACTION",
-        title: "Start email sequence",
-        detail: "Intro and qualification",
+        title: "Name the owner",
+        detail: "The lead has someone responsible",
         accent: true,
       },
     ]);
@@ -109,7 +109,7 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
 
     expect(MARKETING_SOURCE_ROWS).toEqual([
       { name: "PPC", pct: "88%", contracts: "12", cpc: "$1,410", accent: true },
-      { name: "Cold list", pct: "66%", contracts: "9", cpc: "$980", accent: true },
+      { name: "Imported list", pct: "66%", contracts: "9", cpc: "$980", accent: true },
       { name: "Probate", pct: "48%", contracts: "6", cpc: "$2,240" },
       { name: "Direct mail", pct: "34%", contracts: "4", cpc: "$3,110" },
       { name: "Referral", pct: "22%", contracts: "3", cpc: "$310" },
@@ -125,11 +125,11 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
     ]);
 
     expect(MARKETING_REP_ROWS).toEqual([
-      { name: "Dana Reyes", dials: "1,942", contacts: "421", appts: "58", contracts: "14", hot: true },
-      { name: "Marcus Ju", dials: "1,708", contacts: "364", appts: "49", contracts: "11", hot: true },
-      { name: "Aisha Karim", dials: "1,455", contacts: "298", appts: "37", contracts: "6" },
-      { name: "Owen Brandt", dials: "1,120", contacts: "204", appts: "22", contracts: "3" },
-      { name: "Nina Sokolov", dials: "864", contacts: "151", appts: "14", contracts: "0" },
+      { name: "Dana Reyes", tasks: "1,942", contacts: "421", appts: "58", contracts: "14", hot: true },
+      { name: "Marcus Ju", tasks: "1,708", contacts: "364", appts: "49", contracts: "11", hot: true },
+      { name: "Aisha Karim", tasks: "1,455", contacts: "298", appts: "37", contracts: "6" },
+      { name: "Owen Brandt", tasks: "1,120", contacts: "204", appts: "22", contracts: "3" },
+      { name: "Nina Sokolov", tasks: "864", contacts: "151", appts: "14", contracts: "0" },
     ]);
   });
 });

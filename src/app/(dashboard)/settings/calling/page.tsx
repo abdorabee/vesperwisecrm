@@ -1,10 +1,12 @@
 import { requireSettingsAdmin } from "@/lib/settings-access";
 import { getDialerPageData } from "@/lib/queries/dialer";
+import { redirectIfOutreachUiDisabled } from "@/lib/features/outreach-ui";
 import { SettingsPageHeader } from "@/components/settings/settings-primitives";
 import { DialerSettings } from "../../dialer/_components/dialer-workspace";
 
 export default async function CallingSettingsPage() {
   await requireSettingsAdmin();
+  redirectIfOutreachUiDisabled();
   const data = await getDialerPageData();
   return (
     <div>

@@ -29,7 +29,7 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
   title: { default: "VesperWise CRM", template: "%s · VesperWise CRM" },
-  description: "An acquisition CRM for intake, qualification, outreach, routing, and team performance.",
+  description: "A pipeline CRM for leads, stages, notes, tasks, owners, and a scorecard.",
   icons: {
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },

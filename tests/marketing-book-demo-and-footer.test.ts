@@ -45,8 +45,6 @@ describe("marketing footer destinations", () => {
     expect(product?.links).toEqual([
       { label: "Lead queue", href: "/home#ch1" },
       { label: "Pipeline", href: "/home#ch4" },
-      { label: "Email sequences", href: "/home#ch5", comingSoon: true },
-      { label: "Dialer", href: "/home#ch3", comingSoon: true },
       { label: "Workflows", href: "/home#ch5" },
       { label: "Scorecard", href: "/home#ch6" },
     ]);
