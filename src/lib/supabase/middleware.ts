@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import type { Database } from "@/lib/supabase/types";
+import { isHiddenOutreachPath } from "@/lib/features/outreach-ui-enabled";
 import { isMarketingPublicPath } from "@/lib/marketing/public-paths";
 
 // /sw.js and /manifest.webmanifest must stay public: browsers fetch them
@@ -9,6 +10,11 @@ import { isMarketingPublicPath } from "@/lib/marketing/public-paths";
 const PUBLIC_PATHS = ["/login", "/signup", "/auth", "/offline", "/sw.js", "/manifest.webmanifest", "/api/cron", "/api/dialer/providers/twilio/voice", "/api/leads/intake", "/api/webhooks/dialer", "/api/webhooks/polar", "/api/webhooks/resend-inbound", "/api/webhooks/resend-events", "/api/webhooks/twilio-inbound", "/api/unsubscribe", "/tv/", "/sitemap.xml", "/robots.txt"];
 
 export async function updateSession(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+  if (process.env.OUTREACH_UI_ENABLED !== "true" && isHiddenOutreachPath(pathname)) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient<Database>(
@@ -36,7 +42,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
   const isPublicPath =
     isMarketingPublicPath(pathname) ||
     PUBLIC_PATHS.some((path) => pathname.startsWith(path));
