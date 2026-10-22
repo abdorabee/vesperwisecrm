@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Circle, Mail, PhoneCall, Settings, Upload, Users } from "lucide-react";
+import { Check, Circle, Inbox, Mail, Settings, Upload, Users } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
@@ -17,23 +17,18 @@ export function GettingStartedChecklist({
   hasTeammates,
   hasLeads,
   emailConnected,
-  callingConnected,
-  showCalling,
 }: {
   isAdmin: boolean;
   workspaceReviewed: boolean;
   hasTeammates: boolean;
   hasLeads: boolean;
   emailConnected: boolean;
-  callingConnected: boolean;
-  showCalling: boolean;
 }) {
   const items: ChecklistItem[] = [
     ...(isAdmin ? [{ label: "Review workspace settings", description: "Confirm your name, timezone, currency, and formats", href: "/settings/workspace", complete: workspaceReviewed, icon: Settings }] : []),
     ...(isAdmin ? [{ label: "Invite your team", description: "Add the people who will qualify and work leads", href: "/settings/members", complete: hasTeammates, icon: Users }] : []),
-    { label: hasLeads ? "Lead data added" : "Add or import your first lead", description: "Start with quick intake or import a CSV from your previous CRM", href: hasLeads ? "/pipeline" : "/intake", complete: hasLeads, icon: hasLeads ? PhoneCall : Upload },
-    ...(isAdmin ? [{ label: "Set up outbound email", description: "Verify a sending domain and reply routing", href: "/settings/email", complete: emailConnected, icon: Mail }] : []),
-    ...(isAdmin && showCalling ? [{ label: "Connect calling", description: "Use the Twilio account your workspace owns", href: "/settings/calling", complete: callingConnected, icon: PhoneCall }] : []),
+    { label: hasLeads ? "Lead data added" : "Add or import your first lead", description: "Start with quick intake or import a CSV from your previous CRM", href: hasLeads ? "/pipeline" : "/intake", complete: hasLeads, icon: hasLeads ? Inbox : Upload },
+    ...(isAdmin ? [{ label: "Verify the sending domain", description: "Used for the client digest and new-lead notices", href: "/settings/email", complete: emailConnected, icon: Mail }] : []),
   ];
   const completeCount = items.filter((item) => item.complete).length;
   if (completeCount === items.length) return null;

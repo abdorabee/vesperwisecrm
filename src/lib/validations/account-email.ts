@@ -23,36 +23,3 @@ export type RegisterSendingDomainInput = z.infer<
   typeof registerSendingDomainSchema
 >;
 export type UpdateEmailIdentityInput = z.infer<typeof updateEmailIdentitySchema>;
-
-const emailLocalPartPattern = /^[a-z0-9._-]+$/;
-
-export const memberSenderIdentitySchema = z.object({
-  fromDisplayName: z
-    .string()
-    .trim()
-    .max(80, "Display name must be 80 characters or fewer")
-    .optional()
-    .or(z.literal("")),
-  fromEmailLocalPart: z
-    .string()
-    .trim()
-    .toLowerCase()
-    .optional()
-    .or(z.literal(""))
-    .refine((v) => !v || emailLocalPartPattern.test(v), {
-      message: "Use only letters, numbers, dots, hyphens, and underscores",
-    }),
-});
-
-export const updateReplyRoutingSchema = z.object({
-  replyRoutingMode: z.enum(["shared_inbox", "agent_direct"]),
-  defaultReplyToEmail: z
-    .string()
-    .trim()
-    .email("Enter a valid email address")
-    .optional()
-    .or(z.literal("")),
-});
-
-export type MemberSenderIdentityInput = z.infer<typeof memberSenderIdentitySchema>;
-export type UpdateReplyRoutingInput = z.infer<typeof updateReplyRoutingSchema>;

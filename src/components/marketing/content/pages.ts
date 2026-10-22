@@ -185,13 +185,13 @@ export const MARKETING_PAGES = {
   integrations: {
     href: "/integrations",
     eyebrow: "Resources / Integrations",
-    title: "Email, docs, and telephony on the record.",
+    title: "Email and docs on the record.",
     description:
       "Workspace admins connect providers in Settings after sign-in. Nothing here is a marketplace install — each account brings its own credentials.",
     sections: [
       {
         heading: "Email",
-        body: "Outbound and inbound email run through Resend, with per-account From addresses and reply capture back onto the lead.",
+        body: "Signup, the contact form, and the internal client digest go through Resend. The product is not an outbound campaign tool.",
       },
       {
         heading: "Google Docs and Drive",
@@ -230,7 +230,7 @@ export const MARKETING_PAGES = {
       "VesperWise CRM is the conversion system in the VesperWise ecosystem: intake, qualification, conversations, pipeline, and follow-up on one record so leads do not go cold between tools.",
     sections: [
       {
-        heading: "Built for the follow-up",
+        heading: "Track every lead and its next task.",
         body: "Most acquisition stacks split across multiple tools. Handoffs are where seller conversations die. This product keeps the next step on the record.",
       },
       {
@@ -267,7 +267,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Credentials",
-        body: "Twilio tokens are encrypted at rest with a server-side key. Service-role keys never ship to the browser. Public marketing routes do not require a session.",
+        body: "Service-role keys never ship to the browser. Public marketing routes do not require a session.",
       },
       {
         heading: "What this page is not",
@@ -304,7 +304,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Workspace data",
-        body: "Lead, call, and email data in a signed-in workspace belongs to that account. Providers you connect (email, Twilio, Google) process data under their terms and your configuration.",
+        body: "Lead and email data in a signed-in workspace belongs to that account. Providers you connect (email and Google) process data under their terms and your configuration.",
       },
       {
         heading: "Subprocessors",
@@ -312,7 +312,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Retention and deletion",
-        body: "There is no automatic deletion schedule. Canceling a Polar subscription does not delete leads, calls, or email stored for the workspace. The product has no self-serve control that deletes a workspace. Ask through the contact form if you need data removed.",
+        body: "There is no automatic deletion schedule. Canceling a Polar subscription does not delete leads or email stored for the workspace. The product has no self-serve control that deletes a workspace. Ask through the contact form if you need data removed.",
       },
       {
         heading: "Contact",
@@ -338,7 +338,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "The product",
-        body: "Access to VesperWise CRM requires an account. Lead, call, and email data in a signed-in workspace belongs to that account. You are responsible for the data you import and for credentials you connect. We may suspend abuse of intake, email, or telephony.",
+        body: "Access to VesperWise CRM requires an account. Lead and email data in a signed-in workspace belongs to that account. You are responsible for the data you import and for credentials you connect. The product does not send bulk, cold, or automated email or SMS. We may suspend abuse of intake.",
       },
       {
         heading: "Cancellation and refunds",
@@ -350,7 +350,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Your data",
-        body: "You are responsible for the data you import and for credentials you connect. A platform admin can suspend a workspace's outbound email. Marketing email skips contacts whose email is marked opted out.",
+        body: "You are responsible for the data you import and for credentials you connect. The product does not send bulk, cold, or automated email or SMS.",
       },
     ],
     cta: { label: "See pricing", href: "/home#pricing" },

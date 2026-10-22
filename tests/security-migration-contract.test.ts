@@ -84,10 +84,9 @@ describe("H-2: account phone number mapping", () => {
 
   test("is RLS-protected, member-readable, and not client-writable", () => {
     // Nothing today verifies an account claiming phone_digits actually
-    // controls that number in the shared Twilio account, so self-service
-    // admin INSERT/UPDATE would let one tenant hijack or squat another
-    // tenant's number. Provisioning must stay service-role-only until a real
-    // ownership-verification flow exists.
+    // controls that number, so self-service admin INSERT/UPDATE would let one
+    // tenant hijack or squat another tenant's number. Provisioning must stay
+    // service-role-only until a real ownership-verification flow exists.
     expect(phoneNumbers).toContain(
       "alter table public.account_phone_numbers enable row level security",
     );

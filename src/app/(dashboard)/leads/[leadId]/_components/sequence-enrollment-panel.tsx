@@ -11,7 +11,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { enrollLeadInSequence, sendCurrentStep } from "@/lib/actions/enrollments";
+import {
+  createFollowUpForCurrentStep,
+  enrollLeadInSequence,
+} from "@/lib/actions/enrollments";
 import type { Tables } from "@/lib/supabase/types";
 import type { LeadEnrollment } from "@/lib/queries/sequences";
 
@@ -52,14 +55,14 @@ export function SequenceEnrollmentPanel({
     });
   }
 
-  function handleSendNow(enrollmentId: string) {
+  function handleCreateTask(enrollmentId: string) {
     startTransition(async () => {
       try {
-        await sendCurrentStep(enrollmentId);
-        toast.success("Step sent");
+        await createFollowUpForCurrentStep(enrollmentId);
+        toast.success("Follow-up task created");
       } catch (error) {
         toast.error(
-          error instanceof Error ? error.message : "Failed to send step",
+          error instanceof Error ? error.message : "Failed to create follow-up task",
         );
       }
     });
@@ -78,25 +81,24 @@ export function SequenceEnrollmentPanel({
           {enrollment.status === "active" && enrollment.currentStep ? (
             <>
               <p className="mt-1 text-muted-foreground">
-                Step {enrollment.current_step_number} of {enrollment.totalSteps} —{" "}
-                {enrollment.currentStep.channel}
+                Step {enrollment.current_step_number} of {enrollment.totalSteps} — follow-up task
               </p>
               <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
-                {enrollment.currentStep.body_template}
+                {enrollment.currentStep.subject || enrollment.currentStep.body_template}
               </p>
               <Button
                 size="sm"
                 className="mt-2"
-                disabled={isPending || enrollment.currentStep.channel !== "email"}
-                onClick={() => handleSendNow(enrollment.id)}
+                disabled={isPending}
+                onClick={() => handleCreateTask(enrollment.id)}
               >
-                Send now (manual)
+                Create follow-up task
               </Button>
             </>
           ) : (
             <p className="mt-1 text-muted-foreground">
               {enrollment.status === "completed"
-                ? "All steps sent."
+                ? "All steps added as tasks."
                 : "No active step."}
             </p>
           )}

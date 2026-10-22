@@ -45,7 +45,6 @@ describe("marketing footer destinations", () => {
     expect(product?.links).toEqual([
       { label: "Lead queue", href: "/home#ch1" },
       { label: "Pipeline", href: "/home#ch4" },
-      { label: "Workflows", href: "/home#ch5" },
       { label: "Scorecard", href: "/home#ch6" },
     ]);
     expect(product?.links.map((link) => link.label)).not.toContain("Skip tracing");

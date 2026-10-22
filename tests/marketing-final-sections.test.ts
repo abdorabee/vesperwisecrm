@@ -141,7 +141,7 @@ describe("final marketing landing sections", () => {
 });
 
 describe("marketing home page section order", () => {
-  test("renders all thirteen redesigned sections in approved order", () => {
+  test("renders the redesigned sections in approved order", () => {
     const page = source("src/app/(marketing)/home/page.tsx");
     const expectedOrder = [
       "<Hero />",
@@ -151,7 +151,6 @@ describe("marketing home page section order", () => {
       "<Qualify />",
       "<Engage />",
       "<Pipeline />",
-      "<Automate />",
       "<Understand />",
       "<Comparison />",
       "<Testimonials />",

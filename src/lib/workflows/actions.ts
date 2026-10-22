@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { sendLeadEmail } from "@/lib/actions/email";
 import { enrollLeadInSequence } from "@/lib/actions/enrollments";
 import { assignLeadToGroup } from "@/lib/actions/groups";
 import { resolveTemplate } from "@/lib/templates";
@@ -21,7 +20,7 @@ export async function runWorkflowAction(
     case "send_email_template": {
       const { data: lead } = await supabase
         .from("leads")
-        .select("contact:contact_id(first_name, last_name)")
+        .select("owner_user_id, contact:contact_id(first_name, last_name)")
         .eq("id", leadId)
         .eq("account_id", accountId)
         .maybeSingle();
@@ -29,14 +28,40 @@ export async function runWorkflowAction(
       const contact = Array.isArray(lead?.contact)
         ? lead.contact[0]
         : lead?.contact;
+      const templateContact = contact ?? { first_name: "", last_name: "" };
+      const body = resolveTemplate(
+        String(config.bodyTemplate ?? ""),
+        templateContact,
+      );
+      const subject = resolveTemplate(String(config.subject ?? ""), templateContact);
+      const title = (subject.trim() || body.trim().split("\n")[0] || "Follow up").slice(
+        0,
+        160,
+      );
+      const dueAt = new Date().toISOString();
 
-      if (!contact) {
-        throw new Error("Lead has no contact on file");
+      const { data: task, error: taskError } = await supabase
+        .from("lead_tasks")
+        .insert({
+          account_id: accountId,
+          lead_id: leadId,
+          title,
+          description: body.trim() || null,
+          due_at: dueAt,
+          assigned_user_id: lead?.owner_user_id ?? null,
+        })
+        .select("id")
+        .single();
+
+      if (taskError || !task) {
+        throw new Error(taskError?.message ?? "Failed to create follow-up task");
       }
 
-      await sendLeadEmail(leadId, {
-        subject: resolveTemplate(String(config.subject ?? ""), contact),
-        body: resolveTemplate(String(config.bodyTemplate ?? ""), contact),
+      await supabase.from("activities").insert({
+        account_id: accountId,
+        lead_id: leadId,
+        type: "task_created",
+        payload: { task_id: task.id, title, due_at: dueAt },
       });
       break;
     }

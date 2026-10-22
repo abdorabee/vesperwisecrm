@@ -18,7 +18,6 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: "Lead queue", href: "/home#ch1" },
       { label: "Pipeline", href: "/home#ch4" },
-      { label: "Workflows", href: "/home#ch5" },
       { label: "Scorecard", href: "/home#ch6" },
     ],
   },
@@ -69,7 +68,7 @@ export function MarketingFooter() {
           <div className="space-y-4">
             <VesperWiseLogo size="sm" href="/home" />
             <p className="max-w-xs font-sans text-sm leading-6 text-[var(--mkt-text2)]">
-              The acquisition system for real estate teams. Built for the follow-up.
+              The acquisition system for real estate teams. Track every lead and its next task.
             </p>
           </div>
 

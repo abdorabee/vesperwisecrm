@@ -46,7 +46,7 @@ const TOUR_STEPS: TourStep[] = [
   {
     title: "Sequences",
     route: "/sequences",
-    body: "Build scheduled multi-step outreach with calls, texts, and emails that keep follow-up moving.",
+    body: "Save a sequence of follow-up tasks on a lead. A step creates the next task. It does not send email or SMS.",
   },
   {
     title: "Workflows",

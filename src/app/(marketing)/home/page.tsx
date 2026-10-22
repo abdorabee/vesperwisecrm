@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { Automate } from "@/components/marketing/sections/automate";
 import { Comparison } from "@/components/marketing/sections/comparison";
 import { Engage } from "@/components/marketing/sections/engage";
 import { FinalCta } from "@/components/marketing/sections/final-cta";
@@ -65,7 +64,6 @@ export default function HomePage() {
       <Qualify />
       <Engage />
       <Pipeline />
-      <Automate />
       <Understand />
       <Comparison />
       <Testimonials />

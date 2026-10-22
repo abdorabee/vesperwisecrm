@@ -24,7 +24,7 @@ export async function saveSequence(
       .update({
         name: data.name,
         description: data.description || null,
-        is_marketing: data.isMarketing ?? false,
+        is_marketing: false,
       })
       .eq("id", id)
       .eq("account_id", accountId)
@@ -47,7 +47,7 @@ export async function saveSequence(
         account_id: accountId,
         name: data.name,
         description: data.description || null,
-        is_marketing: data.isMarketing ?? false,
+        is_marketing: false,
       })
       .select("id")
       .single();
@@ -62,9 +62,9 @@ export async function saveSequence(
     account_id: accountId,
     sequence_id: id!,
     step_number: index + 1,
-    channel: step.channel,
+    channel: "task",
     delay_days: step.delayDays ? Number(step.delayDays) : 0,
-    subject: step.channel === "email" ? step.subject || null : null,
+    subject: step.subject?.trim() || null,
     body_template: step.bodyTemplate,
   }));
 

@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import { requireAdminAccountId, requireAccountId, requireUserId } from "@/lib/supabase/account";
+import { requireAdminAccountId, requireUserId } from "@/lib/supabase/account";
 import { getBillingSummary, requireWritableBilling } from "@/lib/billing/access";
 import {
   inviteTeamMemberSchema,
@@ -11,10 +11,6 @@ import {
   type InviteTeamMemberInput,
   type UpdateMemberRestrictionsInput,
 } from "@/lib/validations/team";
-import {
-  memberSenderIdentitySchema,
-  type MemberSenderIdentityInput,
-} from "@/lib/validations/account-email";
 import { hashInviteAuthToken } from "@/lib/auth/invite-token";
 import {
   buildVerificationLink,
@@ -37,8 +33,6 @@ export async function updateMemberRestrictions(
     .update({
       lead_visibility: data.leadVisibility,
       max_open_leads: data.maxOpenLeads ? Number(data.maxOpenLeads) : null,
-      from_display_name: data.fromDisplayName?.trim() || null,
-      from_email_local_part: data.fromEmailLocalPart?.trim() || null,
       job_function: data.jobFunction || null,
     })
     .eq("account_id", accountId)
@@ -150,29 +144,4 @@ export async function inviteTeamMember(
 
   revalidatePath("/team");
   revalidatePath("/settings/members");
-}
-
-export async function updateOwnSenderIdentity(
-  input: MemberSenderIdentityInput,
-): Promise<void> {
-  const data = memberSenderIdentitySchema.parse(input);
-  const accountId = await requireAccountId();
-  const userId = await requireUserId();
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("account_members")
-    .update({
-      from_display_name: data.fromDisplayName?.trim() || null,
-      from_email_local_part: data.fromEmailLocalPart?.trim() || null,
-    })
-    .eq("account_id", accountId)
-    .eq("user_id", userId);
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  revalidatePath("/scorecard");
-  revalidatePath("/settings/profile");
 }

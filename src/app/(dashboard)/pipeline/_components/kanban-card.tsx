@@ -13,7 +13,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import type { LeadWithContact } from "@/lib/queries/pipeline";
 import type { Tables } from "@/lib/supabase/types";
-import { ClickToCallButton } from "@/components/dialer/click-to-call-button";
 import { WorkspaceCurrency } from "@/components/workspace-formatting-context";
 
 interface KanbanCardProps {
@@ -66,15 +65,6 @@ export function KanbanCard({
           )}
         </div>
         <p className="text-xs text-muted-foreground">{contactName}</p>
-        {lead.contact?.phone && !dragOverlay && (
-          <div onPointerDown={(event) => event.stopPropagation()}>
-            <ClickToCallButton
-              contactId={lead.contact.id}
-              contactName={contactName}
-              leadId={lead.id}
-            />
-          </div>
-        )}
         <p className="text-xs text-muted-foreground">
           {lead.ownerEmail ? `Owner: ${lead.ownerEmail}` : "Unassigned"}
         </p>

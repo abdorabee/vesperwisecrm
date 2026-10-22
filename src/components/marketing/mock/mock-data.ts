@@ -131,7 +131,7 @@ export const MARKETING_LEAD_INTEL_STATS: MarketingLeadIntelStat[] = [
   { label: "EST. VALUE", value: "$214,000" },
   { label: "EQUITY", value: "68%" },
   { label: "OWNERSHIP", value: "14 yrs" },
-  { label: "PHONES", value: "Verification coming soon" },
+  { label: "NEXT TASK", value: "Callback Thursday" },
 ];
 
 export const MARKETING_PROOF_LABEL =
@@ -149,7 +149,7 @@ export interface MarketingPremiseCopy {
 
 export const MARKETING_PREMISE_COPY: MarketingPremiseCopy = {
   eyebrow: "0.0 — PREMISE",
-  title: "A CRM that does the follow-up, not just the record-keeping.",
+  title: "Track every lead and its next task.",
   body:
     "Most acquisition teams lose deals in the gaps — a callback never made, a dead lead never revived. VesperWiseCRM closes those gaps by treating the lead lifecycle as one continuous system.",
 };
