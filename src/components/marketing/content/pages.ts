@@ -52,13 +52,13 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
   "fix-and-flip": {
     href: "/solutions/fix-and-flip",
     eyebrow: "Solutions / Fix and flip",
-    title: "From first call to rehab without losing context.",
+    title: "From intake to rehab without losing context.",
     description:
       "Property notes, motivation, and next actions stay on the lead so acquisitions, project managers, and dispositions are looking at the same record.",
     sections: [
       {
-        heading: "Capture the property while you are on the call",
-        body: "Condition, occupancy, asking price, and work needed are fields on the lead — not a second spreadsheet after the call ends.",
+        heading: "Capture the property on the lead",
+        body: "Condition, occupancy, asking price, and work needed are fields on the lead — not a second spreadsheet.",
       },
       {
         heading: "Handoffs that keep the deal moving",
@@ -94,7 +94,7 @@ export const SOLUTION_PAGES: Record<SolutionSlug, MarketingPageContent> = {
     sections: [
       {
         heading: "Every conversation on the record",
-        body: "Calls, emails, and notes stay with the lead so coverage does not collapse when someone is out or a lead changes hands.",
+        body: "Notes, tasks, and the next step stay with the lead so coverage does not collapse when someone is out or a lead changes hands.",
       },
       {
         heading: "A queue instead of a personal CRM",
@@ -191,7 +191,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "Email",
-        body: "Signup, the contact form, and the internal client digest go through Resend. The product is not an outbound campaign tool.",
+        body: "Signup, the contact form, and the internal client digest go through Resend. VesperWise CRM is a pipeline CRM for leads, deals, and next tasks.",
       },
       {
         heading: "Google Docs and Drive",
@@ -199,7 +199,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Phone numbers on the record",
-        body: "A workspace can store the phone number that belongs on the lead. The public product is the pipeline, not an outbound campaign tool.",
+        body: "A workspace can store the phone number that belongs on the lead. VesperWise CRM is a pipeline CRM for leads, deals, and next tasks.",
       },
     ],
     cta: { label: "Talk to sales", href: "/contact" },

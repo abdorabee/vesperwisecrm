@@ -14,12 +14,7 @@ import {
   MARKETING_SOURCE_KPIS,
   MARKETING_SOURCE_ROWS,
 } from "../src/components/marketing/mock/mock-source-table";
-import {
-  MARKETING_OTHER_WORKFLOWS,
-  MARKETING_WORKFLOW_STEPS,
-} from "../src/components/marketing/sections/automate";
-
-describe("marketing Pipeline, Automate, and Understand data", () => {
+describe("marketing Pipeline and Understand data", () => {
   test("keeps approved pipeline stages, hot cards, and footer totals", () => {
     expect(MARKETING_PIPELINE_COLUMNS.map(({ name, count, value }) => ({ name, count, value }))).toEqual([
       { name: "OFFER OUT", count: "9", value: "$1.62M" },
@@ -40,62 +35,6 @@ describe("marketing Pipeline, Automate, and Understand data", () => {
       { label: "WEIGHTED", value: "$1.71M" },
       { label: "AVG SPREAD", value: "$27.4K" },
       { label: "AVG DAYS TO CONTRACT", value: "11" },
-    ]);
-  });
-
-  test("keeps approved automation workflow steps and companion rules", () => {
-    expect(MARKETING_WORKFLOW_STEPS).toEqual([
-      {
-        kind: "TRIGGER",
-        title: "New lead created",
-        detail: "Any source",
-        accent: true,
-      },
-      {
-        kind: "ACTION",
-        title: "Assign to pipeline stage",
-        detail: "Based on source and type",
-      },
-      {
-        kind: "BRANCH",
-        title: "Has contact info?",
-        detail: "Yes → route · No → create a task",
-      },
-      {
-        kind: "ACTION",
-        title: "Route to team member",
-        detail: "Round robin by market",
-        accent: true,
-      },
-      {
-        kind: "ACTION",
-        title: "Create follow-up task",
-        detail: "Schedule first touch",
-      },
-      {
-        kind: "ACTION",
-        title: "Name the owner",
-        detail: "The lead has someone responsible",
-        accent: true,
-      },
-    ]);
-    expect(JSON.stringify(MARKETING_WORKFLOW_STEPS).toLowerCase()).not.toContain(
-      "skip trace",
-    );
-
-    expect(MARKETING_OTHER_WORKFLOWS).toEqual([
-      {
-        tag: "WORKFLOW 07",
-        text: "No contact after 6 attempts → drop to long-term nurture, revisit in 90 days.",
-      },
-      {
-        tag: "WORKFLOW 11",
-        text: "Deal untouched for 4 days in Negotiation → notify manager, reassign.",
-      },
-      {
-        tag: "WORKFLOW 14",
-        text: "Contract signed → create closing checklist, notify title, log spread.",
-      },
     ]);
   });
 

@@ -91,13 +91,13 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     ]);
 
     expect(MARKETING_DAY_PLAN).toEqual([
-      { day: "D1", action: "Call + voicemail drop", state: 0 },
+      { day: "D1", action: "Task: confirm the owner", state: 0 },
       { day: "D1", action: "Note: offer context", state: 0 },
-      { day: "D2", action: "Email: process outline", state: 0 },
-      { day: "D3", action: "Call attempt 2", state: 0 },
+      { day: "D2", action: "Task: review the timeline", state: 0 },
+      { day: "D3", action: "Task: check the stage", state: 0 },
       { day: "D5", action: "Task check-in", state: 0 },
-      { day: "D6", action: "Email: comps + offer", state: 0 },
-      { day: "D7", action: "Final call, then nurture", state: 0 },
+      { day: "D6", action: "Task: comps on the record", state: 0 },
+      { day: "D7", action: "Task: set the next step", state: 0 },
     ]);
     expect(JSON.stringify(MARKETING_DAY_PLAN).toLowerCase()).not.toMatch(/sms|sequence|dial/);
   });
