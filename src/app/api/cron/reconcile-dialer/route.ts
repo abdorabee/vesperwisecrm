@@ -74,8 +74,8 @@ export async function GET(request: Request): Promise<NextResponse> {
         p_provider_sequence: sequence,
         p_event_type: "system.reconciled",
         p_status: current.status,
-        p_failure_code: current.failureCode,
-        p_failure_reason: current.failureReason,
+        p_failure_code: current.failureCode ?? "",
+        p_failure_reason: current.failureReason ?? "",
         p_payload: { reconciliation: true },
         p_occurred_at: current.occurredAt,
       });

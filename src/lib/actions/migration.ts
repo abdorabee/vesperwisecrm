@@ -79,14 +79,22 @@ export async function startMigrationJob(
     status: "pending" as const,
   }));
 
-  for (let index = 0; index < rowInserts.length; index += 500) {
-    const chunk = rowInserts.slice(index, index + 500);
-    const { error: rowsError } = await supabase
-      .from("import_job_rows")
-      .insert(chunk);
-    if (rowsError) {
-      throw new Error(rowsError.message);
+  try {
+    for (let index = 0; index < rowInserts.length; index += 500) {
+      const chunk = rowInserts.slice(index, index + 500);
+      const { error: rowsError } = await supabase
+        .from("import_job_rows")
+        .insert(chunk);
+      if (rowsError) {
+        throw new Error(rowsError.message);
+      }
     }
+  } catch (error) {
+    await supabase
+      .from("import_jobs")
+      .update({ status: "cancelled", error_summary: "Failed to enqueue rows" })
+      .eq("id", job.id);
+    throw error;
   }
 
   const progress = await processImportJob(supabase, job.id, {
