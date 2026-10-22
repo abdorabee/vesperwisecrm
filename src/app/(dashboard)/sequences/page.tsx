@@ -19,7 +19,7 @@ export default async function SequencesPage() {
 
       {sequences.length === 0 ? (
         <p className="text-muted-foreground">
-          No sequences yet. Create one to start building outreach steps.
+          No sequences yet. Create one to schedule follow-up tasks on a lead.
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

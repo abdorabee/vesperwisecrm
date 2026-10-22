@@ -4,7 +4,6 @@
 import { describe, expect, test } from "vitest";
 import { escapeHtml, sanitizeEmailHeader } from "../src/lib/email/escape-html";
 import { resolveSafeRedirect } from "../src/lib/auth/safe-redirect";
-import { resolveInboundSmsTenant } from "../src/lib/sms/resolve-tenant";
 import { redactToken } from "../src/lib/email/redact";
 
 describe("H-3: email HTML escaping", () => {
@@ -86,67 +85,6 @@ describe("M-1: auth callback redirect validation", () => {
 
     expect(result).toBe("/leads/abc?tab=notes#top");
     expect(new URL(result, origin).origin).toBe(origin);
-  });
-});
-
-describe("H-2: inbound SMS tenant resolution", () => {
-  const contactA = { id: "c1", account_id: "acct-a" };
-  const contactB = { id: "c2", account_id: "acct-b" };
-
-  test("uses the receiving number's account when the mapping is populated", () => {
-    const result = resolveInboundSmsTenant({
-      mappedAccountId: "acct-a",
-      matchedContacts: [contactA, contactB],
-    });
-
-    expect(result).toEqual({
-      status: "resolved",
-      accountId: "acct-a",
-      contactIds: ["c1"],
-    });
-  });
-
-  test("quarantines when the mapped account has no matching contact", () => {
-    const result = resolveInboundSmsTenant({
-      mappedAccountId: "acct-c",
-      matchedContacts: [contactA, contactB],
-    });
-
-    expect(result).toEqual({ status: "quarantined", reason: "unknown_sender" });
-  });
-
-  test("quarantines rather than guessing when a number spans two tenants", () => {
-    const result = resolveInboundSmsTenant({
-      mappedAccountId: null,
-      matchedContacts: [contactA, contactB],
-    });
-
-    expect(result).toEqual({
-      status: "quarantined",
-      reason: "ambiguous_tenant",
-    });
-  });
-
-  test("resolves unambiguously when only one tenant knows the number", () => {
-    const result = resolveInboundSmsTenant({
-      mappedAccountId: null,
-      matchedContacts: [contactA, { id: "c3", account_id: "acct-a" }],
-    });
-
-    expect(result).toEqual({
-      status: "resolved",
-      accountId: "acct-a",
-      contactIds: ["c1", "c3"],
-    });
-  });
-
-  test("quarantines when nothing matched", () => {
-    const result = resolveInboundSmsTenant({
-      mappedAccountId: null,
-      matchedContacts: [],
-    });
-
-    expect(result).toEqual({ status: "quarantined", reason: "unknown_sender" });
   });
 });
 

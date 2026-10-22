@@ -15,19 +15,13 @@ import { cn } from "@/lib/utils";
 export function SettingsNavigation({
   isAdmin,
   billingCapabilities,
-  outreachUiEnabled = false,
 }: {
   isAdmin: boolean;
   billingCapabilities: readonly BillingCapability[];
-  outreachUiEnabled?: boolean;
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const groups = getSettingsNavigationGroups(
-    isAdmin,
-    billingCapabilities,
-    outreachUiEnabled,
-  );
+  const groups = getSettingsNavigationGroups(isAdmin, billingCapabilities);
   const current = getCurrentSettingsLocation(pathname, groups);
 
   function navigate(event: MouseEvent<HTMLElement>, href: string): boolean {

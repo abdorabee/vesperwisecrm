@@ -18,10 +18,8 @@ import { getResendClient } from "@/lib/resend/client";
 import {
   registerSendingDomainSchema,
   updateEmailIdentitySchema,
-  updateReplyRoutingSchema,
   type RegisterSendingDomainInput,
   type UpdateEmailIdentityInput,
-  type UpdateReplyRoutingInput,
 } from "@/lib/validations/account-email";
 
 function normalizeDomain(domain: string): string {
@@ -104,42 +102,6 @@ export async function updateEmailIdentity(
   await upsertAccountEmailSettings(accountId, {
     from_name: data.fromName.trim(),
     from_email: fromEmail,
-  });
-
-  revalidatePath("/settings/email");
-}
-
-export async function updateReplyRouting(
-  input: UpdateReplyRoutingInput,
-): Promise<void> {
-  const data = updateReplyRoutingSchema.parse(input);
-  const accountId = await requireAdminAccountId();
-  await requireWritableBilling(accountId);
-  const settings = await getAccountEmailSettings(accountId);
-
-  if (!settings?.sending_domain) {
-    throw new Error("Register a sending domain before configuring reply routing");
-  }
-
-  await upsertAccountEmailSettings(accountId, {
-    reply_routing_mode: data.replyRoutingMode,
-    default_reply_to_email: data.defaultReplyToEmail?.trim() || null,
-  });
-
-  revalidatePath("/settings/email");
-}
-
-export async function updateCaptureRepliesSetting(enabled: boolean): Promise<void> {
-  const accountId = await requireAdminAccountId();
-  await requireWritableBilling(accountId);
-  const settings = await getAccountEmailSettings(accountId);
-
-  if (!settings?.sending_domain) {
-    throw new Error("Register a sending domain before configuring reply capture");
-  }
-
-  await upsertAccountEmailSettings(accountId, {
-    capture_replies_enabled: enabled,
   });
 
   revalidatePath("/settings/email");

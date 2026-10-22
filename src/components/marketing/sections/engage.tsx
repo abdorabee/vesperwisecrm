@@ -5,7 +5,7 @@ import { Stagger, StaggerItem } from "@/components/marketing/motion/stagger";
 const RECORD_LINES = [
   { label: "Owner", value: "Dana R." },
   { label: "Note", value: "Wants a timeline before listing." },
-  { label: "Task", value: "Callback Thursday" },
+  { label: "Task", value: "Review Thursday" },
   { label: "Stage", value: "Qualified" },
 ];
 

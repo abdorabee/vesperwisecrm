@@ -34,7 +34,7 @@ describe("product navigation", () => {
     expect(adminHrefs).not.toContain("/deals");
   });
 
-  test("hides dialer and workflows when the plan lacks them or access is not full", () => {
+  test("hides workflows when the plan lacks them or access is not full", () => {
     const hrefsFor = (
       plan: "starter" | "team",
       accessMode: "full" | "billing_required",
@@ -47,13 +47,10 @@ describe("product navigation", () => {
         .flatMap((group) => group.items)
         .map((item) => item.href);
 
-    expect(hrefsFor("starter", "full")).not.toContain("/dialer");
     expect(hrefsFor("starter", "full")).not.toContain("/workflows");
     expect(hrefsFor("starter", "full")).toContain("/pipeline");
-    expect(hrefsFor("team", "billing_required")).not.toContain("/dialer");
     expect(hrefsFor("team", "billing_required")).not.toContain("/workflows");
     expect(hrefsFor("team", "billing_required")).toContain("/pipeline");
-    expect(hrefsFor("team", "full")).not.toContain("/dialer");
     expect(hrefsFor("team", "full")).not.toContain("/sequences");
     expect(hrefsFor("team", "full")).toEqual(
       expect.arrayContaining(["/workflows", "/pipeline"]),
@@ -67,6 +64,6 @@ describe("product navigation", () => {
       })
         .flatMap((group) => group.items)
         .map((item) => item.href),
-    ).toEqual(expect.arrayContaining(["/dialer", "/sequences", "/workflows"]));
+    ).toEqual(expect.arrayContaining(["/sequences", "/workflows"]));
   });
 });

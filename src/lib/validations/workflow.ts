@@ -17,11 +17,11 @@ export const workflowActionSchema = z
     stageId: z.string().optional(),
   })
   .superRefine((data, ctx) => {
-    if (data.actionType === "send_email_template" && !data.bodyTemplate) {
+    if (data.actionType === "send_email_template" && !data.bodyTemplate && !data.subject) {
       ctx.addIssue({
         code: "custom",
         path: ["bodyTemplate"],
-        message: "Message is required",
+        message: "Task note is required",
       });
     }
     if (data.actionType === "enroll_sequence" && !data.sequenceId) {

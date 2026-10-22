@@ -10,15 +10,12 @@ import { getAtRiskLeads, getDashboardStats } from "@/lib/queries/reporting";
 import { getYourDayTasks } from "@/lib/queries/tasks";
 import { getAccountMemberProfiles } from "@/lib/queries/members";
 import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
-import { getCurrentBillableNavCapabilities } from "@/lib/billing/access";
 import { getWorkspaceSettings } from "@/lib/queries/workspace-settings";
 import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
-import { getDialerCredentialStatus } from "@/lib/queries/dialer-credentials";
 import { isAccountEmailReady } from "@/lib/email/account-settings";
 import { formatWorkspaceDate } from "@/lib/workspace-settings";
 import { YourDay } from "./_components/your-day";
 import { GettingStartedChecklist } from "./_components/getting-started-checklist";
-import { isOutreachUiEnabled } from "@/lib/features/outreach-ui";
 
 const AT_RISK_PREVIEW_COUNT = 8;
 
@@ -48,10 +45,7 @@ export default async function DashboardPage() {
     getWorkspaceSettings(),
   ]);
   const isAdmin = membership ? isAdminRole(membership.role) : false;
-  const billingCapabilities = await getCurrentBillableNavCapabilities();
-  const [emailSettings, dialerCredentials] = isAdmin
-    ? await Promise.all([getAccountEmailSettingsForAdmin(), getDialerCredentialStatus()])
-    : [null, null];
+  const emailSettings = isAdmin ? await getAccountEmailSettingsForAdmin() : null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -72,8 +66,6 @@ export default async function DashboardPage() {
         hasTeammates={members.length > 1}
         hasLeads={stats.totalLeads > 0}
         emailConnected={isAccountEmailReady(emailSettings)}
-        callingConnected={Boolean(dialerCredentials?.connected && dialerCredentials.status === "active")}
-        showCalling={isOutreachUiEnabled() && billingCapabilities.includes("dialer")}
       />
 
       <Card>

@@ -19,13 +19,13 @@ describe("settings navigation", () => {
 
   test("describes the active page with its settings group", () => {
     const location = getCurrentSettingsLocation(
-      "/settings/calling",
-      getSettingsNavigationGroups(true, teamFull, true),
+      "/settings/email",
+      getSettingsNavigationGroups(true, teamFull),
     );
-    expect(location).toMatchObject({ groupLabel: "Communication", label: "Calling" });
+    expect(location).toMatchObject({ groupLabel: "Communication", label: "Email" });
   });
 
-  test("hides lead routing and calling without those capabilities or full access", () => {
+  test("hides lead routing without that capability or full access", () => {
     const starter = getSettingsNavigationGroups(
       true,
       getBillableNavCapabilities("starter", "full"),
@@ -43,16 +43,9 @@ describe("settings navigation", () => {
       .map((item) => item.href);
 
     expect(starter).not.toContain("/settings/routing");
-    expect(starter).not.toContain("/settings/calling");
     expect(expiredTrial).not.toContain("/settings/routing");
-    expect(expiredTrial).not.toContain("/settings/calling");
     expect(team).toContain("/settings/routing");
-    expect(team).not.toContain("/settings/calling");
-    expect(
-      getSettingsNavigationGroups(true, teamFull, true)
-        .flatMap((group) => group.items)
-        .map((item) => item.href),
-    ).toContain("/settings/calling");
+    expect(team).toContain("/settings/email");
   });
 
   test("exposes billing to workspace admins", () => {

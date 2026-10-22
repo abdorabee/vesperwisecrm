@@ -3,7 +3,6 @@ import { ChevronRight } from "lucide-react";
 import { getCurrentMembership, isAdminRole } from "@/lib/queries/members";
 import { SettingsNavigation } from "@/components/settings/settings-navigation";
 import { getCurrentBillableNavCapabilities } from "@/lib/billing/access";
-import { isOutreachUiEnabled } from "@/lib/features/outreach-ui";
 
 export default async function SettingsLayout({ children }: { children: React.ReactNode }) {
   const membership = await getCurrentMembership();
@@ -21,7 +20,6 @@ export default async function SettingsLayout({ children }: { children: React.Rea
         <SettingsNavigation
           isAdmin={isAdmin}
           billingCapabilities={billingCapabilities}
-          outreachUiEnabled={isOutreachUiEnabled()}
         />
         <div className="min-w-0">{children}</div>
       </div>

@@ -4,7 +4,6 @@ export type BillingCapability =
   | "pipeline"
   | "queue"
   | "sequences"
-  | "dialer"
   | "ai"
   | "workflows"
   | "routing";
@@ -48,7 +47,6 @@ const STARTER_CAPABILITIES: readonly BillingCapability[] = [
 
 const TEAM_CAPABILITIES: readonly BillingCapability[] = [
   ...STARTER_CAPABILITIES,
-  "dialer",
   "ai",
   "workflows",
   "routing",
@@ -73,7 +71,6 @@ export const BILLING_PLAN_CATALOG: Record<BillingPlan, BillingPlanDefinition> = 
 };
 
 const FULL_ACCESS_NAV_CAPABILITIES = new Set<BillingCapability>([
-  "dialer",
   "workflows",
   "routing",
 ]);

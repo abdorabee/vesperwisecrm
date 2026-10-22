@@ -4,7 +4,7 @@ import { timingSafeEqual } from "crypto";
 
 // Shared bearer check for the scheduled routes. Fails closed when CRON_SECRET
 // is unset, and compares in constant time to match the discipline already used
-// in verify-signature.ts and compliance-footer.ts.
+// in other webhook checks.
 export function isAuthorizedCronRequest(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
   if (!secret) {

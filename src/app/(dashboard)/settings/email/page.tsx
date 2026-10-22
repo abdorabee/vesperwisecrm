@@ -21,10 +21,7 @@ import { DomainStatusCard } from "./_components/domain-status-card";
 import { DnsRecordsTable } from "./_components/dns-records-table";
 import { EmailSettingsForm } from "./_components/email-settings-form";
 import { SendTestEmailButton } from "./_components/send-test-email-button";
-import { CaptureRepliesSettings } from "./_components/capture-replies-settings";
-import { ReplyRoutingSettings } from "./_components/reply-routing-settings";
 import { EmailHealthCard } from "./_components/email-health-card";
-import { getInboundAddressPattern } from "@/lib/email/inbound-address";
 import { getEmailHealthStats } from "@/lib/queries/email-health";
 
 export default async function EmailSettingsPage() {
@@ -47,11 +44,10 @@ export default async function EmailSettingsPage() {
 
   const emailReady = isAccountEmailReady(settings);
   const identityDisabled = uiState !== "verified";
-  const inboundAddressPattern = getInboundAddressPattern();
 
   return (
     <div className="flex flex-col gap-6">
-      <SettingsPageHeader eyebrow="Communication" title="Email" description="Configure your sending domain, sender identity, and reply handling for outbound lead communication." />
+      <SettingsPageHeader eyebrow="Communication" title="Email" description="Configure the sending domain used for the client digest and new-lead notices. The product does not send bulk, cold, or automated email." />
 
       <Card id="domain-verification">
         <CardHeader>
@@ -75,7 +71,7 @@ export default async function EmailSettingsPage() {
           <CardTitle>From address</CardTitle>
           <CardDescription>
             {uiState === "verified"
-              ? "This name and email appear on emails sent to leads."
+              ? "This name and email are the From address on workspace notices."
               : "Available after your domain is verified."}
           </CardDescription>
         </CardHeader>
@@ -87,42 +83,6 @@ export default async function EmailSettingsPage() {
             disabled={identityDisabled}
           />
           <SendTestEmailButton disabled={!emailReady} />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Reply routing</CardTitle>
-          <CardDescription>
-            Choose how lead replies are routed when your team sends email.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ReplyRoutingSettings
-            replyRoutingMode={
-              settings?.reply_routing_mode === "agent_direct"
-                ? "agent_direct"
-                : "shared_inbox"
-            }
-            defaultReplyToEmail={settings?.default_reply_to_email ?? null}
-            disabled={!emailReady}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Reply capture</CardTitle>
-          <CardDescription>
-            Route lead email replies back into the CRM activity feed.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CaptureRepliesSettings
-            enabled={settings?.capture_replies_enabled ?? true}
-            inboundAddressPattern={inboundAddressPattern}
-            disabled={!emailReady}
-          />
         </CardContent>
       </Card>
 

@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { describe, expect, test, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
@@ -55,8 +55,8 @@ describe("stored email HTML", () => {
 });
 
 describe("google token encryption", () => {
-  test("round-trips with the dialer server key and leaves a legacy value readable", async () => {
-    process.env.DIALER_CREDENTIALS_ENCRYPTION_KEY = randomBytes(32).toString("base64");
+  test("round-trips with the server key and leaves a legacy value readable", async () => {
+    process.env.GOOGLE_TOKEN_ENCRYPTION_KEY = randomBytes(32).toString("base64");
     const { decryptGoogleToken, encryptGoogleToken, isEncryptedGoogleToken } =
       await import("@/lib/google/token-crypto");
     const ciphertext = encryptGoogleToken("refresh-token");
@@ -128,9 +128,10 @@ describe("security migration contract", () => {
     expect(migration).not.toContain("on conflict (account_id, user_id) do update");
   });
 
-  test("reply activities do not store the bearer token", () => {
-    const source = readFileSync("src/lib/email/send-lead-email.ts", "utf8");
-    expect(source).not.toContain("outbound_token");
+  test("lead-facing send and reply-token capture are gone", () => {
+    expect(existsSync("src/lib/email/send-lead-email.ts")).toBe(false);
+    expect(existsSync("src/lib/email/reply-tokens.ts")).toBe(false);
+    expect(existsSync("src/lib/sequences/send-step.ts")).toBe(false);
   });
 
   test("inquiry mail has no personal inbox fallback", () => {

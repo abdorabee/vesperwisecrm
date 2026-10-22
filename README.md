@@ -1,6 +1,6 @@
 # VesperWiseCRM
 
-VesperWiseCRM is a multi-tenant acquisition CRM built with Next.js App Router, Supabase Postgres/Auth/RLS, and Vercel. It includes lead intake and qualification, pipeline management, teams, tasks, sequences, workflows, reporting, email/SMS, client portals, and a provider-independent browser dialer.
+VesperWiseCRM is a multi-tenant acquisition CRM built with Next.js App Router, Supabase Postgres/Auth/RLS, and Vercel. It tracks leads, deals, and the next task. It does not send bulk, cold, or automated email or SMS, and it does not place calls.
 
 ## Local development
 
@@ -22,12 +22,6 @@ npm run test:e2e
 ```
 
 Some integration and E2E tests require a reachable Supabase project and, for HTTP smoke tests, a running application server. See the individual test headers for their setup.
-
-## Dialer
-
-The outbound dialer is disabled by default and uses a Twilio Voice adapter behind a provider-neutral domain interface. It supports explicit click-to-call, personal/shared progressive queues, dispositions, DNC suppression, signed/idempotent callbacks, Realtime status updates, and cron reconciliation.
-
-See [docs/DIALER.md](docs/DIALER.md) for architecture, configuration, migrations, Twilio setup, scheduling, deployment, rollback, and adapter extension instructions.
 
 ## Polar billing
 

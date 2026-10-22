@@ -42,7 +42,7 @@ describe("redesigned marketing landing data", () => {
         accent: false,
       },
       {
-        text: "AI call summary: wants out before probate closes",
+        text: "Moved to Qualified · probate timeline on the record",
         time: "TODAY 09:41",
         accent: false,
       },
@@ -52,7 +52,7 @@ describe("redesigned marketing landing data", () => {
         accent: true,
       },
       {
-        text: "Assigned to Dana R. · callback task created",
+        text: "Assigned to Dana R. · next task created",
         time: "TODAY 09:42",
         accent: true,
       },

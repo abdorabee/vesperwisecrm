@@ -67,7 +67,7 @@ export const MARKETING_PIPELINE_COLUMNS: MarketingPipelineColumn[] = [
         spread: "$22k",
         age: "8d",
         rep: "AK",
-        meta: "SECOND CALL",
+        meta: "NEXT TASK",
       },
     ],
   },

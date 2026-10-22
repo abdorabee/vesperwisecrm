@@ -32,7 +32,6 @@ const CAPABILITY_LABELS: Record<string, string> = {
   pipeline: "Pipeline",
   queue: "Review queue",
   sequences: "Sequences",
-  dialer: "Dialer",
   ai: "AI scoring and summaries",
   workflows: "Workflows",
   routing: "Routing",
@@ -226,7 +225,7 @@ export function BillingControls({ summary }: { summary: BillingSummary }) {
                   {current && <Badge variant="secondary">Current</Badge>}
                 </div>
                 <p className="mt-2 min-h-10 text-sm text-muted-foreground">
-                  {plan === "starter" ? "Pipeline, review queue, sequences, and 1,000 leads per UTC month." : plan === "team" ? "Starter benefits plus dialer, AI, workflows, routing, and unlimited leads." : "Custom. Talk to sales. Checkout is not available."}
+                  {plan === "starter" ? "Pipeline, review queue, sequences, and 1,000 leads per UTC month." : plan === "team" ? "Starter benefits plus AI, workflows, routing, and unlimited leads." : "Custom. Talk to sales. Checkout is not available."}
                 </p>
                 {plan === "starter" || plan === "team" ? (
                   <p

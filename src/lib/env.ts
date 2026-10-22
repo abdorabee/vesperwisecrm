@@ -10,22 +10,15 @@ const REQUIRED_VARS = [
 ] as const;
 
 const OPTIONAL_FEATURE_VARS: { key: string; feature: string }[] = [
-  { key: "CRON_SECRET", feature: "scheduled sequence/workflow automation" },
-  { key: "RESEND_API_KEY", feature: "outbound email" },
-  { key: "RESEND_FROM_EMAIL", feature: "outbound email" },
+  { key: "CRON_SECRET", feature: "scheduled client digest and import jobs" },
+  { key: "RESEND_API_KEY", feature: "auth, signup, contact form, and client digest email" },
+  { key: "RESEND_FROM_EMAIL", feature: "auth, signup, and contact form email" },
   { key: "DEMO_INBOX_EMAIL", feature: "demo and contact form delivery" },
   { key: "ANTHROPIC_API_KEY", feature: "AI paste-to-parse" },
-  { key: "TWILIO_ACCOUNT_SID", feature: "outbound SMS" },
-  { key: "TWILIO_AUTH_TOKEN", feature: "outbound SMS + inbound SMS webhook" },
-  { key: "TWILIO_FROM_NUMBER", feature: "outbound SMS" },
   { key: "GOOGLE_CLIENT_ID", feature: "Google Docs report generation" },
   { key: "GOOGLE_CLIENT_SECRET", feature: "Google Docs report generation" },
+  { key: "GOOGLE_TOKEN_ENCRYPTION_KEY", feature: "encrypted Google OAuth tokens" },
 ];
-
-const DIALER_VARS = [
-  "DIALER_PUBLIC_BASE_URL",
-  "DIALER_CREDENTIALS_ENCRYPTION_KEY",
-] as const;
 
 export function validateEnv(): void {
   const missingRequired = REQUIRED_VARS.filter((key) => !process.env[key]);
@@ -34,18 +27,6 @@ export function validateEnv(): void {
     throw new Error(
       `Missing required environment variables: ${missingRequired.join(", ")}`,
     );
-  }
-
-  if (process.env.DIALER_ENABLED === "true") {
-    const missingDialer = DIALER_VARS.filter((key) => !process.env[key]);
-    if (missingDialer.length > 0) {
-      throw new Error(
-        `Dialer is enabled but missing environment variables: ${missingDialer.join(", ")}`,
-      );
-    }
-    if ((process.env.DIALER_PROVIDER ?? "twilio") !== "twilio") {
-      throw new Error("DIALER_PROVIDER must be twilio for this deployment");
-    }
   }
 
   const missingOptional = OPTIONAL_FEATURE_VARS.filter(
