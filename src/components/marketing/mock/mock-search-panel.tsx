@@ -1,4 +1,3 @@
-import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
 import {
   MARKETING_FUNNEL_BARS,
   MARKETING_INTAKE_FILTERS,
@@ -18,15 +17,14 @@ export function MockSearchPanel() {
     <div className="min-w-0">
       <div className="mb-3 flex items-end justify-between gap-4">
         <span className="min-w-0 font-mono text-[10.5px] leading-snug font-medium tracking-normal text-[var(--mkt-text3)]">
-          FIG 1.1 — SEARCH SPACE CONSTRAINED BY FILTERS
+          FIG 1.1 — INTAKE FILTERED BY SOURCE
         </span>
       </div>
 
-      <div className="relative grid min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] lg:grid-cols-[260px_minmax(0,1fr)]">
-        <ComingSoonPill className="absolute top-3 right-3 z-10" />
+      <div className="grid min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] lg:grid-cols-[260px_minmax(0,1fr)]">
         <aside className="min-w-0 border-b border-[color:var(--mkt-border-subtle)] bg-[var(--mkt-raised)] p-[18px] pb-[22px] lg:border-r lg:border-b-0">
-          <div className="mb-[15px] pr-24 font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)] lg:pr-0">
-            FILTERS · ICP
+          <div className="mb-[15px] font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
+            FILTERS · SOURCE
           </div>
 
           <Stagger className="grid gap-[9px]">
@@ -58,38 +56,21 @@ export function MockSearchPanel() {
               </StaggerItem>
             ))}
           </Stagger>
-
-          <div className="mt-5 border-t border-[color:var(--mkt-border-subtle)] pt-4">
-            <div className="font-mono text-[10.5px] leading-none tracking-normal text-[var(--mkt-text3)]">
-              EQUITY RANGE
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <span className="font-mono text-[11.5px] leading-none font-medium text-[var(--mkt-text)]">
-                40%
-              </span>
-              <span className="relative block h-[3px] flex-1 rounded-sm bg-[var(--mkt-bg2)]">
-                <span className="absolute inset-y-0 left-[22%] right-[8%] block rounded-sm bg-[var(--mkt-accent)]" />
-              </span>
-              <span className="font-mono text-[11.5px] leading-none font-medium text-[var(--mkt-text)]">
-                95%
-              </span>
-            </div>
-          </div>
         </aside>
 
         <div className="min-w-0">
-          <div className="flex min-h-[46px] flex-col gap-2 border-b border-[color:var(--mkt-border-subtle)] p-4 pt-9 sm:flex-row sm:items-center sm:gap-2.5 sm:px-4 sm:py-0 sm:pr-28 lg:pt-0">
+          <div className="flex min-h-[46px] flex-col gap-2 border-b border-[color:var(--mkt-border-subtle)] p-4 sm:flex-row sm:items-center sm:gap-2.5 sm:px-4 sm:py-0">
             <div className="flex min-w-0 flex-1 items-center gap-[9px] rounded-[7px] border border-[color:var(--mkt-border)] bg-[var(--mkt-bg)] px-[11px] py-2">
               <span className="block size-2.5 shrink-0 rounded-full border-[1.5px] border-[color:var(--mkt-text3)]" />
               <span className="min-w-0 truncate font-sans text-[12.5px] leading-none text-[var(--mkt-text2)]">
-                absentee owner, 5+ yr tenure, Marion County
+                imported list, Marion County
               </span>
               <span className="ml-auto font-mono text-[10.5px] leading-none text-[var(--mkt-text3)]">
                 ⌘K
               </span>
             </div>
             <span className="inline-flex shrink-0 items-center justify-center rounded-md bg-[var(--mkt-accent)] px-3 py-[9px] font-sans text-[11.5px] leading-none font-medium text-[var(--mkt-accent-ink)]">
-              Push to queue
+              Add to queue
             </span>
           </div>
 
@@ -112,7 +93,7 @@ export function MockSearchPanel() {
 
             <div className="mt-3 border-t border-[color:var(--mkt-border-subtle)] pt-[11px]">
               <span className="font-mono text-[10.5px] leading-none text-[var(--mkt-text3)]">
-                TOTAL LIST 18,402
+                SOURCES IN THE QUEUE
               </span>
             </div>
           </div>

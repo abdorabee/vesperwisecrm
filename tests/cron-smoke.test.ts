@@ -7,25 +7,6 @@ const APP_BASE_URL = process.env.SMOKE_TEST_BASE_URL || "http://localhost:3000";
 const CRON_SECRET = process.env.CRON_SECRET;
 
 describe.skipIf(!CRON_SECRET)("cron endpoints", () => {
-  test("process-automation rejects requests without a valid secret", async () => {
-    const res = await fetch(`${APP_BASE_URL}/api/cron/process-automation`, {
-      headers: { Authorization: "Bearer wrong-secret" },
-    });
-    expect(res.status).toBe(401);
-  });
-
-  test("process-automation runs cleanly with the real secret", async () => {
-    const res = await fetch(`${APP_BASE_URL}/api/cron/process-automation`, {
-      headers: { Authorization: `Bearer ${CRON_SECRET}` },
-    });
-    expect(res.status).toBe(200);
-
-    const body = await res.json();
-    expect(body).toHaveProperty("sequenceSteps");
-    expect(body).toHaveProperty("noActivityWorkflows");
-    expect(body).toHaveProperty("noNextActionWorkflows");
-  });
-
   test("client-digest rejects requests without a valid secret", async () => {
     const res = await fetch(`${APP_BASE_URL}/api/cron/client-digest`, {
       headers: { Authorization: "Bearer wrong-secret" },

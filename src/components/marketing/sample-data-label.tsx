@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-export function ComingSoonPill({ className }: { className?: string }) {
+export function SampleDataLabel({ className }: { className?: string }) {
   return (
     <span
       className={cn(
@@ -8,7 +8,7 @@ export function ComingSoonPill({ className }: { className?: string }) {
         className,
       )}
     >
-      Coming soon
+      Sample data
     </span>
   );
 }

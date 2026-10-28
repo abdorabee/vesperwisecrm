@@ -1,20 +1,13 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Controller, useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Field,
@@ -32,7 +25,6 @@ interface SequenceFormProps {
 }
 
 const emptyStep = {
-  channel: "email" as const,
   delayDays: "0",
   subject: "",
   bodyTemplate: "",
@@ -51,7 +43,6 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
     defaultValues: defaultValues ?? {
       name: "",
       description: "",
-      isMarketing: false,
       steps: [emptyStep],
     },
   });
@@ -82,21 +73,11 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
           <FieldLabel htmlFor="description">Description</FieldLabel>
           <Textarea id="description" rows={2} {...register("description")} />
         </Field>
-        <Field>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              className="size-4 rounded border"
-              {...register("isMarketing")}
-            />
-            Marketing sequence (includes unsubscribe footer for CAN-SPAM)
-          </label>
-        </Field>
       </FieldGroup>
 
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold">Steps</h2>
+          <h2 className="text-sm font-semibold">Follow-up tasks</h2>
           <Button
             type="button"
             variant="outline"
@@ -106,6 +87,9 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
             <Plus className="size-3.5" /> Add step
           </Button>
         </div>
+        <p className="text-sm text-muted-foreground">
+          Each step creates a follow-up task on the lead. It does not send email or SMS.
+        </p>
 
         {errors.steps?.root?.message && (
           <p className="text-sm text-destructive">{errors.steps.root.message}</p>
@@ -129,37 +113,14 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <Field>
-                  <FieldLabel>Channel</FieldLabel>
-                  <Controller
-                    control={control}
-                    name={`steps.${index}.channel`}
-                    render={({ field: channelField }) => (
-                      <Select
-                        value={channelField.value}
-                        onValueChange={(value) =>
-                          value && channelField.onChange(value)
-                        }
-                      >
-                        <SelectTrigger className="w-full">
-                          <SelectValue>
-                            {(value: string) =>
-                              value === "sms" ? "SMS" : "Email"
-                            }
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="email">Email</SelectItem>
-                          <SelectItem value="sms">SMS</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                  />
+                  <FieldLabel htmlFor={`steps.${index}.subject`}>Task title</FieldLabel>
+                  <Input id={`steps.${index}.subject`} {...register(`steps.${index}.subject`)} />
                 </Field>
                 <Field>
                   <FieldLabel htmlFor={`steps.${index}.delayDays`}>
-                    Delay after previous step (days)
+                    Due after previous step (days)
                   </FieldLabel>
                   <Input
                     id={`steps.${index}.delayDays`}
@@ -171,12 +132,7 @@ export function SequenceForm({ sequenceId, defaultValues }: SequenceFormProps) {
               </div>
 
               <Field>
-                <FieldLabel htmlFor={`steps.${index}.subject`}>Subject</FieldLabel>
-                <Input id={`steps.${index}.subject`} {...register(`steps.${index}.subject`)} />
-              </Field>
-
-              <Field>
-                <FieldLabel htmlFor={`steps.${index}.bodyTemplate`}>Message</FieldLabel>
+                <FieldLabel htmlFor={`steps.${index}.bodyTemplate`}>Task note</FieldLabel>
                 <Textarea
                   id={`steps.${index}.bodyTemplate`}
                   rows={4}

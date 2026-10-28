@@ -1,11 +1,12 @@
 import { MARKETING_ENGAGE_STATS } from "@/components/marketing/mock/mock-data";
+import { SampleDataLabel } from "@/components/marketing/sample-data-label";
 import { Reveal } from "@/components/marketing/motion/reveal";
 import { Stagger, StaggerItem } from "@/components/marketing/motion/stagger";
 
 const RECORD_LINES = [
   { label: "Owner", value: "Dana R." },
   { label: "Note", value: "Wants a timeline before listing." },
-  { label: "Task", value: "Callback Thursday" },
+  { label: "Task", value: "Review Thursday" },
   { label: "Stage", value: "Qualified" },
 ];
 
@@ -49,6 +50,7 @@ export function Engage() {
               <span className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
                 FIG 3.1 — LEAD RECORD
               </span>
+              <SampleDataLabel />
             </div>
             <div className="min-w-0 overflow-hidden rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)]">
               <div className="border-b border-[color:var(--mkt-border-subtle)] px-5 py-4">

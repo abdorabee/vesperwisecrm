@@ -16,51 +16,35 @@ interface Layer {
 const RECORD_LAYERS: Layer[] = [
   {
     index: 0,
-    path: "M 62 258 L 150 214 L 238 258 L 150 302 Z",
-    connectorY: 258,
+    path: "M 62 256 L 150 212 L 238 256 L 150 300 Z",
+    connectorY: 256,
     label: "SOURCE · PPC",
     accent: false,
     delay: "0.12s",
   },
   {
     index: 1,
-    path: "M 62 224 L 150 180 L 238 224 L 150 268 Z",
-    connectorY: 224,
+    path: "M 62 200 L 150 156 L 238 200 L 150 244 Z",
+    connectorY: 200,
     label: "OWNER",
     accent: false,
-    delay: "0.21s",
+    delay: "0.24s",
   },
   {
     index: 2,
-    path: "M 62 190 L 150 146 L 238 190 L 150 234 Z",
-    connectorY: 190,
-    label: "PROPERTY · $214K",
+    path: "M 62 144 L 150 100 L 238 144 L 150 188 Z",
+    connectorY: 144,
+    label: "PROPERTY",
     accent: false,
-    delay: "0.30s",
+    delay: "0.36s",
   },
   {
     index: 3,
-    path: "M 62 156 L 150 112 L 238 156 L 150 200 Z",
-    connectorY: 156,
-    label: "PHONES · VERIFICATION COMING SOON",
-    accent: true,
-    delay: "0.39s",
-  },
-  {
-    index: 4,
-    path: "M 62 122 L 150 78 L 238 122 L 150 166 Z",
-    connectorY: 122,
-    label: "CALL · 07:12",
-    accent: true,
-    delay: "0.48s",
-  },
-  {
-    index: 5,
     path: "M 62 88 L 150 44 L 238 88 L 150 132 Z",
     connectorY: 88,
-    label: "SCORE · 92",
+    label: "NEXT TASK · THU",
     accent: true,
-    delay: "0.57s",
+    delay: "0.48s",
   },
 ];
 
@@ -73,14 +57,14 @@ export function RecordFigure({ className }: RecordFigureProps) {
       viewBox="0 0 520 340"
       className={cn("block h-auto w-full", className)}
       role="img"
-      aria-label="Isometric figure: one seller record built from six stacked data layers"
+      aria-label="Isometric figure: one seller record built from four stacked data layers"
     >
       <g className="mkt-fadein" style={{ animationDelay: "0.05s" }}>
         <line
           x1="62"
           y1="88"
           x2="62"
-          y2="258"
+          y2="256"
           stroke="var(--mkt-border-subtle)"
           strokeWidth="1"
           strokeDasharray="3 4"
@@ -89,7 +73,7 @@ export function RecordFigure({ className }: RecordFigureProps) {
           x1="238"
           y1="88"
           x2="238"
-          y2="258"
+          y2="256"
           stroke="var(--mkt-border-subtle)"
           strokeWidth="1"
           strokeDasharray="3 4"
@@ -98,7 +82,7 @@ export function RecordFigure({ className }: RecordFigureProps) {
           x1="150"
           y1="132"
           x2="150"
-          y2="302"
+          y2="300"
           stroke="var(--mkt-border-subtle)"
           strokeWidth="1"
           strokeDasharray="3 4"

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Reveal } from "@/components/marketing/motion/reveal";
+import { publicSiteOrigin } from "@/lib/marketing/site-url";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://vesperwisecrm.vercel.app";
+const SITE_URL = publicSiteOrigin();
 
 const foundingCheckoutUrl =
   process.env.NEXT_PUBLIC_POLAR_FOUNDING_CHECKOUT_URL?.trim() || "";

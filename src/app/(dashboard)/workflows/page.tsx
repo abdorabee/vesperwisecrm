@@ -24,15 +24,13 @@ export default async function WorkflowsPage() {
       </div>
 
       <p className="text-sm text-muted-foreground">
-        Automate lead response and outreach: a &quot;New lead&quot; workflow
-        that enrolls in a sequence or sends an email instantly is the fastest
-        way to make sure new leads get contacted even when no one&apos;s
-        online.
+        When a lead is created or changes stage, a workflow can enroll it in a
+        sequence, add a tag, or create the next task. It does not send email or SMS.
       </p>
 
       {workflows.length === 0 ? (
         <p className="text-muted-foreground">
-          No workflows yet. Create one to automate outreach and lead routing.
+          No workflows yet. Create one to route leads and create the next task.
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

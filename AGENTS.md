@@ -23,10 +23,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon key>
 SUPABASE_SERVICE_ROLE_KEY=<service_role key>
 CRON_SECRET=local-dev-cron-secret
 ```
-All other integrations (Resend, Twilio, Anthropic, Google, dialer) are optional feature gates; leave unset for core CRM work.
+All other integrations (Resend, Anthropic, Google) are optional feature gates; leave unset for core CRM work.
 
 ### Non-obvious gotchas
 - `supabase/config.toml` sets `auto_expose_new_tables = true` — REQUIRED. The installed Supabase CLI otherwise revokes Data API (anon/authenticated/service_role) privileges on migration-created tables, so every query fails with `permission denied` and the app/DB-backed tests break. Restart Supabase (`npx supabase stop && npx supabase start`) after changing this.
 - Signup disables email confirmation locally but the signup action still redirects to `/login?...`; just sign in with the same credentials to reach the dashboard.
-- `npm test` (Vitest): `tests/cron-smoke.test.ts` needs the dev server on :3000; `tests/rls-audit.test.ts` and `tests/onboarding-tour.test.ts` need Supabase running. Dialer DB/E2E suites are skipped unless `RUN_DIALER_DB_TESTS` / `RUN_DIALER_E2E` are set.
+- `npm test` (Vitest): `tests/cron-smoke.test.ts` needs the dev server on :3000; `tests/rls-audit.test.ts` and `tests/onboarding-tour.test.ts` need Supabase running.
 - `npm run build` and `npm run dev` share `.next`; avoid running them at the same time.

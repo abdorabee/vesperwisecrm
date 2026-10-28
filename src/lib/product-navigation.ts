@@ -5,7 +5,6 @@ import {
   Gauge,
   House,
   Kanban,
-  PhoneCall,
   PlusCircle,
   Settings,
   Trophy,
@@ -54,9 +53,6 @@ export function getDashboardNavigation({
     {
       label: "Engage",
       items: [
-        ...(outreachUiEnabled && has("dialer")
-          ? [{ href: "/dialer", label: "Dialer", icon: PhoneCall }]
-          : []),
         ...(outreachUiEnabled && has("sequences")
           ? [{ href: "/sequences", label: "Sequences", icon: Gauge }]
           : []),

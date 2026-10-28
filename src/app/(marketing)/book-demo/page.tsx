@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 import { BookDemoCalendar } from "@/components/marketing/book-demo-calendar";
 import { MarketingPageShell } from "@/components/marketing/marketing-page-shell";
+import { publicSiteOrigin } from "@/lib/marketing/site-url";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://vesperwisecrm.vercel.app";
+const SITE_URL = publicSiteOrigin();
 
 const TITLE = "Book a demo — VesperWise CRM";
 const DESCRIPTION =

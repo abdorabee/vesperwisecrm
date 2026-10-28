@@ -45,7 +45,7 @@ const TRIGGER_LABELS: Record<WorkflowInput["triggerType"], string> = {
 };
 
 const ACTION_LABELS: Record<string, string> = {
-  send_email_template: "Send an email",
+  send_email_template: "Create a follow-up task",
   enroll_sequence: "Enroll in a sequence",
   add_tag: "Add a tag",
   assign_round_robin: "Assign via routing group",
@@ -329,11 +329,11 @@ function ActionFields({
     return (
       <>
         <Field>
-          <FieldLabel htmlFor={`actions.${index}.subject`}>Subject</FieldLabel>
+          <FieldLabel htmlFor={`actions.${index}.subject`}>Task title</FieldLabel>
           <Input id={`actions.${index}.subject`} {...register(`actions.${index}.subject`)} />
         </Field>
         <Field>
-          <FieldLabel htmlFor={`actions.${index}.bodyTemplate`}>Message</FieldLabel>
+          <FieldLabel htmlFor={`actions.${index}.bodyTemplate`}>Task note</FieldLabel>
           <Textarea
             id={`actions.${index}.bodyTemplate`}
             rows={4}

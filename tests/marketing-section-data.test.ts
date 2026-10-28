@@ -24,13 +24,15 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     ).not.toContain("skip tracing");
 
     expect(MARKETING_INTAKE_FILTERS).toEqual([
-      { label: "Absentee owner", on: true },
-      { label: "Equity above 40%", on: true },
-      { label: "Tenure 5+ years", on: true },
-      { label: "Pre-foreclosure", on: false },
-      { label: "Tax delinquent", on: false },
-      { label: "Vacant", on: true },
+      { label: "PPC and inbound forms", on: true },
+      { label: "Imported lists", on: true },
+      { label: "Referrals", on: true },
+      { label: "Direct mail", on: false },
+      { label: "Probate records", on: true },
     ]);
+    expect(
+      MARKETING_INTAKE_FILTERS.map((filter) => filter.label).join(" ").toLowerCase(),
+    ).not.toMatch(/absentee|equity|foreclosure|delinquent|vacant|skip/);
 
     expect(MARKETING_FUNNEL_BARS).toHaveLength(26);
     expect(MARKETING_FUNNEL_BARS.slice(0, 3)).toEqual([
@@ -49,11 +51,12 @@ describe("marketing Intake, Qualify, and Engage data", () => {
 
   test("keeps approved qualify scores and tags", () => {
     expect(MARKETING_QUALIFY_SCORES).toEqual([
-      { label: "MOTIVATION", value: "92", pct: 92, tone: "accent" },
-      { label: "TIMELINE", value: "30d", pct: 84, tone: "accent" },
-      { label: "CONDITION", value: "C-", pct: 46, tone: "strong" },
-      { label: "SPREAD", value: "$29k", pct: 62, tone: "strong" },
+      { label: "MOTIVATION", value: "On the record", pct: 70, tone: "accent" },
+      { label: "TIMELINE", value: "On the record", pct: 70, tone: "accent" },
+      { label: "CONDITION", value: "On the record", pct: 50, tone: "strong" },
+      { label: "SPREAD", value: "On the record", pct: 50, tone: "strong" },
     ]);
+    expect(JSON.stringify(MARKETING_QUALIFY_SCORES)).not.toMatch(/\$\d|%/);
 
     expect(MARKETING_QUALIFY_TAGS).toEqual([
       "probate",
@@ -83,21 +86,22 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     expect(MARKETING_WAVEFORM_BARS[47]).toMatchObject({ active: false });
 
     expect(MARKETING_UP_NEXT).toEqual([
-      "R. Petrossian · 85",
-      "Estate of H. Calloway · 88",
-      "P. Raghunathan · 71",
-      "T. Lindgren · 54",
-      "W. Nkemdirim · 41",
+      "R. Petrossian",
+      "Estate of H. Calloway",
+      "P. Raghunathan",
+      "T. Lindgren",
+      "W. Nkemdirim",
     ]);
+    expect(JSON.stringify(MARKETING_UP_NEXT)).not.toMatch(/\d/);
 
     expect(MARKETING_DAY_PLAN).toEqual([
-      { day: "D1", action: "Call + voicemail drop", state: 0 },
+      { day: "D1", action: "Task: confirm the owner", state: 0 },
       { day: "D1", action: "Note: offer context", state: 0 },
-      { day: "D2", action: "Email: process outline", state: 0 },
-      { day: "D3", action: "Call attempt 2", state: 0 },
+      { day: "D2", action: "Task: review the timeline", state: 0 },
+      { day: "D3", action: "Task: check the stage", state: 0 },
       { day: "D5", action: "Task check-in", state: 0 },
-      { day: "D6", action: "Email: comps + offer", state: 0 },
-      { day: "D7", action: "Final call, then nurture", state: 0 },
+      { day: "D6", action: "Task: comps on the record", state: 0 },
+      { day: "D7", action: "Task: set the next step", state: 0 },
     ]);
     expect(JSON.stringify(MARKETING_DAY_PLAN).toLowerCase()).not.toMatch(/sms|sequence|dial/);
   });

@@ -14,7 +14,7 @@ export interface MarketingHeroCopy {
 
 export const MARKETING_HERO_COPY: MarketingHeroCopy = {
   eyebrow: "ACQUISITION CRM / REAL ESTATE",
-  title: "Every lead worked. Nothing goes cold.",
+  title: "Every lead worked. Next task on the record.",
   subhead:
     "VesperWiseCRM is the pipeline CRM for real estate teams. Leads, stages, notes, tasks, and owners stay on one record.",
   primaryCta: "Book a demo",
@@ -28,8 +28,6 @@ export interface MarketingHeroLeadRow {
   address: string;
   source: string;
   stage: string;
-  score: number;
-  touch: string;
   selected?: boolean;
 }
 
@@ -39,8 +37,6 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "4127 Kessler Blvd · Indianapolis, IN",
     source: "PPC",
     stage: "Qualified",
-    score: 92,
-    touch: "4m ago",
     selected: true,
   },
   {
@@ -48,48 +44,36 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "882 Ridgeline Ct · Fort Wayne, IN",
     source: "Imported list",
     stage: "Contacted",
-    score: 78,
-    touch: "22m ago",
   },
   {
     name: "Ray & Lorna Petrossian",
     address: "15 Halstead Ave · Muncie, IN",
     source: "Referral",
     stage: "Appointment",
-    score: 85,
-    touch: "1h ago",
   },
   {
     name: "Tobias Lindgren",
     address: "9040 Sunfield Dr · Kokomo, IN",
     source: "Direct mail",
     stage: "Nurture",
-    score: 54,
-    touch: "3h ago",
   },
   {
     name: "Priya Raghunathan",
     address: "231 W Morris St · Indianapolis, IN",
     source: "Inbound",
     stage: "New",
-    score: 71,
-    touch: "5h ago",
   },
   {
     name: "Estate of H. Calloway",
     address: "77 Ellsworth Rd · Anderson, IN",
     source: "Probate",
     stage: "Contacted",
-    score: 88,
-    touch: "6h ago",
   },
   {
     name: "Walter Nkemdirim",
     address: "3312 Brookville Rd · Terre Haute, IN",
     source: "Imported list",
     stage: "No contact",
-    score: 41,
-    touch: "1d ago",
   },
 ];
 
@@ -102,22 +86,22 @@ export interface MarketingHeroActivityEvent {
 export const MARKETING_HERO_ACTIVITY: MarketingHeroActivityEvent[] = [
   {
     text: "Lead added from an imported list",
-    time: "TODAY 09:14",
+    time: "Activity",
     accent: false,
   },
   {
-    text: "AI call summary: wants out before probate closes",
-    time: "TODAY 09:41",
+    text: "Moved to Qualified · probate timeline on the record",
+    time: "Activity",
     accent: false,
   },
   {
-    text: "Motivation score raised 74 → 92",
-    time: "TODAY 09:41",
+    text: "Note added on the record",
+    time: "Activity",
     accent: true,
   },
   {
-    text: "Assigned to Dana R. · callback task created",
-    time: "TODAY 09:42",
+    text: "Assigned to Dana R. · next task created",
+    time: "Activity",
     accent: true,
   },
 ];
@@ -128,10 +112,10 @@ export interface MarketingLeadIntelStat {
 }
 
 export const MARKETING_LEAD_INTEL_STATS: MarketingLeadIntelStat[] = [
-  { label: "EST. VALUE", value: "$214,000" },
-  { label: "EQUITY", value: "68%" },
-  { label: "OWNERSHIP", value: "14 yrs" },
-  { label: "PHONES", value: "Verification coming soon" },
+  { label: "SOURCE", value: "PPC" },
+  { label: "STAGE", value: "Qualified" },
+  { label: "OWNER", value: "Dana R." },
+  { label: "NEXT TASK", value: "Review Thursday" },
 ];
 
 export const MARKETING_PROOF_LABEL =
@@ -149,9 +133,9 @@ export interface MarketingPremiseCopy {
 
 export const MARKETING_PREMISE_COPY: MarketingPremiseCopy = {
   eyebrow: "0.0 — PREMISE",
-  title: "A CRM that does the follow-up, not just the record-keeping.",
+  title: "Track every lead and its next task.",
   body:
-    "Most acquisition teams lose deals in the gaps — a callback never made, a dead lead never revived. VesperWiseCRM closes those gaps by treating the lead lifecycle as one continuous system.",
+    "Most acquisition teams lose deals in the gaps — a next task never set, a dead lead never revived. VesperWiseCRM closes those gaps by keeping the pipeline and the next task on one record.",
 };
 
 export interface MarketingPremiseStep {
@@ -207,12 +191,11 @@ export interface MarketingIntakeFilter {
 }
 
 export const MARKETING_INTAKE_FILTERS: MarketingIntakeFilter[] = [
-  { label: "Absentee owner", on: true },
-  { label: "Equity above 40%", on: true },
-  { label: "Tenure 5+ years", on: true },
-  { label: "Pre-foreclosure", on: false },
-  { label: "Tax delinquent", on: false },
-  { label: "Vacant", on: true },
+  { label: "PPC and inbound forms", on: true },
+  { label: "Imported lists", on: true },
+  { label: "Referrals", on: true },
+  { label: "Direct mail", on: false },
+  { label: "Probate records", on: true },
 ];
 
 export type MarketingBarTone = "accent" | "strong" | "bg2";
@@ -249,10 +232,10 @@ export interface MarketingQualifyScore {
 }
 
 export const MARKETING_QUALIFY_SCORES: MarketingQualifyScore[] = [
-  { label: "MOTIVATION", value: "92", pct: 92, tone: "accent" },
-  { label: "TIMELINE", value: "30d", pct: 84, tone: "accent" },
-  { label: "CONDITION", value: "C-", pct: 46, tone: "strong" },
-  { label: "SPREAD", value: "$29k", pct: 62, tone: "strong" },
+  { label: "MOTIVATION", value: "On the record", pct: 70, tone: "accent" },
+  { label: "TIMELINE", value: "On the record", pct: 70, tone: "accent" },
+  { label: "CONDITION", value: "On the record", pct: 50, tone: "strong" },
+  { label: "SPREAD", value: "On the record", pct: 50, tone: "strong" },
 ];
 
 export const MARKETING_QUALIFY_TAGS: string[] = [
@@ -267,7 +250,6 @@ export const MARKETING_QUALIFY_TAGS: string[] = [
 export interface MarketingEngageStat {
   label: string;
   value: string;
-  comingSoon?: boolean;
 }
 
 export const MARKETING_ENGAGE_STATS: MarketingEngageStat[] = [
@@ -295,11 +277,11 @@ export const MARKETING_WAVEFORM_BARS: MarketingWaveformBar[] = Array.from(
 );
 
 export const MARKETING_UP_NEXT: string[] = [
-  "R. Petrossian · 85",
-  "Estate of H. Calloway · 88",
-  "P. Raghunathan · 71",
-  "T. Lindgren · 54",
-  "W. Nkemdirim · 41",
+  "R. Petrossian",
+  "Estate of H. Calloway",
+  "P. Raghunathan",
+  "T. Lindgren",
+  "W. Nkemdirim",
 ];
 
 export type MarketingPlanState = 0 | 1 | 2;
@@ -311,13 +293,13 @@ export interface MarketingDayPlanStep {
 }
 
 export const MARKETING_DAY_PLAN: MarketingDayPlanStep[] = [
-  { day: "D1", action: "Call + voicemail drop", state: 0 },
+  { day: "D1", action: "Task: confirm the owner", state: 0 },
   { day: "D1", action: "Note: offer context", state: 0 },
-  { day: "D2", action: "Email: process outline", state: 0 },
-  { day: "D3", action: "Call attempt 2", state: 0 },
+  { day: "D2", action: "Task: review the timeline", state: 0 },
+  { day: "D3", action: "Task: check the stage", state: 0 },
   { day: "D5", action: "Task check-in", state: 0 },
-  { day: "D6", action: "Email: comps + offer", state: 0 },
-  { day: "D7", action: "Final call, then nurture", state: 0 },
+  { day: "D6", action: "Task: comps on the record", state: 0 },
+  { day: "D7", action: "Task: set the next step", state: 0 },
 ];
 
 export type LeadTemperature = "hot" | "warm" | "cold";
@@ -371,17 +353,17 @@ export const DEMO_PIPELINE: DemoPipelineColumn[] = [
 ];
 
 export interface DemoPlanStep {
-  channel: "email" | "task" | "note";
+  channel: "task" | "note";
   label: string;
   timing: string;
   status: "scheduled" | "waiting";
 }
 
 export const DEMO_PLAN: DemoPlanStep[] = [
-  { channel: "email", label: "Intro + cash offer range", timing: "Day 0", status: "scheduled" },
+  { channel: "task", label: "Intro and cash offer range", timing: "Day 0", status: "scheduled" },
   { channel: "task", label: "Quick follow-up task", timing: "Day 1", status: "scheduled" },
   { channel: "note", label: "Qualification note", timing: "Day 2", status: "scheduled" },
-  { channel: "email", label: "Comps + timeline", timing: "Day 4", status: "scheduled" },
+  { channel: "task", label: "Comps and timeline", timing: "Day 4", status: "scheduled" },
   { channel: "note", label: "Still interested?", timing: "Day 7", status: "waiting" },
 ];
 
@@ -429,7 +411,7 @@ export const DEMO_WORDMARKS: string[] = [
   "Bluecreek Land Co",
   "Summit Acquisitions",
   "Irongate Realty",
-  "Cascade Callers",
+  "Cascade Holdings",
   "Redrock Offers",
 ];
 
@@ -442,8 +424,8 @@ export interface DemoMetric {
 
 export const DEMO_METRICS: DemoMetric[] = [
   { value: 12000, suffix: "+", label: "Leads worked through the queue" },
-  { value: 38000, suffix: "+", label: "Follow-ups sent automatically" },
-  { value: 9200, suffix: "+", label: "Calls scored and summarized by AI" },
+  { value: 38000, suffix: "+", label: "Next tasks on the pipeline" },
+  { value: 9200, suffix: "+", label: "Deals with an owner and a next task" },
   { value: 40, suffix: "%", label: "Less time on manual data entry" },
 ];
 
@@ -464,7 +446,7 @@ export const DEMO_TESTIMONIALS: DemoTestimonial[] = [
   },
   {
     quote:
-      "The AI call summaries alone pay for it. My closers stopped taking notes and started closing — I read the summary and know exactly where a deal stands.",
+      "The pipeline alone pays for it. My closers stopped hunting through notes — I open the lead and know exactly where a deal stands.",
     initials: "AO",
     persona: "Agency Owner",
     detail: "Brokerage, 14 seats",
@@ -507,7 +489,7 @@ export const DEMO_PRICING_TIERS: DemoPricingTier[] = [
     description: "For acquisition teams that live in the queue all day.",
     features: [
       "Everything in Solo",
-      "AI lead scoring + call summaries",
+      "AI lead scoring",
       "Tasks and workflows",
       "Scorecards + TV KPI wall",
       "Team roles & permissions",

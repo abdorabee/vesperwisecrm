@@ -12,7 +12,7 @@ describe("redesigned marketing landing data", () => {
   test("keeps the approved hero copy and row values", () => {
     expect(MARKETING_HERO_COPY).toEqual({
       eyebrow: "ACQUISITION CRM / REAL ESTATE",
-      title: "Every lead worked. Nothing goes cold.",
+      title: "Every lead worked. Next task on the record.",
       subhead:
         "VesperWiseCRM is the pipeline CRM for real estate teams. Leads, stages, notes, tasks, and owners stay on one record.",
       primaryCta: "Book a demo",
@@ -20,6 +20,7 @@ describe("redesigned marketing landing data", () => {
       note: "No card. Team free for 60 days.",
       browserTitle: "Lead Queue · All sources",
     });
+    expect(MARKETING_HERO_COPY.title.toLowerCase()).not.toContain("cold");
 
     expect(MARKETING_HERO_ROWS).toHaveLength(7);
     expect(MARKETING_HERO_ROWS[0]).toEqual({
@@ -27,33 +28,34 @@ describe("redesigned marketing landing data", () => {
       address: "4127 Kessler Blvd · Indianapolis, IN",
       source: "PPC",
       stage: "Qualified",
-      score: 92,
-      touch: "4m ago",
       selected: true,
     });
     expect(MARKETING_HERO_ROWS.at(-1)?.name).toBe("Walter Nkemdirim");
+    expect(JSON.stringify(MARKETING_HERO_ROWS)).not.toMatch(
+      /"score"|\$\d|%\b/,
+    );
   });
 
   test("keeps the approved activity, proof logos, and premise captions", () => {
     expect(MARKETING_HERO_ACTIVITY).toEqual([
       {
         text: "Lead added from an imported list",
-        time: "TODAY 09:14",
+        time: "Activity",
         accent: false,
       },
       {
-        text: "AI call summary: wants out before probate closes",
-        time: "TODAY 09:41",
+        text: "Moved to Qualified · probate timeline on the record",
+        time: "Activity",
         accent: false,
       },
       {
-        text: "Motivation score raised 74 → 92",
-        time: "TODAY 09:41",
+        text: "Note added on the record",
+        time: "Activity",
         accent: true,
       },
       {
-        text: "Assigned to Dana R. · callback task created",
-        time: "TODAY 09:42",
+        text: "Assigned to Dana R. · next task created",
+        time: "Activity",
         accent: true,
       },
     ]);

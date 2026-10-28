@@ -49,12 +49,9 @@ describe("billing plan catalog", () => {
     );
   });
 
-  it("hides dialer, workflows, and routing after trial_end", () => {
+  it("hides workflows and routing after trial_end", () => {
     expect(getBillableNavCapabilities("team", "full")).toEqual(
-      expect.arrayContaining(["dialer", "workflows", "routing"]),
-    );
-    expect(getBillableNavCapabilities("team", "billing_required")).not.toContain(
-      "dialer",
+      expect.arrayContaining(["workflows", "routing"]),
     );
     expect(getBillableNavCapabilities("team", "billing_required")).not.toContain(
       "workflows",
@@ -65,7 +62,6 @@ describe("billing plan catalog", () => {
     expect(getBillableNavCapabilities("team", "billing_required")).toEqual(
       expect.arrayContaining(["pipeline", "queue", "sequences"]),
     );
-    expect(getBillableNavCapabilities("starter", "full")).not.toContain("dialer");
     expect(getBillableNavCapabilities("starter", "full")).not.toContain("workflows");
   });
 

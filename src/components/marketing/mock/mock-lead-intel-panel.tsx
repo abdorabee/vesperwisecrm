@@ -1,4 +1,4 @@
-import { ComingSoonPill } from "@/components/marketing/coming-soon-pill";
+import { SampleDataLabel } from "@/components/marketing/sample-data-label";
 import {
   MARKETING_HERO_ACTIVITY,
   MARKETING_LEAD_INTEL_STATS,
@@ -8,16 +8,17 @@ import { cn } from "@/lib/utils";
 const SELECTED_LEAD = {
   name: "Marcus Whitfield",
   address: "4127 Kessler Blvd · Indianapolis, IN",
-  score: 92,
 };
 
 export function MockLeadIntelPanel() {
   return (
     <aside className="relative min-w-0 bg-[var(--mkt-raised)]">
-      <ComingSoonPill className="absolute top-3 right-3 z-10" />
-      <div className="border-b border-[color:var(--mkt-border-subtle)] px-4 py-4 pr-28 sm:px-[18px]">
-        <div className="font-mono text-[10.5px] font-medium tracking-[0.09em] text-[var(--mkt-text3)] uppercase">
-          Lead Intelligence
+      <div className="border-b border-[color:var(--mkt-border-subtle)] px-4 py-4 sm:px-[18px]">
+        <div className="flex items-center justify-between gap-3">
+          <div className="font-mono text-[10.5px] font-medium tracking-[0.09em] text-[var(--mkt-text3)] uppercase">
+            Lead record
+          </div>
+          <SampleDataLabel />
         </div>
         <div className="mt-2.5 font-sans text-[15px] leading-snug font-medium text-[var(--mkt-text)]">
           {SELECTED_LEAD.name}
@@ -27,34 +28,17 @@ export function MockLeadIntelPanel() {
         </div>
       </div>
 
-      <div className="grid gap-3 border-b border-[color:var(--mkt-border-subtle)] px-4 py-4 sm:px-[18px]">
-        <div className="flex items-center justify-between gap-3">
-          <span className="font-sans text-xs text-[var(--mkt-text2)]">
-            Motivation score
-          </span>
-          <span className="font-mono text-xs font-medium text-[var(--mkt-text)] tabular-nums">
-            {SELECTED_LEAD.score}
-          </span>
-        </div>
-        <div className="h-1 overflow-hidden rounded-sm bg-[var(--mkt-bg2)]">
-          <span
-            className="block h-full rounded-sm bg-[var(--mkt-accent)]"
-            style={{ width: `${SELECTED_LEAD.score}%` }}
-          />
-        </div>
-
-        <div className="mt-1 grid grid-cols-2 gap-x-3 gap-y-3">
-          {MARKETING_LEAD_INTEL_STATS.map((stat) => (
-            <div key={stat.label}>
-              <div className="font-mono text-[10.5px] leading-none tracking-[0.06em] text-[var(--mkt-text3)]">
-                {stat.label}
-              </div>
-              <div className="mt-1.5 font-sans text-[13px] leading-snug font-medium text-[var(--mkt-text)]">
-                {stat.value}
-              </div>
+      <div className="grid grid-cols-2 gap-x-3 gap-y-3 border-b border-[color:var(--mkt-border-subtle)] px-4 py-4 sm:px-[18px]">
+        {MARKETING_LEAD_INTEL_STATS.map((stat) => (
+          <div key={stat.label}>
+            <div className="font-mono text-[10.5px] leading-none tracking-[0.06em] text-[var(--mkt-text3)]">
+              {stat.label}
             </div>
-          ))}
-        </div>
+            <div className="mt-1.5 font-sans text-[13px] leading-snug font-medium text-[var(--mkt-text)]">
+              {stat.value}
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="px-4 py-4 sm:px-[18px]">

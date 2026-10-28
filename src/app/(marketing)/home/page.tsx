@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-import { Automate } from "@/components/marketing/sections/automate";
 import { Comparison } from "@/components/marketing/sections/comparison";
 import { Engage } from "@/components/marketing/sections/engage";
 import { FinalCta } from "@/components/marketing/sections/final-cta";
@@ -13,12 +12,12 @@ import { ProofStrip } from "@/components/marketing/sections/proof-strip";
 import { Qualify } from "@/components/marketing/sections/qualify";
 import { Testimonials } from "@/components/marketing/sections/testimonials";
 import { Understand } from "@/components/marketing/sections/understand";
+import { publicSiteOrigin } from "@/lib/marketing/site-url";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://vesperwisecrm.vercel.app";
+const SITE_URL = publicSiteOrigin();
 
 const PAGE_TITLE =
-  "VesperWise CRM — Every Lead Worked. Nothing Goes Cold.";
+  "VesperWise CRM — Every Lead Worked. Next Task on the Record.";
 const PAGE_DESCRIPTION =
   "A pipeline CRM for real estate teams: leads, stages, notes, tasks, owners, and a scorecard.";
 
@@ -65,7 +64,6 @@ export default function HomePage() {
       <Qualify />
       <Engage />
       <Pipeline />
-      <Automate />
       <Understand />
       <Comparison />
       <Testimonials />

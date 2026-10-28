@@ -30,15 +30,7 @@ const SETTINGS_GROUPS: SettingsNavigationGroup[] = [
   },
   {
     label: "Communication",
-    items: [
-      { href: "/settings/email", label: "Email", adminOnly: true },
-      {
-        href: "/settings/calling",
-        label: "Calling",
-        adminOnly: true,
-        requiresCapability: "dialer",
-      },
-    ],
+    items: [{ href: "/settings/email", label: "Email", adminOnly: true }],
   },
     {
       label: "Integrations",
@@ -61,14 +53,12 @@ export function isSettingsPathActive(pathname: string, href: string): boolean {
 export function getSettingsNavigationGroups(
   isAdmin: boolean,
   billingCapabilities: readonly BillingCapability[] = [],
-  outreachUiEnabled = false,
 ): SettingsNavigationGroup[] {
   const allowed = new Set(billingCapabilities);
   return SETTINGS_GROUPS.map((group) => ({
     ...group,
     items: group.items.filter((item) => {
       if (item.adminOnly && !isAdmin) return false;
-      if (item.href === "/settings/calling" && !outreachUiEnabled) return false;
       if (item.requiresCapability && !allowed.has(item.requiresCapability)) return false;
       return true;
     }),

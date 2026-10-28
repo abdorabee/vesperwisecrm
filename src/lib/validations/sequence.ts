@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const sequenceStepSchema = z.object({
-  channel: z.enum(["email", "sms"]),
   delayDays: z
     .string()
     .optional()
@@ -10,13 +9,12 @@ export const sequenceStepSchema = z.object({
       "Must be a whole number",
     ),
   subject: z.string().optional(),
-  bodyTemplate: z.string().min(1, "Message is required"),
+  bodyTemplate: z.string().min(1, "Task note is required"),
 });
 
 export const sequenceSchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional(),
-  isMarketing: z.boolean(),
   steps: z.array(sequenceStepSchema).min(1, "Add at least one step"),
 });
 

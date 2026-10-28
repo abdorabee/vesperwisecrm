@@ -18,23 +18,15 @@ import type { MemberProfile } from "@/lib/queries/members";
 
 interface MemberRestrictionsRowProps {
   member: MemberProfile;
-  sendingDomain: string | null;
 }
 
 export function MemberRestrictionsRow({
   member,
-  sendingDomain,
 }: MemberRestrictionsRowProps) {
   const [leadVisibility, setLeadVisibility] = useState(member.leadVisibility);
   const [jobFunction, setJobFunction] = useState(member.jobFunction ?? "");
   const [maxOpenLeads, setMaxOpenLeads] = useState(
     member.maxOpenLeads != null ? String(member.maxOpenLeads) : "",
-  );
-  const [fromDisplayName, setFromDisplayName] = useState(
-    member.fromDisplayName ?? "",
-  );
-  const [fromEmailLocalPart, setFromEmailLocalPart] = useState(
-    member.fromEmailLocalPart ?? "",
   );
   const [saving, setSaving] = useState(false);
 
@@ -44,8 +36,6 @@ export function MemberRestrictionsRow({
       await updateMemberRestrictions(member.userId, {
         leadVisibility: leadVisibility as "all" | "assigned_only",
         maxOpenLeads,
-        fromDisplayName,
-        fromEmailLocalPart,
         jobFunction: jobFunction as
           | "cold_caller"
           | "lead_manager"
@@ -67,11 +57,6 @@ export function MemberRestrictionsRow({
       <TableCell className="py-4">
         <div className="flex flex-col gap-0.5">
           <span>{member.email}</span>
-          {fromDisplayName && (
-            <span className="text-xs text-muted-foreground">
-              Sends as {fromDisplayName}
-            </span>
-          )}
         </div>
       </TableCell>
       <TableCell className="py-4">
@@ -142,30 +127,6 @@ export function MemberRestrictionsRow({
             value={maxOpenLeads}
             onChange={(e) => setMaxOpenLeads(e.target.value)}
           />
-        </div>
-      </TableCell>
-      <TableCell className="py-4">
-        <div className="flex flex-col gap-2">
-          <span className="text-xs text-muted-foreground">Sender identity</span>
-          <Input
-            placeholder="Display name"
-            className="w-36"
-            value={fromDisplayName}
-            onChange={(e) => setFromDisplayName(e.target.value)}
-          />
-          {sendingDomain && (
-            <div className="flex flex-col gap-1 sm:flex-row sm:items-center">
-              <Input
-                placeholder="local-part"
-                className="w-24"
-                value={fromEmailLocalPart}
-                onChange={(e) => setFromEmailLocalPart(e.target.value)}
-              />
-              <span className="text-xs text-muted-foreground">
-                @{sendingDomain}
-              </span>
-            </div>
-          )}
         </div>
       </TableCell>
       <TableCell className="py-4">

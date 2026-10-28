@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 
 export const alt =
-  "VesperWise CRM — the acquisition pipeline that never lets a lead go cold";
+  "VesperWise CRM — track every lead and its next task";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -62,7 +62,7 @@ export default function Image() {
             maxWidth: 900,
           }}
         >
-          The acquisition pipeline that never lets a lead go cold.
+          Track every lead and its next task.
         </div>
         <div
           style={{
@@ -72,7 +72,7 @@ export default function Image() {
             maxWidth: 860,
           }}
         >
-          Lead intake, AI qualification, and automated follow-up — in one place.
+          A pipeline CRM for leads, stages, notes, tasks, and owners.
         </div>
       </div>
     ),

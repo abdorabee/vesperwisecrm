@@ -2,7 +2,6 @@ import Link from "next/link";
 import { requireSettingsAdmin } from "@/lib/settings-access";
 import { getCurrentBillableNavCapabilities } from "@/lib/billing/access";
 import { getAccountMemberProfiles, getPendingInvites } from "@/lib/queries/members";
-import { getAccountEmailSettingsForAdmin } from "@/lib/queries/account-email";
 import { getTvDisplayTokensForAdmin } from "@/lib/queries/tv";
 import { SettingsPageHeader, SettingsSection } from "@/components/settings/settings-primitives";
 import { Button } from "@/components/ui/button";
@@ -15,10 +14,9 @@ import { PendingInvites } from "./_components/pending-invites";
 export default async function MembersSettingsPage() {
   await requireSettingsAdmin();
   const billingCapabilities = await getCurrentBillableNavCapabilities();
-  const [members, invites, emailSettings, tvTokens] = await Promise.all([
+  const [members, invites, tvTokens] = await Promise.all([
     getAccountMemberProfiles(),
     getPendingInvites(),
-    getAccountEmailSettingsForAdmin(),
     getTvDisplayTokensForAdmin(),
   ]);
   return (
@@ -34,8 +32,8 @@ export default async function MembersSettingsPage() {
           </div>
           <div className="overflow-x-auto rounded-lg border border-border">
             <Table>
-              <TableHeader><TableRow><TableHead>Member</TableHead><TableHead>Role</TableHead><TableHead>Job function</TableHead><TableHead>Lead visibility</TableHead><TableHead>Max open leads</TableHead><TableHead>Sender identity</TableHead><TableHead /></TableRow></TableHeader>
-              <TableBody>{members.map((member) => <MemberRestrictionsRow key={member.userId} member={member} sendingDomain={emailSettings?.sending_domain ?? null} />)}</TableBody>
+              <TableHeader><TableRow><TableHead>Member</TableHead><TableHead>Role</TableHead><TableHead>Job function</TableHead><TableHead>Lead visibility</TableHead><TableHead>Max open leads</TableHead><TableHead /></TableRow></TableHeader>
+              <TableBody>{members.map((member) => <MemberRestrictionsRow key={member.userId} member={member} />)}</TableBody>
             </Table>
           </div>
         </div>

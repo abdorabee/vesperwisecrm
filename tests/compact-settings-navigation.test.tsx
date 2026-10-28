@@ -7,8 +7,8 @@ describe("compact settings navigation", () => {
     const markup = renderToStaticMarkup(
       <CompactSettingsNavigation
         current={{
-          href: "/settings/calling",
-          label: "Calling",
+          href: "/settings/email",
+          label: "Email",
           groupLabel: "Communication",
           adminOnly: true,
         }}
@@ -17,20 +17,19 @@ describe("compact settings navigation", () => {
             label: "Communication",
             items: [
               { href: "/settings/email", label: "Email", adminOnly: true },
-              { href: "/settings/calling", label: "Calling", adminOnly: true },
             ],
           },
         ]}
-        pathname="/settings/calling"
+        pathname="/settings/email"
         onNavigate={() => true}
       />,
     );
 
     expect(markup).toContain(">Settings<");
     expect(markup).toContain(">Communication<");
-    expect(markup).toContain(">Calling<");
+    expect(markup).toContain(">Email<");
     expect(markup).toContain(
-      'aria-label="Open settings navigation. Current page: Communication, Calling"',
+      'aria-label="Open settings navigation. Current page: Communication, Email"',
     );
   });
 });
