@@ -107,6 +107,7 @@ describe("marketing public paths", () => {
     expect(pricingPage).not.toContain("Checkout for the founding offer is on Polar.");
     expect(pricingPage).toContain("NEXT_PUBLIC_POLAR_FOUNDING_CHECKOUT_URL");
     expect(pricingPage).toContain('"/signup"');
+    expect(isMarketingPublicPath("/solutions")).toBe(true);
     expect(isMarketingPublicPath("/solutions/wholesalers")).toBe(true);
     expect(isMarketingPublicPath("/privacy")).toBe(true);
     expect(isMarketingPublicPath("/about")).toBe(true);
@@ -119,6 +120,7 @@ describe("marketing public paths", () => {
   test("lists sitemap destinations for every footer page", () => {
     expect(MARKETING_SITEMAP_PATHS).toContain("/book-demo");
     expect(MARKETING_SITEMAP_PATHS).toContain("/pricing");
+    expect(MARKETING_SITEMAP_PATHS).toContain("/solutions");
     expect(MARKETING_SITEMAP_PATHS).toEqual(
       expect.arrayContaining([
         ...SOLUTION_SLUGS.map((slug) => `/solutions/${slug}`),
@@ -126,6 +128,29 @@ describe("marketing public paths", () => {
       ]),
     );
     expect(Object.keys(SOLUTION_PAGES)).toEqual([...SOLUTION_SLUGS]);
+  });
+
+  test("solutions index redirects to home so /solutions does not 404", () => {
+    const page = readFileSync("src/app/(marketing)/solutions/page.tsx", "utf8");
+    expect(page).toContain('redirect("/home")');
+  });
+
+  test("legal and footer copy disclaim outbound send and keep the pipeline line", () => {
+    expect(MARKETING_PAGES.privacy.sections.map((section) => section.body).join("\n")).not.toMatch(
+      /twilio|dialer/i,
+    );
+    expect(MARKETING_PAGES.security.sections.map((section) => section.body).join("\n")).not.toMatch(
+      /twilio|dialer/i,
+    );
+    expect(MARKETING_PAGES.terms.sections.map((section) => section.body).join("\n")).toContain(
+      "The product does not send bulk, cold, or automated email or SMS.",
+    );
+    const footer = readFileSync(
+      "src/components/marketing/marketing-footer.tsx",
+      "utf8",
+    );
+    expect(footer).toContain("Track every lead and its next task.");
+    expect(footer).not.toMatch(/dialer|sequence|sms|coming soon/i);
   });
 });
 

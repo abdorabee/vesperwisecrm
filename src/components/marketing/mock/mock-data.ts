@@ -207,12 +207,11 @@ export interface MarketingIntakeFilter {
 }
 
 export const MARKETING_INTAKE_FILTERS: MarketingIntakeFilter[] = [
-  { label: "Absentee owner", on: true },
-  { label: "Equity above 40%", on: true },
-  { label: "Tenure 5+ years", on: true },
-  { label: "Pre-foreclosure", on: false },
-  { label: "Tax delinquent", on: false },
-  { label: "Vacant", on: true },
+  { label: "PPC and inbound forms", on: true },
+  { label: "Imported lists", on: true },
+  { label: "Referrals", on: true },
+  { label: "Direct mail", on: false },
+  { label: "Probate records", on: true },
 ];
 
 export type MarketingBarTone = "accent" | "strong" | "bg2";
@@ -267,7 +266,6 @@ export const MARKETING_QUALIFY_TAGS: string[] = [
 export interface MarketingEngageStat {
   label: string;
   value: string;
-  comingSoon?: boolean;
 }
 
 export const MARKETING_ENGAGE_STATS: MarketingEngageStat[] = [

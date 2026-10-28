@@ -24,13 +24,15 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     ).not.toContain("skip tracing");
 
     expect(MARKETING_INTAKE_FILTERS).toEqual([
-      { label: "Absentee owner", on: true },
-      { label: "Equity above 40%", on: true },
-      { label: "Tenure 5+ years", on: true },
-      { label: "Pre-foreclosure", on: false },
-      { label: "Tax delinquent", on: false },
-      { label: "Vacant", on: true },
+      { label: "PPC and inbound forms", on: true },
+      { label: "Imported lists", on: true },
+      { label: "Referrals", on: true },
+      { label: "Direct mail", on: false },
+      { label: "Probate records", on: true },
     ]);
+    expect(
+      MARKETING_INTAKE_FILTERS.map((filter) => filter.label).join(" ").toLowerCase(),
+    ).not.toMatch(/absentee|equity|foreclosure|delinquent|vacant|skip/);
 
     expect(MARKETING_FUNNEL_BARS).toHaveLength(26);
     expect(MARKETING_FUNNEL_BARS.slice(0, 3)).toEqual([

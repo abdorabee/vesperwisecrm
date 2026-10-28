@@ -173,4 +173,27 @@ describe("marketing home page section order", () => {
     expect(page).not.toMatch(/dialer|sequence|sms/i);
     expect(page).toContain("pipeline");
   });
+
+  test("intake mock is source filtering, not a coming-soon outreach list pull", () => {
+    expect(existsSync("src/components/marketing/coming-soon-pill.tsx")).toBe(
+      false,
+    );
+
+    const panel = source(
+      "src/components/marketing/mock/mock-search-panel.tsx",
+    );
+    expect(panel).toContain("FIG 1.1 — INTAKE FILTERED BY SOURCE");
+    expect(panel).toContain("FILTERS · SOURCE");
+    expect(panel).toContain("imported list, Marion County");
+    expect(panel).toContain("Add to queue");
+    expect(panel).toContain("SOURCES IN THE QUEUE");
+    expect(panel).not.toContain("Coming soon");
+    expect(panel).not.toContain("ComingSoonPill");
+    expect(panel).not.toContain("18,402");
+    expect(panel).not.toMatch(/skip trac|absentee|pre-foreclosure|dialer|sms|sequence/i);
+
+    const og = source("src/app/(marketing)/home/opengraph-image.tsx");
+    expect(og).toContain("Track every lead and its next task.");
+    expect(og).not.toMatch(/dialer|sequence|sms|coming soon/i);
+  });
 });
