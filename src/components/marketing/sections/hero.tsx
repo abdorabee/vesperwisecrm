@@ -4,6 +4,7 @@ import { MockBrowserFrame } from "@/components/marketing/mock/mock-browser-frame
 import { MARKETING_HERO_COPY } from "@/components/marketing/mock/mock-data";
 import { MockLeadIntelPanel } from "@/components/marketing/mock/mock-lead-intel-panel";
 import { MockLeadTable } from "@/components/marketing/mock/mock-lead-table";
+import { SampleDataLabel } from "@/components/marketing/sample-data-label";
 import { Reveal } from "@/components/marketing/motion/reveal";
 
 export function Hero() {
@@ -69,16 +70,7 @@ export function Hero() {
               boxShadow:
                 "0 32px 90px color-mix(in oklch, var(--mkt-text) 14%, transparent)",
             }}
-            actions={
-              <>
-                <span className="rounded-[5px] border border-[color:var(--mkt-border-subtle)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-text3)]">
-                  Motivation ≥ 70
-                </span>
-                <span className="rounded-[5px] bg-[var(--mkt-accent)] px-2 py-1.5 font-mono text-[11px] leading-none text-[var(--mkt-accent-ink)]">
-                  Unworked · 12
-                </span>
-              </>
-            }
+            actions={<SampleDataLabel />}
           >
             <div className="grid min-w-0 lg:grid-cols-[minmax(0,1fr)_320px]">
               <div className="min-w-0 border-b border-[color:var(--mkt-border-subtle)] lg:border-r lg:border-b-0">

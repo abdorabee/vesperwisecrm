@@ -1,4 +1,5 @@
 import { RecordFigure } from "@/components/marketing/figures/record-figure";
+import { SampleDataLabel } from "@/components/marketing/sample-data-label";
 import { Reveal } from "@/components/marketing/motion/reveal";
 
 export function Qualify() {
@@ -28,9 +29,7 @@ export function Qualify() {
             <span className="font-mono text-[10.5px] leading-none font-medium tracking-normal text-[var(--mkt-text3)]">
               FIG 2.1 — RECORD, LAYERED
             </span>
-            <span className="font-mono text-[10.5px] leading-none text-[var(--mkt-text3)]">
-              HOVER A LAYER
-            </span>
+            <SampleDataLabel />
           </div>
           <div className="rounded-2xl border border-[color:var(--mkt-border)] bg-[var(--mkt-surface)] px-2.5 py-3.5">
             <RecordFigure />

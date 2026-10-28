@@ -227,7 +227,7 @@ export const MARKETING_PAGES = {
     eyebrow: "Company / About",
     title: "The acquisition system for real estate teams.",
     description:
-      "VesperWise CRM is the conversion system in the VesperWise ecosystem: intake, qualification, conversations, pipeline, and follow-up on one record so leads do not go cold between tools.",
+      "VesperWise CRM is the conversion system in the VesperWise ecosystem: intake, qualification, conversations, pipeline, and the next task on one record so the next step stays visible between tools.",
     sections: [
       {
         heading: "Track every lead and its next task.",
@@ -338,7 +338,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "The product",
-        body: "Access to VesperWise CRM requires an account. Lead and email data in a signed-in workspace belongs to that account. You are responsible for the data you import and for credentials you connect. The product does not send bulk, cold, or automated email or SMS. We may suspend abuse of intake.",
+        body: "Access to VesperWise CRM requires an account. Lead and email data in a signed-in workspace belongs to that account. You are responsible for the data you import and for credentials you connect. The product is a record-keeping and task tool for your own leads and deals. We may suspend abuse of intake.",
       },
       {
         heading: "Cancellation and refunds",
@@ -350,7 +350,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Your data",
-        body: "You are responsible for the data you import and for credentials you connect. The product does not send bulk, cold, or automated email or SMS.",
+        body: "You are responsible for the data you import and for credentials you connect. The product is a record-keeping and task tool for your own leads and deals.",
       },
     ],
     cta: { label: "See pricing", href: "/home#pricing" },

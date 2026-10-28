@@ -6,9 +6,9 @@ import {
   type MarketingPageContent,
   type MarketingPageSlug,
 } from "@/components/marketing/content/pages";
+import { publicSiteOrigin } from "@/lib/marketing/site-url";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://vesperwisecrm.vercel.app";
+const SITE_URL = publicSiteOrigin();
 
 export function marketingContentMetadata(page: MarketingPageContent): Metadata {
   return {

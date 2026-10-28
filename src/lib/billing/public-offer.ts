@@ -4,4 +4,4 @@ export const PUBLIC_SEAT_OFFER =
 export const PUBLIC_BILLING_CADENCE =
   "Prices are monthly per seat. There is no annual contract.";
 
-export const LEGAL_LAST_UPDATED = "4 October 2026";
+export const LEGAL_LAST_UPDATED = "28 October 2026";

@@ -26,7 +26,7 @@ describe("legal pages and the live offer", () => {
     );
   });
 
-  test("terms cover cancellation, renewal, and calling without invented contract clauses", () => {
+  test("terms cover cancellation, renewal, and workspace data without invented contract clauses", () => {
     const headings = MARKETING_PAGES.terms.sections.map((section) => section.heading);
     expect(headings).toEqual(
       expect.arrayContaining([

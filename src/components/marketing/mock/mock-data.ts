@@ -14,7 +14,7 @@ export interface MarketingHeroCopy {
 
 export const MARKETING_HERO_COPY: MarketingHeroCopy = {
   eyebrow: "ACQUISITION CRM / REAL ESTATE",
-  title: "Every lead worked. Nothing goes cold.",
+  title: "Every lead worked. Next task on the record.",
   subhead:
     "VesperWiseCRM is the pipeline CRM for real estate teams. Leads, stages, notes, tasks, and owners stay on one record.",
   primaryCta: "Book a demo",
@@ -28,8 +28,6 @@ export interface MarketingHeroLeadRow {
   address: string;
   source: string;
   stage: string;
-  score: number;
-  touch: string;
   selected?: boolean;
 }
 
@@ -39,8 +37,6 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "4127 Kessler Blvd · Indianapolis, IN",
     source: "PPC",
     stage: "Qualified",
-    score: 92,
-    touch: "4m ago",
     selected: true,
   },
   {
@@ -48,48 +44,36 @@ export const MARKETING_HERO_ROWS: MarketingHeroLeadRow[] = [
     address: "882 Ridgeline Ct · Fort Wayne, IN",
     source: "Imported list",
     stage: "Contacted",
-    score: 78,
-    touch: "22m ago",
   },
   {
     name: "Ray & Lorna Petrossian",
     address: "15 Halstead Ave · Muncie, IN",
     source: "Referral",
     stage: "Appointment",
-    score: 85,
-    touch: "1h ago",
   },
   {
     name: "Tobias Lindgren",
     address: "9040 Sunfield Dr · Kokomo, IN",
     source: "Direct mail",
     stage: "Nurture",
-    score: 54,
-    touch: "3h ago",
   },
   {
     name: "Priya Raghunathan",
     address: "231 W Morris St · Indianapolis, IN",
     source: "Inbound",
     stage: "New",
-    score: 71,
-    touch: "5h ago",
   },
   {
     name: "Estate of H. Calloway",
     address: "77 Ellsworth Rd · Anderson, IN",
     source: "Probate",
     stage: "Contacted",
-    score: 88,
-    touch: "6h ago",
   },
   {
     name: "Walter Nkemdirim",
     address: "3312 Brookville Rd · Terre Haute, IN",
     source: "Imported list",
     stage: "No contact",
-    score: 41,
-    touch: "1d ago",
   },
 ];
 
@@ -102,22 +86,22 @@ export interface MarketingHeroActivityEvent {
 export const MARKETING_HERO_ACTIVITY: MarketingHeroActivityEvent[] = [
   {
     text: "Lead added from an imported list",
-    time: "TODAY 09:14",
+    time: "Activity",
     accent: false,
   },
   {
     text: "Moved to Qualified · probate timeline on the record",
-    time: "TODAY 09:41",
+    time: "Activity",
     accent: false,
   },
   {
-    text: "Motivation score raised 74 → 92",
-    time: "TODAY 09:41",
+    text: "Note added on the record",
+    time: "Activity",
     accent: true,
   },
   {
     text: "Assigned to Dana R. · next task created",
-    time: "TODAY 09:42",
+    time: "Activity",
     accent: true,
   },
 ];
@@ -128,9 +112,9 @@ export interface MarketingLeadIntelStat {
 }
 
 export const MARKETING_LEAD_INTEL_STATS: MarketingLeadIntelStat[] = [
-  { label: "EST. VALUE", value: "$214,000" },
-  { label: "EQUITY", value: "68%" },
-  { label: "OWNERSHIP", value: "14 yrs" },
+  { label: "SOURCE", value: "PPC" },
+  { label: "STAGE", value: "Qualified" },
+  { label: "OWNER", value: "Dana R." },
   { label: "NEXT TASK", value: "Review Thursday" },
 ];
 
@@ -248,10 +232,10 @@ export interface MarketingQualifyScore {
 }
 
 export const MARKETING_QUALIFY_SCORES: MarketingQualifyScore[] = [
-  { label: "MOTIVATION", value: "92", pct: 92, tone: "accent" },
-  { label: "TIMELINE", value: "30d", pct: 84, tone: "accent" },
-  { label: "CONDITION", value: "C-", pct: 46, tone: "strong" },
-  { label: "SPREAD", value: "$29k", pct: 62, tone: "strong" },
+  { label: "MOTIVATION", value: "On the record", pct: 70, tone: "accent" },
+  { label: "TIMELINE", value: "On the record", pct: 70, tone: "accent" },
+  { label: "CONDITION", value: "On the record", pct: 50, tone: "strong" },
+  { label: "SPREAD", value: "On the record", pct: 50, tone: "strong" },
 ];
 
 export const MARKETING_QUALIFY_TAGS: string[] = [
@@ -293,11 +277,11 @@ export const MARKETING_WAVEFORM_BARS: MarketingWaveformBar[] = Array.from(
 );
 
 export const MARKETING_UP_NEXT: string[] = [
-  "R. Petrossian · 85",
-  "Estate of H. Calloway · 88",
-  "P. Raghunathan · 71",
-  "T. Lindgren · 54",
-  "W. Nkemdirim · 41",
+  "R. Petrossian",
+  "Estate of H. Calloway",
+  "P. Raghunathan",
+  "T. Lindgren",
+  "W. Nkemdirim",
 ];
 
 export type MarketingPlanState = 0 | 1 | 2;

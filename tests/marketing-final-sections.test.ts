@@ -166,8 +166,9 @@ describe("marketing home page section order", () => {
     }
 
     expect(page).toContain(
-      "VesperWise CRM — Every Lead Worked. Nothing Goes Cold.",
+      "VesperWise CRM — Every Lead Worked. Next Task on the Record.",
     );
+    expect(page).not.toMatch(/goes cold/i);
     expect(page).toContain("A pipeline CRM for real estate teams");
     expect(page).not.toContain("skip tracing");
     expect(page).not.toMatch(/dialer|sequence|sms/i);
@@ -195,5 +196,41 @@ describe("marketing home page section order", () => {
     const og = source("src/app/(marketing)/home/opengraph-image.tsx");
     expect(og).toContain("Track every lead and its next task.");
     expect(og).not.toMatch(/dialer|sequence|sms|coming soon/i);
+  });
+
+  test("home mocks label sample data and omit invented performance figures", () => {
+    const files = [
+      "src/components/marketing/mock/mock-pipeline-board.tsx",
+      "src/components/marketing/mock/mock-source-table.tsx",
+      "src/components/marketing/mock/mock-funnel-chart.tsx",
+      "src/components/marketing/mock/mock-rep-leaderboard.tsx",
+      "src/components/marketing/mock/mock-lead-table.tsx",
+      "src/components/marketing/mock/mock-lead-intel-panel.tsx",
+      "src/components/marketing/sections/hero.tsx",
+    ];
+    for (const file of files) {
+      const fileSource = source(file);
+      expect(fileSource, file).not.toContain("$1.62M");
+      expect(fileSource, file).not.toContain("$1,840");
+      expect(fileSource, file).not.toContain("2.9%");
+      expect(fileSource, file).not.toContain("$27.4");
+      expect(fileSource, file).not.toContain("Unworked");
+      expect(fileSource, file).not.toMatch(/Motivation ≥/);
+    }
+    expect(source("src/components/marketing/mock/mock-pipeline-board.tsx")).toContain(
+      "SampleDataLabel",
+    );
+    expect(source("src/components/marketing/sections/hero.tsx")).toContain(
+      "SampleDataLabel",
+    );
+    expect(source("src/lib/marketing/site-url.ts")).toContain(
+      "https://www.vesperwisecrm.com",
+    );
+    expect(source("src/app/(marketing)/home/page.tsx")).not.toContain(
+      "vesperwisecrm.vercel.app",
+    );
+    expect(source("src/lib/marketing/content-route.tsx")).not.toContain(
+      "vesperwisecrm.vercel.app",
+    );
   });
 });

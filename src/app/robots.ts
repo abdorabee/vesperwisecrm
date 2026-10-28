@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 
 import { MARKETING_PUBLIC_PATHS } from "@/lib/marketing/public-paths";
+import { publicSiteOrigin } from "@/lib/marketing/site-url";
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://vesperwisecrm.vercel.app";
+const SITE_URL = publicSiteOrigin();
 
 export default function robots(): MetadataRoute.Robots {
   return {

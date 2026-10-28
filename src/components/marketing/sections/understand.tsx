@@ -27,9 +27,8 @@ export function Understand() {
               </h2>
             </div>
             <p className="mt-5 max-w-[46ch] text-[17px] font-light leading-[1.6] text-[var(--mkt-text2)]">
-              Reporting built for acquisitions: cost per contract by source,
-              rep activity against outcomes, and conversion at every stage of
-              the funnel.
+              See sources, stages, and owners on one record — the queue and the
+              pipeline stay visible without exporting a weekly deck.
             </p>
           </div>
 

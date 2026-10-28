@@ -16,13 +16,12 @@ export function Pipeline() {
               </h2>
             </div>
             <p className="mt-5 max-w-[46ch] text-[17px] font-light leading-[1.6] text-[var(--mkt-text2)]">
-              Offers, contracts and closings tracked by stage — with the aging,
-              assigned rep and expected spread visible on the card, not buried
-              in a record.
+              Offers, contracts and closings tracked by stage — with the owner
+              and next task visible on the card, not buried in a record.
             </p>
           </div>
           <span className="font-mono text-[10.5px] font-medium tracking-[0.1em] text-[var(--mkt-text3)]">
-            FIG 4.1 — PIPELINE / ACQUISITIONS Q3
+            FIG 4.1 — SAMPLE PIPELINE
           </span>
         </Reveal>
 

@@ -142,9 +142,23 @@ describe("marketing public paths", () => {
     expect(MARKETING_PAGES.security.sections.map((section) => section.body).join("\n")).not.toMatch(
       /twilio|dialer/i,
     );
-    expect(MARKETING_PAGES.terms.sections.map((section) => section.body).join("\n")).toContain(
-      "The product does not send bulk, cold, or automated email or SMS.",
+    const legalCopy = [
+      ...MARKETING_PAGES.privacy.sections,
+      ...MARKETING_PAGES.security.sections,
+      ...MARKETING_PAGES.terms.sections,
+      ...MARKETING_PAGES.integrations.sections,
+    ]
+      .map((section) => `${section.heading}\n${section.body}`)
+      .join("\n");
+    expect(legalCopy).toContain(
+      "The product is a record-keeping and task tool for your own leads and deals.",
     );
+    const publicCopy = JSON.stringify({
+      pages: MARKETING_PAGES,
+      solutions: SOLUTION_PAGES,
+    });
+    expect(publicCopy).not.toMatch(/\bcold\b|\bbulk\b|\bSMS\b/i);
+    expect(legalCopy).not.toMatch(/\bcold\b|\bbulk\b|\bSMS\b/i);
     const footer = readFileSync(
       "src/components/marketing/marketing-footer.tsx",
       "utf8",

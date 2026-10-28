@@ -51,11 +51,12 @@ describe("marketing Intake, Qualify, and Engage data", () => {
 
   test("keeps approved qualify scores and tags", () => {
     expect(MARKETING_QUALIFY_SCORES).toEqual([
-      { label: "MOTIVATION", value: "92", pct: 92, tone: "accent" },
-      { label: "TIMELINE", value: "30d", pct: 84, tone: "accent" },
-      { label: "CONDITION", value: "C-", pct: 46, tone: "strong" },
-      { label: "SPREAD", value: "$29k", pct: 62, tone: "strong" },
+      { label: "MOTIVATION", value: "On the record", pct: 70, tone: "accent" },
+      { label: "TIMELINE", value: "On the record", pct: 70, tone: "accent" },
+      { label: "CONDITION", value: "On the record", pct: 50, tone: "strong" },
+      { label: "SPREAD", value: "On the record", pct: 50, tone: "strong" },
     ]);
+    expect(JSON.stringify(MARKETING_QUALIFY_SCORES)).not.toMatch(/\$\d|%/);
 
     expect(MARKETING_QUALIFY_TAGS).toEqual([
       "probate",
@@ -85,12 +86,13 @@ describe("marketing Intake, Qualify, and Engage data", () => {
     expect(MARKETING_WAVEFORM_BARS[47]).toMatchObject({ active: false });
 
     expect(MARKETING_UP_NEXT).toEqual([
-      "R. Petrossian · 85",
-      "Estate of H. Calloway · 88",
-      "P. Raghunathan · 71",
-      "T. Lindgren · 54",
-      "W. Nkemdirim · 41",
+      "R. Petrossian",
+      "Estate of H. Calloway",
+      "P. Raghunathan",
+      "T. Lindgren",
+      "W. Nkemdirim",
     ]);
+    expect(JSON.stringify(MARKETING_UP_NEXT)).not.toMatch(/\d/);
 
     expect(MARKETING_DAY_PLAN).toEqual([
       { day: "D1", action: "Task: confirm the owner", state: 0 },

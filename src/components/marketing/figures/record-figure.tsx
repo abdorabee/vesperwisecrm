@@ -34,7 +34,7 @@ const RECORD_LAYERS: Layer[] = [
     index: 2,
     path: "M 62 144 L 150 100 L 238 144 L 150 188 Z",
     connectorY: 144,
-    label: "PROPERTY · $214K",
+    label: "PROPERTY",
     accent: false,
     delay: "0.36s",
   },
