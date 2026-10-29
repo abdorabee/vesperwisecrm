@@ -1,20 +1,16 @@
 import { describe, expect, test } from "vitest";
 
 import { MARKETING_PAGES, SOLUTION_PAGES } from "@/components/marketing/content/pages";
-import {
-  LEGAL_LAST_UPDATED,
-  PUBLIC_BILLING_CADENCE,
-  PUBLIC_SEAT_OFFER,
-} from "@/lib/billing/public-offer";
+import { LEGAL_LAST_UPDATED } from "@/lib/billing/public-offer";
 
 describe("legal pages and the live offer", () => {
-  test("terms and privacy state the same offer and stay not counsel-reviewed", () => {
+  test("terms and privacy point at the pricing page and stay not counsel-reviewed", () => {
     for (const page of [MARKETING_PAGES.terms, MARKETING_PAGES.privacy]) {
       const text = [page.description, ...page.sections.map((section) => section.body)].join(
         "\n",
       );
-      expect(text).toContain(PUBLIC_SEAT_OFFER);
-      expect(text).toContain(PUBLIC_BILLING_CADENCE);
+      expect(text).toContain("Pricing is shown on our pricing page");
+      expect(text).not.toMatch(/\$99|\$179|60-day|per seat/i);
       expect(page.updated).toBe(LEGAL_LAST_UPDATED);
     }
 

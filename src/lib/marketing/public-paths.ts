@@ -21,7 +21,6 @@ export const MARKETING_SITEMAP_PATHS = [
   "/home",
   "/pricing",
   "/book-demo",
-  "/solutions",
   "/solutions/wholesalers",
   "/solutions/fix-and-flip",
   "/solutions/buy-and-hold",

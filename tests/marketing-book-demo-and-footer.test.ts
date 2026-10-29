@@ -95,12 +95,11 @@ describe("marketing public paths", () => {
       "Includes done-for-you setup, 5 seats, and every future update.",
     );
     expect(pricingPage).toContain("Full refund if you cancel within your first month.");
-    expect(pricingPage).toContain(
+    expect(pricingPage).not.toContain(
       "After the 5 founding spots, new teams go on the subscription.",
     );
-    expect(pricingPage).toContain(
-      "Or start free: every new workspace gets 60 days free, no card.",
-    );
+    expect(pricingPage).not.toContain("60 days");
+    expect(pricingPage).not.toMatch(/\$99|\$179|60-day|per seat/i);
     expect(pricingPage).toContain("Claim a founding spot");
     expect(pricingPage).toContain("Book a 15-min call");
     expect(pricingPage).toContain('href="/book-demo"');
@@ -120,7 +119,7 @@ describe("marketing public paths", () => {
   test("lists sitemap destinations for every footer page", () => {
     expect(MARKETING_SITEMAP_PATHS).toContain("/book-demo");
     expect(MARKETING_SITEMAP_PATHS).toContain("/pricing");
-    expect(MARKETING_SITEMAP_PATHS).toContain("/solutions");
+    expect(MARKETING_SITEMAP_PATHS).not.toContain("/solutions");
     expect(MARKETING_SITEMAP_PATHS).toEqual(
       expect.arrayContaining([
         ...SOLUTION_SLUGS.map((slug) => `/solutions/${slug}`),

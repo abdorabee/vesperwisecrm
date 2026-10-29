@@ -4,15 +4,7 @@ import { readFileSync } from "node:fs";
 import { checkoutRenewalDisclosure } from "@/lib/billing/checkout-renewal";
 
 describe("checkout renewal terms", () => {
-  test("uses the pricing-card monthly per-seat prices", () => {
-    const pricing = readFileSync(
-      "src/components/marketing/sections/pricing-preview.tsx",
-      "utf8",
-    );
-    expect(pricing).toContain('price: "$99"');
-    expect(pricing).toContain('price: "$179"');
-    expect(pricing).toContain('cadence: "/ SEAT / MO"');
-
+  test("discloses monthly renewal for starter and team checkout", () => {
     expect(checkoutRenewalDisclosure("starter")).toBe(
       "Starter is $99 per seat per month. It renews monthly per seat until canceled. Cancellation stops the next renewal.",
     );

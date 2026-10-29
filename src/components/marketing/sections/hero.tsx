@@ -45,9 +45,11 @@ export function Hero() {
             >
               {MARKETING_HERO_COPY.secondaryCta}
             </a>
-            <span className="font-mono text-[12.5px] leading-none text-[var(--mkt-text3)] sm:ml-1.5">
-              {MARKETING_HERO_COPY.note}
-            </span>
+            {MARKETING_HERO_COPY.note ? (
+              <span className="font-mono text-[12.5px] leading-none text-[var(--mkt-text3)] sm:ml-1.5">
+                {MARKETING_HERO_COPY.note}
+              </span>
+            ) : null}
           </div>
         </Reveal>
 

@@ -1,8 +1,4 @@
-import {
-  LEGAL_LAST_UPDATED,
-  PUBLIC_BILLING_CADENCE,
-  PUBLIC_SEAT_OFFER,
-} from "@/lib/billing/public-offer";
+import { LEGAL_LAST_UPDATED } from "@/lib/billing/public-offer";
 
 export interface MarketingPageSection {
   heading: string;
@@ -149,7 +145,7 @@ export const MARKETING_PAGES = {
   onboarding: {
     href: "/onboarding",
     eyebrow: "Resources / Onboarding",
-    title: "A 60-day Team trial, not a six-month implementation.",
+    title: "Pricing is shown on our pricing page",
     description:
       "Start with intake, the queue, and one pipeline. CSV import of contacts and leads is in workspace settings.",
     sections: [
@@ -162,7 +158,7 @@ export const MARKETING_PAGES = {
         body: "Assign an owner and move leads through pipeline stages. An in-app tour walks signed-in members through the same path.",
       },
     ],
-    cta: { label: "Start free trial", href: "/signup" },
+    cta: { label: "See pricing", href: "/pricing" },
   },
   changelog: {
     href: "/changelog",
@@ -177,7 +173,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Next",
-        body: "Attributed customer quotes replace the labeled placeholders on the landing page. Seat prices on the pricing section are the current monthly offer. No invented metrics in the meantime.",
+        body: "Attributed customer quotes replace the labeled placeholders on the landing page. Pricing is shown on our pricing page. No invented metrics in the meantime.",
       },
     ],
     cta: { label: "Book a demo", href: "/book-demo" },
@@ -296,7 +292,7 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "The offer",
-        body: `${PUBLIC_SEAT_OFFER} ${PUBLIC_BILLING_CADENCE}`,
+        body: "Pricing is shown on our pricing page",
       },
       {
         heading: "Marketing site",
@@ -308,7 +304,7 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Subprocessors",
-        body: "Supabase stores workspace data and handles sign-in. Polar processes Starter and Team checkout, invoices, and cancellation. Resend sends workspace email and signup messages when email is configured. AI scoring and note parsing send lead text to Anthropic when that feature is configured and the plan includes it. Google Docs and Drive run only after a workspace connects Google.",
+        body: "Supabase stores workspace data and handles sign-in. Polar processes checkout, invoices, and cancellation. Resend sends workspace email and signup messages when email is configured. AI scoring and note parsing send lead text to Anthropic when that feature is configured and the plan includes it. Google Docs and Drive run only after a workspace connects Google.",
       },
       {
         heading: "Retention and deletion",
@@ -330,11 +326,11 @@ export const MARKETING_PAGES = {
     sections: [
       {
         heading: "The offer",
-        body: `${PUBLIC_SEAT_OFFER} ${PUBLIC_BILLING_CADENCE}`,
+        body: "Pricing is shown on our pricing page",
       },
       {
         heading: "The site",
-        body: "Illustrative names, interface examples, and quotes on the marketing site are not customer proof. The seat prices in the offer above are the current prices.",
+        body: "Illustrative names, interface examples, and quotes on the marketing site are not customer proof. Pricing is shown on our pricing page.",
       },
       {
         heading: "The product",
@@ -342,11 +338,11 @@ export const MARKETING_PAGES = {
       },
       {
         heading: "Cancellation and refunds",
-        body: "A workspace admin can cancel a Polar subscription at period end from Billing settings. The workspace keeps full access until that period ends. Canceling does not delete workspace data, and the app does not issue a refund as part of that cancellation. The 60-day Team trial does not ask for a card.",
+        body: "A workspace admin can cancel a Polar subscription at period end from Billing settings. The workspace keeps full access until that period ends. Canceling does not delete workspace data, and the app does not issue a refund as part of that cancellation. Pricing is shown on our pricing page.",
       },
       {
         heading: "Auto-renewal",
-        body: "A paid Starter or Team subscription renews each month through Polar until an admin cancels it at period end. There is no annual plan.",
+        body: "Pricing is shown on our pricing page",
       },
       {
         heading: "Your data",

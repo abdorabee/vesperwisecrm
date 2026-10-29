@@ -19,7 +19,7 @@ export const MARKETING_HERO_COPY: MarketingHeroCopy = {
     "VesperWiseCRM is the pipeline CRM for real estate teams. Leads, stages, notes, tasks, and owners stay on one record.",
   primaryCta: "Book a demo",
   secondaryCta: "See the workflow",
-  note: "No card. Team free for 60 days.",
+  note: "",
   browserTitle: "Lead Queue · All sources",
 };
 
@@ -457,55 +457,5 @@ export const DEMO_TESTIMONIALS: DemoTestimonial[] = [
     initials: "SM",
     persona: "Sales Manager",
     detail: "Wholesaling operation, 9 seats",
-  },
-];
-
-export interface DemoPricingTier {
-  name: string;
-  price: string;
-  cadence: string;
-  description: string;
-  features: string[];
-  highlighted?: boolean;
-}
-
-export const DEMO_PRICING_TIERS: DemoPricingTier[] = [
-  {
-    name: "Solo",
-    price: "$29",
-    cadence: "per user / month",
-    description: "For a single operator running their own lead flow.",
-    features: [
-      "Lead intake forms + API",
-      "Kanban pipeline",
-      "Notes, tasks, and owners",
-      "Mobile PWA",
-    ],
-  },
-  {
-    name: "Team",
-    price: "$79",
-    cadence: "per user / month",
-    description: "For acquisition teams that live in the queue all day.",
-    features: [
-      "Everything in Solo",
-      "AI lead scoring",
-      "Tasks and workflows",
-      "Scorecards + TV KPI wall",
-      "Team roles & permissions",
-    ],
-    highlighted: true,
-  },
-  {
-    name: "Agency",
-    price: "Custom",
-    cadence: "annual billing",
-    description: "For agencies sourcing and working leads for clients.",
-    features: [
-      "Everything in Team",
-      "Client portal + digests",
-      "Priority support",
-      "Onboarding & migration help",
-    ],
   },
 ];
