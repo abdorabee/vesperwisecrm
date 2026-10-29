@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { IMPORT_BATCH_SIZE } from "@/lib/migration/constants";
+import { createImportDedupeSession } from "@/lib/migration/dedupe";
 import type { CanonicalImportRecord, ImportJobProgress, SourceCrmId } from "@/lib/migration/types";
 import { canonicalImportRecordSchema } from "@/lib/validations/migration";
 import { writeCanonicalRecord } from "@/lib/migration/writer";
@@ -62,6 +63,7 @@ export async function loadImportJobProgress(
     status: job.status as ImportJobProgress["status"],
     importedCount: job.imported_count,
     failedCount: job.failed_count,
+    duplicateCount: job.duplicate_count,
     pendingCount: allRows.filter((row) => row.status === "pending").length,
     totalCount: allRows.length,
     errors,
@@ -111,27 +113,35 @@ export async function processImportJob(
   }
 
   const stageMap = (job.stage_map ?? {}) as Record<string, string>;
+  const session = createImportDedupeSession();
   let imported = job.imported_count;
   let failed = job.failed_count;
+  let duplicates = job.duplicate_count;
   const newErrors: string[] = [];
 
   for (const row of pendingRows ?? []) {
     try {
       const record = parseCanonicalPayload(row.payload);
-      await writeCanonicalRecord(supabase, {
+      const written = await writeCanonicalRecord(supabase, {
         accountId: job.account_id,
         actorUserId: options?.actorUserId ?? job.created_by_user_id,
         record,
         stageMap,
+        session,
       });
+      const status = written.action === "create" ? "imported" : written.action === "merge" ? "merged" : "skipped";
       const { error } = await supabase
         .from("import_job_rows")
-        .update({ status: "imported", error_text: null })
+        .update({ status, error_text: null })
         .eq("id", row.id);
       if (error) {
         throw new Error(error.message);
       }
-      imported += 1;
+      if (written.action === "create") {
+        imported += 1;
+      } else {
+        duplicates += 1;
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to import";
       failed += 1;
@@ -161,6 +171,7 @@ export async function processImportJob(
     .update({
       imported_count: imported,
       failed_count: failed,
+      duplicate_count: duplicates,
       error_summary: errorSummary,
       status: nextStatus,
       updated_at: new Date().toISOString(),

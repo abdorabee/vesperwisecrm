@@ -7,6 +7,9 @@ import { requireBillingCapability } from "@/lib/billing/access";
 import { runTriggeredWorkflows } from "@/lib/workflows/engine";
 import { requireRows } from "@/lib/supabase/require-rows";
 import { createLeadRecord } from "@/lib/leads/create-lead";
+import { createImportDedupeSession } from "@/lib/migration/dedupe";
+import { countImportDuplicates } from "@/lib/migration/match-existing";
+import { writeCanonicalRecord } from "@/lib/migration/writer";
 import {
   addLeadNoteSchema,
   importLeadsCsvMappedSchema,
@@ -22,13 +25,14 @@ import {
 import {
   applyMapping,
   guessMapping,
+  mappedRowToCanonical,
   parseCsv,
-  type MappedRow,
 } from "@/lib/leads/csv-import";
 
 export interface ImportLeadsCsvResult {
   imported: number;
   failed: number;
+  duplicateCount: number;
   errors: string[];
 }
 
@@ -36,6 +40,7 @@ export interface CsvMappingPreview {
   headers: string[];
   sampleRows: Record<string, string>[];
   suggestedMapping: Record<string, string>;
+  duplicateCount: number;
 }
 
 function optionalNumber(value: string | number | null | undefined): number | null {
@@ -123,57 +128,24 @@ export async function previewCsvMapping(
 ): Promise<CsvMappingPreview> {
   // Server actions are POST-able by anyone who can read an action id, so this
   // needs its own gate even though it touches no tenant data.
-  await requireAccountId();
+  const accountId = await requireAccountId();
   const data = previewCsvMappingSchema.parse(input);
   const { headers, rows } = parseCsv(data.csvText);
+  const suggestedMapping = guessMapping(headers);
+  const supabase = await createClient();
+  const duplicateCount = await countImportDuplicates(
+    supabase,
+    accountId,
+    rows.map((row) =>
+      mappedRowToCanonical(applyMapping(row, suggestedMapping), "CSV import"),
+    ),
+  );
 
   return {
     headers,
     sampleRows: rows.slice(0, 3),
-    suggestedMapping: guessMapping(headers),
-  };
-}
-
-function propertyInputFromMappedRow(
-  property: MappedRow["property"],
-): NonNullable<Parameters<typeof createLeadRecord>[1]["property"]> {
-  return {
-    addressLine1: property.addressLine1,
-    addressLine2: property.addressLine2,
-    city: property.city,
-    state: property.state,
-    postalCode: property.postalCode,
-    propertyType: property.propertyType,
-    bedrooms: optionalNumber(property.bedrooms),
-    bathrooms: optionalNumber(property.bathrooms),
-    squareFeet: optionalNumber(property.squareFeet),
-    askingPrice: optionalNumber(property.askingPrice),
-    estimatedValue: optionalNumber(property.estimatedValue),
-    contractStatus: normalizeContractStatus(property.contractStatus),
-    contractAmount: optionalNumber(property.contractAmount),
-    contractCloseDate: property.contractCloseDate,
-    notes: property.notes,
-    condition: property.condition,
-    updatesDone: property.updatesDone,
-    updatesNeeded: property.updatesNeeded,
-    occupancyStatus: property.occupancyStatus,
-    tenantDurationRent: property.tenantDurationRent,
-    motivation: property.motivation,
-    timeline: property.timeline,
-    workNeeded: property.workNeeded,
-    roofCondition: property.roofCondition,
-    flooringCondition: property.flooringCondition,
-    kitchenBathCondition: property.kitchenBathCondition,
-    mortgage: property.mortgage,
-    frameSidingCondition: property.frameSidingCondition,
-    windowsCondition: property.windowsCondition,
-    basementType: property.basementType,
-    wallsCondition: property.wallsCondition,
-    electricalPlumbingCondition: property.electricalPlumbingCondition,
-    furnaceCondition: property.furnaceCondition,
-    waterHeaterCondition: property.waterHeaterCondition,
-    acCondition: property.acCondition,
-    followUpContact: property.followUpContact,
+    suggestedMapping,
+    duplicateCount,
   };
 }
 
@@ -194,8 +166,10 @@ export async function importLeadsCsvMapped(
   const result: ImportLeadsCsvResult = {
     imported: 0,
     failed: 0,
+    duplicateCount: 0,
     errors: [],
   };
+  const session = createImportDedupeSession();
 
   for (const [index, row] of rows.entries()) {
     const rowNumber = index + 2;
@@ -208,32 +182,26 @@ export async function importLeadsCsvMapped(
     }
 
     try {
-      const { leadId } = await createLeadRecord(supabase, {
+      const written = await writeCanonicalRecord(supabase, {
         accountId,
         actorUserId: userId,
-        title:
-          mapped.lead.title ||
-          mapped.contact.company ||
-          [mapped.contact.firstName, mapped.contact.lastName]
-            .filter(Boolean)
-            .join(" ") ||
-          "Imported lead",
+        record: mappedRowToCanonical(
+          mapped,
+          data.fallbackSource || "CSV import",
+        ),
+        stageMap: {},
         pipelineStageId: data.pipelineStageId || null,
-        firstName: mapped.contact.firstName,
-        lastName: mapped.contact.lastName,
-        email: mapped.contact.email,
-        phone: mapped.contact.phone,
-        company: mapped.contact.company,
-        source: mapped.contact.source || data.fallbackSource || "CSV import",
-        value: mapped.lead.value ? Number(mapped.lead.value) : null,
-        property: propertyInputFromMappedRow(mapped.property),
+        session,
       });
 
-      await runTriggeredWorkflows(supabase, accountId, "lead_created", {
-        leadId,
-      });
-
-      result.imported += 1;
+      if (written.action === "create") {
+        await runTriggeredWorkflows(supabase, accountId, "lead_created", {
+          leadId: written.leadId,
+        });
+        result.imported += 1;
+      } else {
+        result.duplicateCount += 1;
+      }
     } catch (error) {
       result.failed += 1;
       result.errors.push(
