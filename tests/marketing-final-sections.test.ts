@@ -60,61 +60,40 @@ describe("final marketing landing sections", () => {
 
     expect(section).toContain("8.0");
     expect(section).toContain("EARLY ACCESS");
-    expect(section).toContain("Team for 60 days. No card.");
+    expect(section).toContain("Pricing is shown on our pricing page");
     expect(section).toContain(
       "VesperWiseCRM is in early access. Pipeline and lead queue are live.",
     );
+    expect(section).not.toMatch(/\$99|\$179|60-day|60 days|per seat/i);
     expect(section).not.toContain("PLACEHOLDER ·");
     expectNoLegacyMarketingTokens(section);
   });
 
-  test("keeps the approved pricing tiers and footnote", () => {
+  test("points the home pricing section at the pricing page", () => {
     const section = source(
       "src/components/marketing/sections/pricing-preview.tsx",
     );
-    const sectionText = normalizeWhitespace(section);
 
     expect(section).toContain('id="pricing"');
     expect(section).toContain("9.0");
     expect(section).toContain("PRICING");
-    expect(section).toContain("Per seat. Monthly.");
-    expect(section).toContain("Scorecard");
+    expect(section).toContain("Pricing is shown on our pricing page");
+    expect(section).toContain('href="/pricing"');
+    expect(section).not.toMatch(/\$99|\$179|60-day|60 days|per seat/i);
     expect(section).not.toContain("Dialer");
     expect(section).not.toContain("Email sequences");
-    expect(section).toContain('"AI"');
-    expect(section).toContain("Workflows and routing");
-    expect(section).toContain("Unlimited leads");
+    expect(section).not.toContain("Start free trial");
+    expect(section).not.toContain("Starter");
+    expect(section).not.toContain("PUBLIC_SEAT_OFFER");
+    expect(section).not.toContain("PUBLIC_BILLING_CADENCE");
     expect(section).not.toContain("Team roles & permissions");
     expect(section).not.toContain("Advanced pipeline views");
     expect(section).not.toContain("SSO and audit log");
     expect(section).not.toContain("Multi-market reporting");
     expect(section).not.toContain("API and data warehouse sync");
     expect(section).not.toContain("Dedicated onboarding");
-    expect(section).toContain("Starter");
-    expect(section).toContain("$99");
-    expect(section).toContain("/ SEAT / MO");
-    expect(section).toContain(
-      "For solo investors and two-person teams getting off spreadsheets.",
-    );
-    expect(section).toContain("Team");
-    expect(section).toContain("$179");
-    expect(section).toContain("MOST COMMON");
-    expect(sectionText).toContain(
-      "For acquisition teams sharing one pipeline.",
-    );
-    expect(section).toContain("Scale");
-    expect(section).toContain("Custom");
-    expect(section).toContain("CUSTOM");
-    expect(section).not.toContain("ANNUAL");
-    expect(sectionText).toContain("Talk to sales. Checkout is not available.");
-    expect(section).toContain("Start free trial");
-    expect(section).toContain('href: "/signup"');
     expect(section).not.toContain("Start pilot");
     expect(section).not.toContain('href: "/book-demo"');
-    expect(section).toContain("Talk to sales");
-    expect(section).toContain('href: "/contact"');
-    expect(section).toContain("PUBLIC_SEAT_OFFER");
-    expect(section).toContain("PUBLIC_BILLING_CADENCE");
     expect(section).not.toContain("Annual billing available");
     expect(section).not.toContain("Everything included");
     expectNoLegacyMarketingTokens(section);
@@ -132,7 +111,8 @@ describe("final marketing landing sections", () => {
     expect(section).toContain('href="/book-demo"');
     expect(section).toContain("See pricing");
     expect(section).toContain('href="#pricing"');
-    expect(section).toContain("60-DAY TEAM TRIAL");
+    expect(section).not.toContain("60-DAY TEAM TRIAL");
+    expect(section).not.toMatch(/60-day|60 days|\$99|\$179|per seat/i);
     expect(section).not.toContain("14-DAY PILOT");
     expect(section).toContain("DATA MIGRATION INCLUDED");
     expect(section).toContain("NO ANNUAL LOCK-IN");

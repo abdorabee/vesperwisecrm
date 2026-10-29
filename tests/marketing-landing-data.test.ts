@@ -17,7 +17,7 @@ describe("redesigned marketing landing data", () => {
         "VesperWiseCRM is the pipeline CRM for real estate teams. Leads, stages, notes, tasks, and owners stay on one record.",
       primaryCta: "Book a demo",
       secondaryCta: "See the workflow",
-      note: "No card. Team free for 60 days.",
+      note: "Pricing is shown on our pricing page",
       browserTitle: "Lead Queue · All sources",
     });
     expect(MARKETING_HERO_COPY.title.toLowerCase()).not.toContain("cold");

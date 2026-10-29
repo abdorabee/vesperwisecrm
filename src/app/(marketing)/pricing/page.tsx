@@ -13,8 +13,6 @@ const OFFER_LINES = [
   "Founding license: $600 once. 5 spots.",
   "Includes done-for-you setup, 5 seats, and every future update.",
   "Full refund if you cancel within your first month.",
-  "After the 5 founding spots, new teams go on the subscription.",
-  "Or start free: every new workspace gets 60 days free, no card.",
 ] as const;
 
 export const metadata: Metadata = {

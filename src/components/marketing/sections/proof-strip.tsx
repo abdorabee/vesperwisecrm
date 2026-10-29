@@ -13,7 +13,7 @@ export function ProofStrip() {
 
         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-8 gap-y-3">
           <span className="font-sans text-sm leading-[1.4] font-light text-[var(--mkt-text2)]">
-            Pipeline and lead queue are live. Every new workspace gets Team free for 60 days. No card.
+            Pipeline and lead queue are live. Pricing is shown on our pricing page.
           </span>
         </div>
       </div>
