@@ -14,7 +14,7 @@ export function PricingPreview() {
             9.0 — PRICING
           </span>
           <h2 className="mt-5 font-sans text-[clamp(30px,3.4vw,44px)] leading-[1.05] font-normal tracking-normal text-balance text-[var(--mkt-text)]">
-            Pricing is shown on our pricing page
+            Pricing.
           </h2>
           <Link
             href="/pricing"

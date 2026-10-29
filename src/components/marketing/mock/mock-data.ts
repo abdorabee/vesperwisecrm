@@ -19,7 +19,7 @@ export const MARKETING_HERO_COPY: MarketingHeroCopy = {
     "VesperWiseCRM is the pipeline CRM for real estate teams. Leads, stages, notes, tasks, and owners stay on one record.",
   primaryCta: "Book a demo",
   secondaryCta: "See the workflow",
-  note: "Pricing is shown on our pricing page",
+  note: "",
   browserTitle: "Lead Queue · All sources",
 };
 

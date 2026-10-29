@@ -60,10 +60,11 @@ describe("final marketing landing sections", () => {
 
     expect(section).toContain("8.0");
     expect(section).toContain("EARLY ACCESS");
-    expect(section).toContain("Pricing is shown on our pricing page");
+    expect(section).toContain("Early access.");
     expect(section).toContain(
       "VesperWiseCRM is in early access. Pipeline and lead queue are live.",
     );
+    expect(section).not.toContain("Pricing is shown on our pricing page");
     expect(section).not.toMatch(/\$99|\$179|60-day|60 days|per seat/i);
     expect(section).not.toContain("PLACEHOLDER ·");
     expectNoLegacyMarketingTokens(section);
@@ -77,8 +78,10 @@ describe("final marketing landing sections", () => {
     expect(section).toContain('id="pricing"');
     expect(section).toContain("9.0");
     expect(section).toContain("PRICING");
-    expect(section).toContain("Pricing is shown on our pricing page");
+    expect(section).toContain("Pricing.");
+    expect(section).toContain("See pricing");
     expect(section).toContain('href="/pricing"');
+    expect(section).not.toContain("Pricing is shown on our pricing page");
     expect(section).not.toMatch(/\$99|\$179|60-day|60 days|per seat/i);
     expect(section).not.toContain("Dialer");
     expect(section).not.toContain("Email sequences");
