@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
@@ -55,6 +55,16 @@ describe("stored email HTML", () => {
 });
 
 describe("google token encryption", () => {
+  const originalKey = process.env.GOOGLE_TOKEN_ENCRYPTION_KEY;
+
+  afterEach(() => {
+    if (originalKey === undefined) {
+      delete process.env.GOOGLE_TOKEN_ENCRYPTION_KEY;
+    } else {
+      process.env.GOOGLE_TOKEN_ENCRYPTION_KEY = originalKey;
+    }
+  });
+
   test("round-trips with the server key and leaves a legacy value readable", async () => {
     process.env.GOOGLE_TOKEN_ENCRYPTION_KEY = randomBytes(32).toString("base64");
     const { decryptGoogleToken, encryptGoogleToken, isEncryptedGoogleToken } =
@@ -65,6 +75,37 @@ describe("google token encryption", () => {
     expect(ciphertext).not.toContain("refresh-token");
     expect(decryptGoogleToken(ciphertext)).toBe("refresh-token");
     expect(decryptGoogleToken("legacy-plain")).toBe("legacy-plain");
+  });
+
+  test("throws when GOOGLE_TOKEN_ENCRYPTION_KEY is missing", async () => {
+    delete process.env.GOOGLE_TOKEN_ENCRYPTION_KEY;
+    const { encryptGoogleToken } = await import("@/lib/google/token-crypto");
+    expect(() => encryptGoogleToken("refresh-token")).toThrow(
+      /GOOGLE_TOKEN_ENCRYPTION_KEY is not configured/,
+    );
+  });
+
+  test("throws when the key is not 32 bytes after base64 decode", async () => {
+    process.env.GOOGLE_TOKEN_ENCRYPTION_KEY = Buffer.from("short").toString(
+      "base64",
+    );
+    const { encryptGoogleToken } = await import("@/lib/google/token-crypto");
+    expect(() => encryptGoogleToken("refresh-token")).toThrow(
+      /must decode to 32 bytes/,
+    );
+  });
+
+  test("throws when a packed ciphertext byte is flipped", async () => {
+    process.env.GOOGLE_TOKEN_ENCRYPTION_KEY = randomBytes(32).toString("base64");
+    const { decryptGoogleToken, encryptGoogleToken } = await import(
+      "@/lib/google/token-crypto"
+    );
+    const ciphertext = encryptGoogleToken("refresh-token");
+    const packed = Buffer.from(ciphertext.slice("enc:v1:".length), "base64");
+    packed[0] ^= 0xff;
+    const tampered = `enc:v1:${packed.toString("base64")}`;
+
+    expect(() => decryptGoogleToken(tampered)).toThrow();
   });
 });
 
