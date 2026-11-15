@@ -132,6 +132,26 @@ describe("platform rate limits", () => {
     expect(platformClientIp(headers)).toBe("203.0.113.9");
   });
 
+  test("falls back to x-real-ip when x-vercel-forwarded-for is absent", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "1.1.1.1, 2.2.2.2",
+      "x-real-ip": "198.51.100.4",
+    });
+    expect(platformClientIp(headers)).toBe("198.51.100.4");
+  });
+
+  test("returns unknown when both platform IP headers are absent", () => {
+    expect(platformClientIp(new Headers())).toBe("unknown");
+  });
+
+  test("does not trust a caller-supplied x-forwarded-for header alone", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "1.1.1.1, 2.2.2.2",
+    });
+    expect(platformClientIp(headers)).toBe("unknown");
+  });
+
+
   test("fails closed when the limiter errors and the caller asks it to", async () => {
     rpc.mockRejectedValueOnce(new Error("db down"));
     await expect(
