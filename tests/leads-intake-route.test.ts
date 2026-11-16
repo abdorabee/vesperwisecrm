@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   createLeadRecord: vi.fn(),
   runTriggeredWorkflows: vi.fn(),
   isAiConfigured: vi.fn(() => false),
+  parseCallNotes: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
@@ -34,6 +35,10 @@ vi.mock("@/lib/ai/client", () => ({
   isAiConfigured: mocks.isAiConfigured,
 }));
 
+vi.mock("@/lib/ai/parse-call-notes", () => ({
+  parseCallNotes: mocks.parseCallNotes,
+}));
+
 const { POST } = await import("@/app/api/leads/intake/route");
 
 const ACCOUNT_ID = "11111111-1111-4111-8111-111111111111";
@@ -42,6 +47,11 @@ const VALID_BODY = {
   title: "123 Main St",
   firstName: "Jane",
   accountId: ACCOUNT_ID,
+};
+const CALL_SUMMARY = "Seller wants to close in 30 days.";
+const CALL_SUMMARY_BODY = {
+  ...VALID_BODY,
+  callSummary: CALL_SUMMARY,
 };
 
 let ipAllowed = true;
@@ -52,6 +62,65 @@ let intakeSource: {
   revoked_at: string | null;
 } | null;
 let accountRow: { id: string } | null;
+let existingProperty: Record<string, unknown> | null;
+let serviceInserts: Array<{ table: string; payload: unknown }>;
+let serviceUpdates: Array<{
+  table: string;
+  payload: unknown;
+  eqs: Array<[string, unknown]>;
+}>;
+
+type QueryResult = { data: unknown; error: unknown };
+
+function createServiceRoleMock() {
+  serviceInserts = [];
+  serviceUpdates = [];
+
+  return {
+    from(table: string) {
+      const eqs: Array<[string, unknown]> = [];
+      const builder = {
+        select() {
+          return builder;
+        },
+        eq(column: string, value: unknown) {
+          eqs.push([column, value]);
+          return builder;
+        },
+        insert(payload: unknown) {
+          serviceInserts.push({ table, payload });
+          return builder;
+        },
+        update(payload: unknown) {
+          serviceUpdates.push({ table, payload, eqs });
+          return builder;
+        },
+        maybeSingle: async (): Promise<QueryResult> => {
+          if (table === "lead_intake_sources") {
+            return { data: intakeSource, error: null };
+          }
+          if (table === "accounts") {
+            return { data: accountRow, error: null };
+          }
+          if (table === "lead_properties") {
+            return { data: existingProperty, error: null };
+          }
+          return { data: null, error: null };
+        },
+        then(
+          onFulfilled: (value: QueryResult) => unknown,
+          onRejected?: (reason: unknown) => unknown,
+        ) {
+          return Promise.resolve({ data: null, error: null }).then(
+            onFulfilled,
+            onRejected,
+          );
+        },
+      };
+      return builder;
+    },
+  };
+}
 
 function intakeRequest(options?: {
   authorization?: string | null;
@@ -96,6 +165,7 @@ describe("POST /api/leads/intake", () => {
       revoked_at: null,
     };
     accountRow = { id: ACCOUNT_ID };
+    existingProperty = null;
 
     mocks.consumeRateLimit.mockReset();
     mocks.clientAddress.mockReset();
@@ -105,6 +175,7 @@ describe("POST /api/leads/intake", () => {
     mocks.runTriggeredWorkflows.mockReset();
     mocks.isAiConfigured.mockReset();
     mocks.isAiConfigured.mockReturnValue(false);
+    mocks.parseCallNotes.mockReset();
 
     mocks.consumeRateLimit.mockImplementation(
       async ({ scope }: { scope: string }) => {
@@ -120,28 +191,7 @@ describe("POST /api/leads/intake", () => {
     });
     mocks.runTriggeredWorkflows.mockResolvedValue(undefined);
 
-    mocks.createServiceRoleClient.mockReturnValue({
-      from(table: string) {
-        const builder = {
-          select() {
-            return builder;
-          },
-          eq() {
-            return builder;
-          },
-          maybeSingle: async () => {
-            if (table === "lead_intake_sources") {
-              return { data: intakeSource, error: null };
-            }
-            if (table === "accounts") {
-              return { data: accountRow, error: null };
-            }
-            return { data: null, error: null };
-          },
-        };
-        return builder;
-      },
-    });
+    mocks.createServiceRoleClient.mockReturnValue(createServiceRoleMock());
   });
 
   test("returns 429 when the IP limiter is exhausted", async () => {
@@ -294,4 +344,164 @@ describe("POST /api/leads/intake", () => {
       { leadId: "lead-1" },
     );
   });
+
+  test("records a call summary note when AI is off and does not parse or write properties", async () => {
+    const response = await POST(authorizedRequest(CALL_SUMMARY_BODY));
+    const json = await response.json();
+
+    expect(response.status).toBe(201);
+    expect(json).toEqual({ leadId: "lead-1" });
+    expect(serviceInserts).toEqual([
+      {
+        table: "activities",
+        payload: {
+          account_id: ACCOUNT_ID,
+          lead_id: "lead-1",
+          type: "note_added",
+          actor_user_id: null,
+          payload: {
+            note: `Call summary from Dialer Partner:\n\n${CALL_SUMMARY}`,
+            system: true,
+          },
+        },
+      },
+    ]);
+    expect(mocks.parseCallNotes).not.toHaveBeenCalled();
+    expect(
+      serviceInserts.filter((row) => row.table === "lead_properties"),
+    ).toEqual([]);
+    expect(serviceUpdates).toEqual([]);
+    expect(mocks.runTriggeredWorkflows).toHaveBeenCalledWith(
+      expect.anything(),
+      ACCOUNT_ID,
+      "lead_created",
+      { leadId: "lead-1" },
+    );
+  });
+
+  test("inserts lead_properties from parsed call notes when none exist", async () => {
+    mocks.isAiConfigured.mockReturnValue(true);
+    mocks.parseCallNotes.mockResolvedValue({
+      condition: "Fair",
+      occupancyStatus: "Vacant",
+      askingPrice: "$195,000",
+    });
+
+    const response = await POST(authorizedRequest(CALL_SUMMARY_BODY));
+
+    expect(response.status).toBe(201);
+    expect(mocks.parseCallNotes).toHaveBeenCalledWith(CALL_SUMMARY);
+    expect(
+      serviceInserts.find((row) => row.table === "lead_properties")?.payload,
+    ).toEqual({
+      account_id: ACCOUNT_ID,
+      lead_id: "lead-1",
+      condition: "Fair",
+      occupancy_status: "Vacant",
+      asking_price: 195000,
+    });
+    expect(serviceUpdates).toEqual([]);
+  });
+
+  test("gap-fills only null lead_properties columns and keeps webhook values", async () => {
+    mocks.isAiConfigured.mockReturnValue(true);
+    existingProperty = {
+      id: "prop-1",
+      condition: "Good",
+      occupancy_status: null,
+      asking_price: null,
+    };
+    mocks.parseCallNotes.mockResolvedValue({
+      condition: "Fair",
+      occupancyStatus: "Vacant",
+    });
+
+    const response = await POST(authorizedRequest(CALL_SUMMARY_BODY));
+
+    expect(response.status).toBe(201);
+    expect(
+      serviceInserts.filter((row) => row.table === "lead_properties"),
+    ).toEqual([]);
+    expect(serviceUpdates).toEqual([
+      {
+        table: "lead_properties",
+        payload: { occupancy_status: "Vacant" },
+        eqs: [["id", "prop-1"]],
+      },
+    ]);
+  });
+
+  test("still succeeds when parseCallNotes rejects", async () => {
+    mocks.isAiConfigured.mockReturnValue(true);
+    mocks.parseCallNotes.mockRejectedValue(new Error("AI down"));
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    try {
+      const response = await POST(authorizedRequest(CALL_SUMMARY_BODY));
+      const json = await response.json();
+
+      expect(response.status).toBe(201);
+      expect(json).toEqual({ leadId: "lead-1" });
+      expect(serviceInserts).toEqual([
+        {
+          table: "activities",
+          payload: expect.objectContaining({
+            type: "note_added",
+            actor_user_id: null,
+            payload: expect.objectContaining({
+              note: `Call summary from Dialer Partner:\n\n${CALL_SUMMARY}`,
+              system: true,
+            }),
+          }),
+        },
+      ]);
+      expect(
+        serviceInserts.filter((row) => row.table === "lead_properties"),
+      ).toEqual([]);
+      expect(serviceUpdates).toEqual([]);
+      expect(mocks.runTriggeredWorkflows).toHaveBeenCalledWith(
+        expect.anything(),
+        ACCOUNT_ID,
+        "lead_created",
+        { leadId: "lead-1" },
+      );
+    } finally {
+      consoleError.mockRestore();
+    }
+  });
+
+  test("does not write lead_properties when extraction maps to an empty update", async () => {
+    mocks.isAiConfigured.mockReturnValue(true);
+    mocks.parseCallNotes.mockResolvedValue({
+      condition: "",
+      occupancyStatus: "   ",
+      askingPrice: null,
+    });
+
+    const response = await POST(authorizedRequest(CALL_SUMMARY_BODY));
+
+    expect(response.status).toBe(201);
+    expect(mocks.parseCallNotes).toHaveBeenCalledWith(CALL_SUMMARY);
+    expect(
+      serviceInserts.filter((row) => row.table === "lead_properties"),
+    ).toEqual([]);
+    expect(serviceUpdates).toEqual([]);
+  });
+
+  test("does not ingest a call summary when the body omits callSummary", async () => {
+    mocks.isAiConfigured.mockReturnValue(true);
+
+    const response = await POST(authorizedRequest());
+
+    expect(response.status).toBe(201);
+    expect(
+      serviceInserts.filter(
+        (row) =>
+          row.table === "activities" &&
+          (row.payload as { type?: string }).type === "note_added",
+      ),
+    ).toEqual([]);
+    expect(mocks.parseCallNotes).not.toHaveBeenCalled();
+  });
 });
+
