@@ -175,6 +175,80 @@ describe("platform rate limits", () => {
       }),
     ).resolves.toBe(false);
   });
+
+  test("fails open when failClosed is omitted or false", async () => {
+    rpc.mockReset();
+    rpc.mockRejectedValue(new Error("db down"));
+    await expect(
+      consumeRateLimit({
+        scope: "signup",
+        identifier: "203.0.113.9",
+        limit: 10,
+        windowSeconds: 3600,
+      }),
+    ).resolves.toBe(true);
+
+    rpc.mockReset();
+    rpc.mockResolvedValue({ data: null, error: { message: "rpc failed" } });
+    await expect(
+      consumeRateLimit({
+        scope: "signup",
+        identifier: "203.0.113.9",
+        limit: 10,
+        windowSeconds: 3600,
+        failClosed: false,
+      }),
+    ).resolves.toBe(true);
+  });
+
+  test("returns false when the limiter is over budget", async () => {
+    rpc.mockReset();
+    rpc.mockResolvedValue({ data: false, error: null });
+    await expect(
+      consumeRateLimit({
+        scope: "intake",
+        identifier: "203.0.113.9",
+        limit: 30,
+        windowSeconds: 60,
+      }),
+    ).resolves.toBe(false);
+  });
+
+  test("returns true when the limiter is under budget", async () => {
+    rpc.mockReset();
+    rpc.mockResolvedValue({ data: true, error: null });
+    await expect(
+      consumeRateLimit({
+        scope: "intake",
+        identifier: "203.0.113.9",
+        limit: 30,
+        windowSeconds: 60,
+      }),
+    ).resolves.toBe(true);
+  });
+
+  test("hashes the identifier into the RPC bucket key", async () => {
+    rpc.mockReset();
+    rpc.mockResolvedValue({ data: true, error: null });
+
+    await consumeRateLimit({
+      scope: "intake",
+      identifier: "203.0.113.9",
+      limit: 30,
+      windowSeconds: 60,
+    });
+
+    expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith("consume_rate_limit", {
+      p_bucket_key: expect.stringMatching(/^intake:[0-9a-f]{32}$/),
+      p_limit: 30,
+      p_window_seconds: 60,
+    });
+    const args = rpc.mock.calls[0]?.[1] as { p_bucket_key: string };
+    expect(args.p_bucket_key.startsWith("intake:")).toBe(true);
+    expect(args.p_bucket_key.slice("intake:".length)).toMatch(/^[0-9a-f]{32}$/);
+    expect(args.p_bucket_key).not.toContain("203.0.113.9");
+  });
 });
 
 describe("security migration contract", () => {

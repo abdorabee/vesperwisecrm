@@ -16,6 +16,15 @@ type InviteRow = {
   created_at: string;
 };
 
+const session = vi.hoisted(() => ({
+  user: { id: "user-1", email: "victim@example.com" } as {
+    id: string;
+    email: string | null;
+  } | null,
+  memberError: null as { code?: string; message: string } | null,
+  queriedTables: [] as string[],
+}));
+
 const rows: InviteRow[] = [];
 const members: Array<Record<string, unknown>> = [];
 
@@ -82,7 +91,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: async () => ({
     auth: {
       getUser: async () => ({
-        data: { user: { id: "user-1", email: "victim@example.com" } },
+        data: { user: session.user },
       }),
     },
   }),
@@ -91,11 +100,12 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("@/lib/supabase/service-role", () => ({
   createServiceRoleClient: () => ({
     from(table: string) {
+      session.queriedTables.push(table);
       if (table === "account_members") {
         return {
           insert(row: Record<string, unknown>) {
             members.push(row);
-            return Promise.resolve({ error: null });
+            return Promise.resolve({ error: session.memberError });
           },
         };
       }
@@ -142,6 +152,9 @@ const FUTURE = "2099-01-01T00:00:00.000Z";
 
 describe("redeemAcceptedInvite", () => {
   beforeEach(() => {
+    session.user = { id: "user-1", email: "victim@example.com" };
+    session.memberError = null;
+    session.queriedTables = [];
     rows.splice(0, rows.length);
     members.splice(0, members.length);
     rows.push(
@@ -192,6 +205,91 @@ describe("redeemAcceptedInvite", () => {
   test("does not join when the token matches no invite", async () => {
     await expect(redeemAcceptedInvite("unknown-token")).resolves.toBeNull();
     expect(members).toEqual([]);
+  });
+
+  test("returns null when the signed-in email does not match the invite", async () => {
+    const invite = rows.find((row) => row.id === "older-invite");
+    expect(invite).toBeDefined();
+    invite!.email = "someone-else@example.com";
+
+    await expect(redeemAcceptedInvite("older-token")).resolves.toBeNull();
+    expect(members).toEqual([]);
+    expect(invite!.redeemed_at).toBeNull();
+  });
+
+  test("returns null when the invite is expired", async () => {
+    const invite = rows.find((row) => row.id === "older-invite");
+    expect(invite).toBeDefined();
+    invite!.expires_at = "2000-01-01T00:00:00.000Z";
+
+    await expect(redeemAcceptedInvite("older-token")).resolves.toBeNull();
+    expect(members).toEqual([]);
+    expect(invite!.redeemed_at).toBeNull();
+  });
+
+  test("returns null when the invite is already redeemed", async () => {
+    const invite = rows.find((row) => row.id === "older-invite");
+    expect(invite).toBeDefined();
+    invite!.redeemed_at = "2026-02-01T00:00:00.000Z";
+
+    await expect(redeemAcceptedInvite("older-token")).resolves.toBeNull();
+    expect(members).toEqual([]);
+    expect(invite!.redeemed_at).toBe("2026-02-01T00:00:00.000Z");
+  });
+
+  test("returns null for an empty token without querying members", async () => {
+    await expect(redeemAcceptedInvite("")).resolves.toBeNull();
+    expect(session.queriedTables).toEqual([]);
+    expect(members).toEqual([]);
+  });
+
+  test("inserts client_id from a client-role invite", async () => {
+    await expect(redeemAcceptedInvite("newer-token")).resolves.toBe(
+      "attacker-tenant",
+    );
+
+    expect(members).toEqual([
+      {
+        account_id: "attacker-tenant",
+        user_id: "user-1",
+        role: "client",
+        client_id: "client-1",
+      },
+    ]);
+    expect(rows.find((row) => row.id === "newer-invite")?.redeemed_at).toEqual(
+      expect.any(String),
+    );
+    expect(rows.find((row) => row.id === "older-invite")?.redeemed_at).toBeNull();
+  });
+
+  test("treats duplicate membership as success and still redeems the invite", async () => {
+    session.memberError = { code: "23505", message: "duplicate key" };
+
+    await expect(redeemAcceptedInvite("older-token")).resolves.toBe(
+      "legit-tenant",
+    );
+
+    expect(members).toEqual([
+      {
+        account_id: "legit-tenant",
+        user_id: "user-1",
+        role: "member",
+        client_id: null,
+      },
+    ]);
+    expect(rows.find((row) => row.id === "older-invite")?.redeemed_at).toEqual(
+      expect.any(String),
+    );
+  });
+
+  test("throws a non-duplicate membership error and does not redeem", async () => {
+    session.memberError = { code: "23503", message: "foreign key violation" };
+
+    await expect(redeemAcceptedInvite("older-token")).rejects.toThrow(
+      "foreign key violation",
+    );
+
+    expect(rows.find((row) => row.id === "older-invite")?.redeemed_at).toBeNull();
   });
 });
 
