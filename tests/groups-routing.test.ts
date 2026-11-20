@@ -29,6 +29,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import {
   assignLeadToGroup,
+  deleteGroup,
   manualAssignLead,
   releaseLead,
   saveGroup,
@@ -428,5 +429,77 @@ describe("assignLeadToGroup", () => {
         args: { p_lead_id: LEAD_ID, p_group_id: GROUP_ID },
       },
     ]);
+  });
+});
+
+describe("deleteGroup", () => {
+  beforeEach(() => {
+    mocks.revalidatePath.mockReset();
+    mocks.requireAccountId.mockReset();
+    mocks.requireAdminAccountId.mockReset();
+    mocks.requireBillingCapability.mockReset();
+    mocks.createClient.mockReset();
+    mocks.requireAccountId.mockResolvedValue(ACCOUNT_ID);
+    mocks.requireBillingCapability.mockResolvedValue(undefined);
+  });
+
+  test("requires the routing billing capability", async () => {
+    const supabase = createSupabaseMock();
+    supabase.setResult("lead_groups", "delete", {
+      data: [{ id: GROUP_ID }],
+      error: null,
+    });
+    mocks.createClient.mockResolvedValue(supabase);
+
+    await deleteGroup(GROUP_ID);
+
+    expect(mocks.requireBillingCapability).toHaveBeenCalledWith(
+      ACCOUNT_ID,
+      "routing",
+    );
+  });
+
+  test("throws Routing group not found on empty data and does not revalidate", async () => {
+    const supabase = createSupabaseMock();
+    supabase.setResult("lead_groups", "delete", { data: [], error: null });
+    mocks.createClient.mockResolvedValue(supabase);
+
+    await expect(deleteGroup(GROUP_ID)).rejects.toThrow(
+      "Routing group not found",
+    );
+
+    expect(supabase.deletes).toEqual([
+      {
+        table: "lead_groups",
+        eqs: [
+          ["id", GROUP_ID],
+          ["account_id", ACCOUNT_ID],
+        ],
+      },
+    ]);
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("revalidates group and routing pages on success", async () => {
+    const supabase = createSupabaseMock();
+    supabase.setResult("lead_groups", "delete", {
+      data: [{ id: GROUP_ID }],
+      error: null,
+    });
+    mocks.createClient.mockResolvedValue(supabase);
+
+    await deleteGroup(GROUP_ID);
+
+    expect(supabase.deletes).toEqual([
+      {
+        table: "lead_groups",
+        eqs: [
+          ["id", GROUP_ID],
+          ["account_id", ACCOUNT_ID],
+        ],
+      },
+    ]);
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/team/groups");
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/settings/routing");
   });
 });
