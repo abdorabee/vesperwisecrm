@@ -54,6 +54,7 @@ function createSupabaseMock() {
   const deleteResults: Record<string, QueryResult> = {
     lead_tags: { data: [{ lead_id: LEAD_ID }], error: null },
   };
+  const selects: Array<{ table: string; eqs: Array<[string, unknown]> }> = [];
 
   function from(table: string) {
     fromTables.push(table);
@@ -81,8 +82,10 @@ function createSupabaseMock() {
         deletes.push({ table, eqs });
         return builder;
       },
-      maybeSingle: async () =>
-        maybeSingleResults[table] ?? { data: null, error: null },
+      maybeSingle: async () => {
+        selects.push({ table, eqs: [...eqs] });
+        return maybeSingleResults[table] ?? { data: null, error: null };
+      },
       single: async () =>
         insertResults[table] ?? { data: null, error: null },
       then(
@@ -108,8 +111,12 @@ function createSupabaseMock() {
     inserts,
     deletes,
     fromTables,
+    selects,
     setMaybeSingle(table: string, result: QueryResult) {
       maybeSingleResults[table] = result;
+    },
+    setInsertResult(table: string, result: QueryResult) {
+      insertResults[table] = result;
     },
     setDeleteResult(table: string, result: QueryResult) {
       deleteResults[table] = result;
@@ -234,6 +241,55 @@ describe("createTag", () => {
     await expect(createTag(TAG_NAME)).resolves.toEqual(existing);
 
     expect(supabase.inserts).toEqual([]);
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("inserts a new tag when none exists, revalidates /pipeline, and returns the row", async () => {
+    const created = {
+      id: TAG_ID,
+      account_id: ACCOUNT_ID,
+      name: TAG_NAME,
+      color: null,
+    };
+    const supabase = createSupabaseMock();
+    supabase.setMaybeSingle("tags", { data: null, error: null });
+    supabase.setInsertResult("tags", { data: created, error: null });
+    mocks.createClient.mockResolvedValue(supabase);
+
+    await expect(createTag(TAG_NAME)).resolves.toEqual(created);
+
+    expect(supabase.selects).toEqual([
+      { table: "tags", eqs: [["account_id", ACCOUNT_ID]] },
+    ]);
+    expect(supabase.inserts).toEqual([
+      {
+        table: "tags",
+        payload: { account_id: ACCOUNT_ID, name: TAG_NAME },
+      },
+    ]);
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/pipeline");
+  });
+
+  test("throws the insert error and does not revalidate", async () => {
+    const supabase = createSupabaseMock();
+    supabase.setInsertResult("tags", {
+      data: null,
+      error: { message: "insert failed" },
+    });
+    mocks.createClient.mockResolvedValue(supabase);
+
+    await expect(createTag(TAG_NAME)).rejects.toThrow("insert failed");
+
+    expect(mocks.revalidatePath).not.toHaveBeenCalled();
+  });
+
+  test("throws Failed to create tag when insert returns no row", async () => {
+    const supabase = createSupabaseMock();
+    supabase.setInsertResult("tags", { data: null, error: null });
+    mocks.createClient.mockResolvedValue(supabase);
+
+    await expect(createTag(TAG_NAME)).rejects.toThrow("Failed to create tag");
+
     expect(mocks.revalidatePath).not.toHaveBeenCalled();
   });
 });
