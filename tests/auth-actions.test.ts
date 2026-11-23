@@ -571,6 +571,40 @@ describe("signUp", () => {
     );
   });
 
+  test("branded sendSignupConfirmationEmail rejection redirects the Error.message", async () => {
+    mocks.canSendBrandedAuthEmail.mockReturnValue(true);
+    mocks.generateLink.mockResolvedValue({
+      data: {
+        properties: { hashed_token: HASHED_TOKEN },
+        user: { id: USER_ID },
+      },
+      error: null,
+    });
+    const serviceRole = createServiceRoleMock();
+    serviceRole.setResult("account_members", "select", {
+      data: { account_id: ACCOUNT_ID },
+      error: null,
+    });
+    serviceRole.setResult("accounts", "update", { data: null, error: null });
+    mocks.createServiceRoleClient.mockReturnValue(serviceRole);
+    mocks.sendSignupConfirmationEmail.mockRejectedValue(
+      new Error("SMTP exploded"),
+    );
+
+    await expect(redirectUrl(signUp(signupForm()))).resolves.toBe(
+      `/signup?error=${encodeURIComponent("SMTP exploded")}`,
+    );
+
+    expect(mocks.generateLink).toHaveBeenCalled();
+    expect(mocks.sendSignupConfirmationEmail).toHaveBeenCalled();
+
+    await expect(
+      redirectUrl(signUp(signupForm({ plan: "team" }))),
+    ).resolves.toBe(
+      `/signup?error=${encodeURIComponent("SMTP exploded")}&plan=team`,
+    );
+  });
+
   test("non-branded signUp error redirects without generateLink", async () => {
     mocks.canSendBrandedAuthEmail.mockReturnValue(false);
     mocks.signUp.mockResolvedValue({

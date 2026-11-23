@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, test, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   consumeRateLimit: vi.fn(),
@@ -141,5 +141,86 @@ describe("marketing inquiry actions", () => {
     });
 
     expect(mocks.sendContactInquiryEmail).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("submitDemoBooking with frozen weekday slots", () => {
+  const VALID_DEMO = {
+    name: "Jordan Lee",
+    email: "jordan@example.com",
+    company: "Northwind Acquisitions",
+    teamSize: "2-5" as const,
+    dateKey: "2026-11-25",
+    time: "14:30",
+    timeZone: "America/New_York",
+    website: "",
+  };
+
+  beforeEach(() => {
+    mocks.consumeRateLimit.mockReset();
+    mocks.platformClientIp.mockReset();
+    mocks.sendContactInquiryEmail.mockReset();
+    mocks.sendDemoBookingEmail.mockReset();
+    mocks.platformClientIp.mockReturnValue(CLIENT_IP);
+    mocks.consumeRateLimit.mockResolvedValue(true);
+    mocks.sendDemoBookingEmail.mockResolvedValue(undefined);
+    vi.useFakeTimers({ toFake: ["Date"] });
+    vi.setSystemTime(new Date(2026, 10, 25, 14, 0, 0));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test("invalid, past, and weekend demo slots return a slot error without rate-limit or send", async () => {
+    await expect(
+      submitDemoBooking({ ...VALID_DEMO, time: "99:99" }),
+    ).resolves.toEqual({
+      ok: false,
+      error: "Select a weekday time slot in the future.",
+    });
+    await expect(
+      submitDemoBooking({ ...VALID_DEMO, time: "09:00" }),
+    ).resolves.toEqual({
+      ok: false,
+      error: "Select a weekday time slot in the future.",
+    });
+    await expect(
+      submitDemoBooking({ ...VALID_DEMO, dateKey: "2026-11-28" }),
+    ).resolves.toEqual({
+      ok: false,
+      error: "Select a weekday time slot in the future.",
+    });
+
+    expect(mocks.consumeRateLimit).not.toHaveBeenCalled();
+    expect(mocks.sendDemoBookingEmail).not.toHaveBeenCalled();
+  });
+
+  test("a valid weekday future slot rate-limits then sends the parsed booking", async () => {
+    await expect(submitDemoBooking(VALID_DEMO)).resolves.toEqual({ ok: true });
+
+    expect(mocks.consumeRateLimit).toHaveBeenCalledWith({
+      scope: "marketing-inquiry",
+      identifier: CLIENT_IP,
+      limit: 8,
+      windowSeconds: 3600,
+      failClosed: true,
+    });
+    expect(mocks.sendDemoBookingEmail).toHaveBeenCalledWith({
+      ...VALID_DEMO,
+      notes: "",
+    });
+  });
+
+  test("sendDemoBookingEmail throw returns a generic error and does not leak the message", async () => {
+    mocks.sendDemoBookingEmail.mockRejectedValue(new Error("SMTP exploded"));
+
+    await expect(submitDemoBooking(VALID_DEMO)).resolves.toEqual({
+      ok: false,
+      error:
+        "Could not send the request. Try again or email us from the contact page.",
+    });
+
+    expect(mocks.sendDemoBookingEmail).toHaveBeenCalledTimes(1);
   });
 });

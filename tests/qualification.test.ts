@@ -46,6 +46,7 @@ import {
   qualifyLead,
   rejectLead,
   requestLeadInfo,
+  submitCallerLead,
 } from "@/lib/actions/qualification";
 
 const ACCOUNT_ID = "11111111-1111-4111-8111-111111111111";
@@ -401,6 +402,112 @@ describe("requestLeadInfo", () => {
 
     expect(supabase.inserts[0]?.payload).toEqual(
       expect.objectContaining({ assigned_user_id: USER_ID }),
+    );
+  });
+});
+
+describe("submitCallerLead", () => {
+  beforeEach(() => {
+    mocks.revalidatePath.mockReset();
+    mocks.requireAccountId.mockReset();
+    mocks.requireUserId.mockReset();
+    mocks.requireBillingCapability.mockReset();
+    mocks.createLeadRecord.mockReset();
+    mocks.runTriggeredWorkflows.mockReset();
+    mocks.createClient.mockReset();
+    mocks.requireAccountId.mockResolvedValue(ACCOUNT_ID);
+    mocks.requireUserId.mockResolvedValue(USER_ID);
+    mocks.requireBillingCapability.mockResolvedValue(undefined);
+    mocks.createLeadRecord.mockResolvedValue({ leadId: LEAD_ID });
+    mocks.runTriggeredWorkflows.mockResolvedValue(undefined);
+    mocks.createClient.mockResolvedValue(createSupabaseMock());
+  });
+
+  test("throws before createLeadRecord when phone is missing or address is empty", async () => {
+    await expect(
+      submitCallerLead({
+        addressLine1: "123 Main St",
+        property: {},
+      } as never),
+    ).rejects.toThrow();
+    await expect(
+      submitCallerLead({
+        phone: "555-0100",
+        addressLine1: "",
+        property: {},
+      }),
+    ).rejects.toThrow();
+
+    expect(mocks.createLeadRecord).not.toHaveBeenCalled();
+    expect(mocks.requireAccountId).not.toHaveBeenCalled();
+  });
+
+  test("creates a submitted cold-call lead, runs lead_created workflows, and revalidates", async () => {
+    const supabase = createSupabaseMock();
+    mocks.createClient.mockResolvedValue(supabase);
+
+    await expect(
+      submitCallerLead({
+        firstName: "  Jane  ",
+        phone: "555-0100",
+        addressLine1: "  123 Main St  ",
+        property: {},
+      }),
+    ).resolves.toEqual({ leadId: LEAD_ID });
+
+    expect(mocks.createLeadRecord).toHaveBeenCalledWith(
+      supabase,
+      expect.objectContaining({
+        accountId: ACCOUNT_ID,
+        actorUserId: USER_ID,
+        submittedByUserId: USER_ID,
+        qualificationStatus: "submitted",
+        source: "Cold call intake",
+        title: "Jane — 123 Main St",
+        firstName: "Jane",
+        phone: "555-0100",
+      }),
+    );
+    expect(mocks.runTriggeredWorkflows).toHaveBeenCalledWith(
+      supabase,
+      ACCOUNT_ID,
+      "lead_created",
+      { leadId: LEAD_ID },
+    );
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/queue");
+    expect(mocks.revalidatePath).toHaveBeenCalledWith("/pipeline");
+  });
+
+  test("falls back to the trimmed address when firstName is omitted or empty", async () => {
+    await submitCallerLead({
+      phone: "555-0100",
+      addressLine1: "  9 Oak Ave  ",
+      property: {},
+    });
+
+    expect(mocks.createLeadRecord).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        title: "9 Oak Ave — 9 Oak Ave",
+        firstName: "9 Oak Ave",
+      }),
+    );
+
+    mocks.createLeadRecord.mockClear();
+
+    await submitCallerLead({
+      firstName: "   ",
+      phone: "555-0100",
+      addressLine1: "9 Oak Ave",
+      property: {},
+    });
+
+    expect(mocks.createLeadRecord).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        title: "9 Oak Ave — 9 Oak Ave",
+        firstName: "9 Oak Ave",
+      }),
     );
   });
 });
